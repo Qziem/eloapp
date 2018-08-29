@@ -17,6 +17,8 @@
     }
 
     .loadingMsg {
+        text-align: center;
+        margin-top: 30px;
         color: $progress-msg-color;
     }
 }

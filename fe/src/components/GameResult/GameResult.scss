@@ -1,10 +1,11 @@
 @import 'src/components/colors.scss';
 .gameResult {
     .messageContainer {
+        margin-top: 5px;
         height: 20px;
 
         .warrning{
-            color: red;
+            color: rgb(179, 35, 35);
         }
         .saving{
             color: $progress-msg-color;

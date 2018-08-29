@@ -42,25 +42,25 @@ class UsersCtrl {
     private function calcNewRatings($oldWinnerRating, $oldLooserRating) {
         $kfactor = 32;
 
-        $transformetRatingWin = pow(10, ($oldWinnerRating / 400));
-        $transformetRatingLoose = pow(10, ($oldLooserRating / 400));
+        $transformetRatingWinner = pow(10, ($oldWinnerRating / 400));
+        $transformetRatingLooser = pow(10, ($oldLooserRating / 400));
    
-        $expectedScopeWin = $transformetRatingWin / ($transformetRatingWin + $transformetRatingLoose);
-        $expectedScopeLoose = $transformetRatingLoose / ($transformetRatingWin + $transformetRatingLoose);
+        $expectedScopeWinner = $transformetRatingWin / ($transformetRatingWin + $transformetRatingLoose);
+        $expectedScopeLooser = $transformetRatingLoose / ($transformetRatingWin + $transformetRatingLoose);
    
-        $newRatingWin = round($oldWinnerRating + ($kfactor * (1 - $expectedScopeWin)));
-        $newRatingLoose = round($oldLooserRating - ($kfactor * $expectedScopeLoose));
+        $newRatingWinner = round($oldWinnerRating + ($kfactor * (1 - $expectedScopeWin)));
+        $newRatingLooser = round($oldLooserRating - ($kfactor * $expectedScopeLoose));
 
-        return [$newRatingWin, $newRatingLoose];
+        return [$newRatingWinner, $newRatingLooser];
     }
 
     public function updateRatings($winnerUserNid, $looserUserNid) {
         $oldWinnerRating = $this->getUserRating($winnerUserNid); 
         $oldLooserRating = $this->getUserRating($looserUserNid);
 
-        list($newRatingWin, $newRatingLoose) = $this->calcNewRatings($oldWinnerRating, $oldLooserRating);
+        list($newWinnerRating, $newLooserRating) = $this->calcNewRatings($oldWinnerRating, $oldLooserRating);
 
-        $this->updateUserRating($winnerUserNid, $newRatingWin);
-        $this->updateUserRating($looserUserNid, $newRatingLoose);
+        $this->updateUserRating($winnerUserNid, $newWinnerRating);
+        $this->updateUserRating($looserUserNid, $newLooserRating);
     }
 }
