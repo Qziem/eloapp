@@ -11,8 +11,8 @@ type containerActions =
   | SetUsersToState(list(user));
 
 type gameResultState = {
-  userWinCode: string,
-  userLooseCode: string,
+  userWinnerCode: string,
+  userLooserCode: string,
   warningMsg: option(string),
   saving: bool,
 };

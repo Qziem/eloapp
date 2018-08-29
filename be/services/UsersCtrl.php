@@ -19,18 +19,24 @@ class UsersCtrl {
             ->fetchAll();
     }
 
-    private function getUserRating($userCode) {
-        $stm = $this->db->prepare('SELECT rating FROM users WHERE code = :code');
+    private function getUserParam($userCode, $param) {
+        $stm = $this->db->prepare('SELECT ' . $param . ' FROM users WHERE code = :code');
         $stm->bindValue(':code', $userCode, PDO::PARAM_STR);
         $stm->execute();
         return $stm->fetchColumn();
     }
 
-    private function updateUserRating($userCode, $newRating) {
-        $stm = $this->db->prepare('UPDATE users SET rating = :rating WHERE code = :code');
-        $stm->bindValue(':rating', $newRating, PDO::PARAM_INT);
-        $stm->bindValue(':code', $userCode, PDO::PARAM_STR);
-        $stm->execute();
+    private function updateUserRating($userNid, $newRating) {
+        $stmUpdate = $this->db->prepare('UPDATE users SET rating = :rating WHERE user_nid = :userNid');
+        $stmUpdate->bindValue(':userNid', $userNid, PDO::PARAM_INT);
+        $stmUpdate->bindValue(':rating', $newRating, PDO::PARAM_INT);
+        $stmUpdate->execute();
+
+        $stmInsert = $this->db->prepare('
+        INSERT INTO ratings_history (user_nid, rating) VALUES (:userNid, :rating)');
+        $stmInsert->bindValue(':userNid', $userNid, PDO::PARAM_INT);
+        $stmInsert->bindValue(':rating', $newRating, PDO::PARAM_INT);
+        $stmInsert->execute();
     }
 
     private function calcNewRatings($oldWinnerRating, $oldLooserRating) {
@@ -48,13 +54,15 @@ class UsersCtrl {
         return [$newRatingWin, $newRatingLoose];
     }
 
-    public function updateRatings($userWinCode, $userLooseCode) {
-        $oldWinnerRating = $this->getUserRating($userWinCode); 
-        $oldLooserRating = $this->getUserRating($userLooseCode); 
-        
+    public function updateRatings($userWinnerCode, $userLooserCode) {
+        $oldWinnerRating = $this->getUserParam($userWinnerCode, 'rating'); 
+        $oldLooserRating = $this->getUserParam($userLooserCode, 'rating');
+        $winnerUserNid = $this->getUserParam($userWinnerCode, 'user_nid'); 
+        $looserUserNid = $this->getUserParam($userLooserCode, 'user_nid'); 
+
         list($newRatingWin, $newRatingLoose) = $this->calcNewRatings($oldWinnerRating, $oldLooserRating);
 
-        $this->updateUserRating($userWinCode, $newRatingWin);
-        $this->updateUserRating($userLooseCode, $newRatingLoose);
+        $this->updateUserRating($winnerUserNid, $newRatingWin);
+        $this->updateUserRating($looserUserNid, $newRatingLoose);
     }
 }

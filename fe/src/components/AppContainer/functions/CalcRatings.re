@@ -12,8 +12,8 @@ let compareCodes = (code1, code2) =>
      );
 
    let getWinAndLooseUsers = (playersData, allUsers) => {
-     let winCode = playersData.userWinCode;
-     let looseCode = playersData.userLooseCode;
+     let winCode = playersData.userWinnerCode;
+     let looseCode = playersData.userLooserCode;
 
      let winUser =
        List.find(user => compareCodes(user.code, winCode), allUsers);

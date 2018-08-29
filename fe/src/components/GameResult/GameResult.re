@@ -10,15 +10,15 @@ type action =
 let component = ReasonReact.reducerComponent("GameResult");
 
 let initialState = () => {
-  userWinCode: "",
-  userLooseCode: "",
+  userWinnerCode: "",
+  userLooserCode: "",
   warningMsg: None,
   saving: false,
 };
 
 let handleUpdateClickReducer = (state, users, containterSend) => {
-  let winCode = state.userWinCode;
-  let looseCode = state.userLooseCode;
+  let winCode = state.userWinnerCode;
+  let looseCode = state.userLooserCode;
   let winUserExist =
     List.exists(user => CalcRatings.compareCodes(user.code, winCode), users);
   let looseUserExist =
@@ -61,9 +61,9 @@ let updateRatingsSvc = (state, containterSend) =>
 let reducer = (action, state) =>
   switch (action) {
   | ChangeWinUser(value) =>
-    ReasonReact.Update({...state, userWinCode: value})
+    ReasonReact.Update({...state, userWinnerCode: value})
   | ChangeLooseUser(value) =>
-    ReasonReact.Update({...state, userLooseCode: value})
+    ReasonReact.Update({...state, userLooserCode: value})
   | UpdateClick(users, containterSend) =>
     handleUpdateClickReducer(state, users, containterSend)
   | UpdateRatingsSvc(containterSend) =>
@@ -131,7 +131,7 @@ let make = (~users, ~containterSend, _children) => {
           </tbody>
         </table>
         <button disabled={self.state.saving} type_="submit">
-          {ReasonReact.string("update")}
+          {ReasonReact.string("Update")}
         </button>
       </form>
     </div>,

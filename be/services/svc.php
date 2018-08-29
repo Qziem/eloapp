@@ -30,11 +30,11 @@ $app->post('/users/update_ratings', function (Request $request, Response $respon
 
     $json = $request->getBody();
     $usersCodes = json_decode($json, true);
-    $userWinCode = $usersCodes['userWinCode'];
-    $userLooseCode = $usersCodes['userLooseCode'];
+    $userWinnerCode = $usersCodes['userWinnerCode'];
+    $userLooserCode = $usersCodes['userLooserCode'];
 
     $usersSvc = new UsersCtrl($this->db);
-    $usersSvc->updateRatings($userWinCode, $userLooseCode);
+    $usersSvc->updateRatings($userWinnerCode, $userLooserCode);
     return $response->withJson([]);
 });
 
