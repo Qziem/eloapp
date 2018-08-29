@@ -1,9 +1,4 @@
-type gameResultState = {
-  userWinCode: string,
-  userLooseCode: string,
-  warningMsg: option(string),
-  saving: bool,
-};
+open Types;
 
 let encode = (updateRagins: gameResultState) =>
   Json.Encode.(

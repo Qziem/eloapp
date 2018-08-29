@@ -1,6 +1,3 @@
-open CalcRatings;
-open EncodeUpdateRatings;
-open Svc;
 open Types;
 [%bs.raw {|require('./GameResult.scss')|}];
 
@@ -23,9 +20,12 @@ let handleUpdateClickReducer = (state, users, containterSend) => {
   let winCode = state.userWinCode;
   let looseCode = state.userLooseCode;
   let winUserExist =
-    List.exists(user => compareCodes(user.code, winCode), users);
+    List.exists(user => CalcRatings.compareCodes(user.code, winCode), users);
   let looseUserExist =
-    List.exists(user => compareCodes(user.code, looseCode), users);
+    List.exists(
+      user => CalcRatings.compareCodes(user.code, looseCode),
+      users,
+    );
 
   switch (winUserExist, looseUserExist) {
   | (true, true) =>
@@ -49,9 +49,9 @@ let updateRatingsSvc = (state, containterSend) =>
   ReasonReact.UpdateWithSideEffects(
     {...state, saving: true},
     _self => {
-      let payload = encode(state);
+      let payload = EncodeUpdateRatings.encode(state);
       Js.Promise.(
-        svcPost("users/update_ratings", payload)
+        Svc.svcPost("users/update_ratings", payload)
         |> then_(_resp => containterSend(GetUsersSvc) |> resolve)
       )
       |> ignore;
