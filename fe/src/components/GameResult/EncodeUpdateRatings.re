@@ -1,9 +1,9 @@
 open Types;
 
-let encode = (updateRagins: gameResultState) =>
+let encode = (winnerLooserNids: winnerLooserNids) =>
   Json.Encode.(
     object_([
-      ("userWinnerCode", string(updateRagins.userWinnerCode)),
-      ("userLooserCode", string(updateRagins.userLooserCode)),
+      ("winnerUserNid", int(winnerLooserNids.winnerUserNid)),
+      ("looserUserNid", int(winnerLooserNids.looserUserNid)),
     ])
   );

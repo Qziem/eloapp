@@ -19,9 +19,9 @@ class UsersCtrl {
             ->fetchAll();
     }
 
-    private function getUserParam($userCode, $param) {
-        $stm = $this->db->prepare('SELECT ' . $param . ' FROM users WHERE code = :code');
-        $stm->bindValue(':code', $userCode, PDO::PARAM_STR);
+    private function getUserRating($userNid) {
+        $stm = $this->db->prepare('SELECT rating FROM users WHERE user_nid = :userNid');
+        $stm->bindValue(':userNid', $userNid, PDO::PARAM_INT);
         $stm->execute();
         return $stm->fetchColumn();
     }
@@ -54,11 +54,9 @@ class UsersCtrl {
         return [$newRatingWin, $newRatingLoose];
     }
 
-    public function updateRatings($userWinnerCode, $userLooserCode) {
-        $oldWinnerRating = $this->getUserParam($userWinnerCode, 'rating'); 
-        $oldLooserRating = $this->getUserParam($userLooserCode, 'rating');
-        $winnerUserNid = $this->getUserParam($userWinnerCode, 'user_nid'); 
-        $looserUserNid = $this->getUserParam($userLooserCode, 'user_nid'); 
+    public function updateRatings($winnerUserNid, $looserUserNid) {
+        $oldWinnerRating = $this->getUserRating($winnerUserNid); 
+        $oldLooserRating = $this->getUserRating($looserUserNid);
 
         list($newRatingWin, $newRatingLoose) = $this->calcNewRatings($oldWinnerRating, $oldLooserRating);
 

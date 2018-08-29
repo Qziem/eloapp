@@ -10,9 +10,7 @@ type containerActions =
   | GetUsersSvc
   | SetUsersToState(list(user));
 
-type gameResultState = {
-  userWinnerCode: string,
-  userLooserCode: string,
-  warningMsg: option(string),
-  saving: bool,
+type winnerLooserNids = {
+  winnerUserNid: int,
+  looserUserNid: int,
 };

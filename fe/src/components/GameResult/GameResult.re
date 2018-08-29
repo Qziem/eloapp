@@ -5,7 +5,14 @@ type action =
   | ChangeWinUser(string)
   | ChangeLooseUser(string)
   | UpdateClick(list(user), containerActions => unit)
-  | UpdateRatingsSvc(containerActions => unit);
+  | UpdateRatingsSvc(winnerLooserNids, containerActions => unit);
+
+type gameResultState = {
+  userWinnerCode: string,
+  userLooserCode: string,
+  warningMsg: option(string),
+  saving: bool,
+};
 
 let component = ReasonReact.reducerComponent("GameResult");
 
@@ -16,22 +23,35 @@ let initialState = () => {
   saving: false,
 };
 
+let compareCodes = (code1, code2) =>
+  String.lowercase(code1) === String.lowercase(code2);
+
+let getUserNidFromCode = (code, users) => {
+  let user = List.find(user => compareCodes(user.code, code), users);
+  user.userNid;
+};
+
 let handleUpdateClickReducer = (state, users, containterSend) => {
   let winCode = state.userWinnerCode;
   let looseCode = state.userLooserCode;
   let winUserExist =
-    List.exists(user => CalcRatings.compareCodes(user.code, winCode), users);
+    List.exists(user => compareCodes(user.code, winCode), users);
   let looseUserExist =
-    List.exists(
-      user => CalcRatings.compareCodes(user.code, looseCode),
-      users,
-    );
+    List.exists(user => compareCodes(user.code, looseCode), users);
 
   switch (winUserExist, looseUserExist) {
   | (true, true) =>
     ReasonReact.UpdateWithSideEffects(
       {...state, warningMsg: None},
-      (self => self.send(UpdateRatingsSvc(containterSend))),
+      (
+        self => {
+          let winnerLooserNids = {
+            winnerUserNid: getUserNidFromCode(winCode, users),
+            looserUserNid: getUserNidFromCode(looseCode, users),
+          };
+          self.send(UpdateRatingsSvc(winnerLooserNids, containterSend));
+        }
+      ),
     )
   | (true, false) =>
     ReasonReact.Update({...state, warningMsg: Some("Looser doesen't exist")})
@@ -45,11 +65,11 @@ let handleUpdateClickReducer = (state, users, containterSend) => {
   };
 };
 
-let updateRatingsSvc = (state, containterSend) =>
+let updateRatingsSvc = (winnerLooserNids, state, containterSend) =>
   ReasonReact.UpdateWithSideEffects(
     {...state, saving: true},
     _self => {
-      let payload = EncodeUpdateRatings.encode(state);
+      let payload = EncodeUpdateRatings.encode(winnerLooserNids);
       Js.Promise.(
         Svc.svcPost("users/update_ratings", payload)
         |> then_(_resp => containterSend(GetUsersSvc) |> resolve)
@@ -66,8 +86,8 @@ let reducer = (action, state) =>
     ReasonReact.Update({...state, userLooserCode: value})
   | UpdateClick(users, containterSend) =>
     handleUpdateClickReducer(state, users, containterSend)
-  | UpdateRatingsSvc(containterSend) =>
-    updateRatingsSvc(state, containterSend)
+  | UpdateRatingsSvc(winnerLooserNids, containterSend) =>
+    updateRatingsSvc(winnerLooserNids, state, containterSend)
   };
 
 let valueFromEvent = event => ReactEvent.Form.target(event)##value;
