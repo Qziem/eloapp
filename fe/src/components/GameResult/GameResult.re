@@ -126,6 +126,7 @@ let make = (~users, ~containterSend, _children) => {
             <tr>
               <th> {ReasonReact.string("Winner")} </th>
               <th> {ReasonReact.string("Looser")} </th>
+              <th />
             </tr>
           </thead>
           <tbody>
@@ -147,12 +148,14 @@ let make = (~users, ~containterSend, _children) => {
                   }
                 />
               </td>
+              <td>
+                <button disabled={self.state.saving} type_="submit">
+                  {ReasonReact.string("Update")}
+                </button>
+              </td>
             </tr>
           </tbody>
         </table>
-        <button disabled={self.state.saving} type_="submit">
-          {ReasonReact.string("Update")}
-        </button>
       </form>
     </div>,
 };

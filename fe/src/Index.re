@@ -1,1 +1,1 @@
-ReactDOMRe.renderToElementWithId(<AppContainer />, "appContainer");
+ReactDOMRe.renderToElementWithId(<AppContainer />, "mountPoint");

@@ -35,11 +35,30 @@ let make = _children => {
     <div className="appContainer">
       {
         switch (List.length(self.state.users)) {
-        | 0 => ReasonReact.string("Loading dataa")
+        | 0 =>
+          <div className="loadingMsg">
+            {ReasonReact.string("Loading data")}
+          </div>
         | _ =>
           <div>
-            <Users users={self.state.users} />
-            <GameResult users={self.state.users} containterSend={self.send} />
+            <div className="sectionLabel">
+              {ReasonReact.string("Ranking")}
+            </div>
+            <div className="section">
+              <Users users={self.state.users} />
+              <GameResult
+                users={self.state.users}
+                containterSend={self.send}
+              />
+            </div>
+            <hr />
+            <div className="sectionLabel">
+              {ReasonReact.string("Add player")}
+            </div>
+            <hr />
+            <div className="sectionLabel">
+              {ReasonReact.string("Statistics for player")}
+            </div>
           </div>
         }
       }
