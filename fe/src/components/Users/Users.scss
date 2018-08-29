@@ -1,0 +1,11 @@
+.users {
+    thead {
+        color: darkgray;
+    }
+    tbody {
+        color: darkblue;
+        .gamesNo {
+            text-align: center;
+        }
+    }
+}

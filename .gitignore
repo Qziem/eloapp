@@ -1,0 +1,12 @@
+*.bs.js
+node_modules/
+/fe/.DS_Store
+/fe/.merlin
+/fe/.bsb.lock
+/fe/npm-debug.log
+/fe/lib/bs/
+/fe/node_modules/
+/fe/yarn-error.log
+/fe/.vs/
+/be/vendor/
+/be/config.php
