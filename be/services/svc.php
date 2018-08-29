@@ -27,14 +27,15 @@ $app->get('/users', function (Request $request, Response $response, array $args)
 
 $app->post('/users/update_ratings', function (Request $request, Response $response, array $args) {
     sleep(1);
+
     $json = $request->getBody();
     $usersCodes = json_decode($json, true);
     $userWinCode = $usersCodes['userWinCode'];
     $userLooseCode = $usersCodes['userLooseCode'];
 
-    $sqlInUsers = 'UPDATE users SET rating=rating+100 WHERE code = "' . $userWinCode . '"';
-    $this->db->query($sqlInUsers);
-    return $response->withJson(['aaa' => $sqlInUsers]);
+    $usersSvc = new UsersCtrl($this->db);
+    $usersSvc->updateRatings($userWinCode, $userLooseCode);
+    return $response->withJson([]);
 });
 
 $app->run();

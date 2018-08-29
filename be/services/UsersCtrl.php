@@ -4,7 +4,7 @@ class UsersCtrl {
         $this->db = $db;
     }
 
-    function getUsers() {
+    public function getUsers() {
         $sql = '
         SELECT u.user_nid, u.name, u.code, u.rating, IFNULL(rh.games_no, 0) as games_no FROM users u 
         LEFT JOIN (
@@ -14,11 +14,47 @@ class UsersCtrl {
         ORDER BY u.rating DESC, u.code ASC
         ';
 
-        $respArray = [];
-        foreach ($this->db->query($sql) as $row) {
-            $respArray[] = $row;
-        }
+        return $this->db
+            ->query($sql)
+            ->fetchAll();
+    }
 
-        return $respArray;
+    private function getUserRating($userCode) {
+        $stm = $this->db->prepare('SELECT rating FROM users WHERE code = :code');
+        $stm->bindValue(':code', $userCode, PDO::PARAM_STR);
+        $stm->execute();
+        return $stm->fetchColumn();
+    }
+
+    private function updateUserRating($userCode, $newRating) {
+        $stm = $this->db->prepare('UPDATE users SET rating = :rating WHERE code = :code');
+        $stm->bindValue(':rating', $newRating, PDO::PARAM_INT);
+        $stm->bindValue(':code', $userCode, PDO::PARAM_STR);
+        $stm->execute();
+    }
+
+    private function calcNewRatings($oldWinnerRating, $oldLooserRating) {
+        $kfactor = 32;
+
+        $transformetRatingWin = pow(10, ($oldWinnerRating / 400));
+        $transformetRatingLoose = pow(10, ($oldLooserRating / 400));
+   
+        $expectedScopeWin = $transformetRatingWin / ($transformetRatingWin + $transformetRatingLoose);
+        $expectedScopeLoose = $transformetRatingLoose / ($transformetRatingWin + $transformetRatingLoose);
+   
+        $newRatingWin = round($oldWinnerRating + ($kfactor * (1 - $expectedScopeWin)));
+        $newRatingLoose = round($oldLooserRating - ($kfactor * $expectedScopeLoose));
+
+        return [$newRatingWin, $newRatingLoose];
+    }
+
+    public function updateRatings($userWinCode, $userLooseCode) {
+        $oldWinnerRating = $this->getUserRating($userWinCode); 
+        $oldLooserRating = $this->getUserRating($userLooseCode); 
+        
+        list($newRatingWin, $newRatingLoose) = $this->calcNewRatings($oldWinnerRating, $oldLooserRating);
+
+        $this->updateUserRating($userWinCode, $newRatingWin);
+        $this->updateUserRating($userLooseCode, $newRatingLoose);
     }
 }
