@@ -1,4 +1,5 @@
 <?php
+session_start();
 use \Psr\Http\Message\ServerRequestInterface as Request;
 use \Psr\Http\Message\ResponseInterface as Response;
 
@@ -20,13 +21,12 @@ $container['db'] = function ($container) {
 };
 
 $app->get('/auth/isLogged', function (Request $request, Response $response, array $args) {
-    $authCtrl = new AuthCtrl($this->db);
-    $isLogged = $authCtrl->isLogged();
+    $isLogged = AuthCtrl::isLogged();
     return $response->withJson(['isLogged' => $isLogged]);
 });
 
 $app->post('/auth/login', function (Request $request, Response $response, array $args) {
-    $authCtrl = new AuthCtrl($this->db);
+    $authCtrl = new AuthCtrl();
     $json = $request->getBody();
     $payload = json_decode($json, true);
     $logged = $authCtrl->login($payload['password']);
@@ -34,14 +34,16 @@ $app->post('/auth/login', function (Request $request, Response $response, array 
 });
 
 $app->get('/users', function (Request $request, Response $response, array $args) {
-    sleep(1);
+    AuthCtrl::assertIsLogged();
+    // sleep(1);
     $usersCtrl = new UsersCtrl($this->db);
     $respArray = $usersCtrl->getUsers();
     return $response->withJson($respArray);
 });
 
 $app->post('/users/update_ratings', function (Request $request, Response $response, array $args) {
-    sleep(1);
+    AuthCtrl::assertIsLogged();
+    // sleep(1);
 
     $json = $request->getBody();
     $usersCodes = json_decode($json, true);

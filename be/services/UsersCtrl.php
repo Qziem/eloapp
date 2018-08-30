@@ -45,11 +45,11 @@ class UsersCtrl {
         $transformetRatingWinner = pow(10, ($oldWinnerRating / 400));
         $transformetRatingLooser = pow(10, ($oldLooserRating / 400));
    
-        $expectedScopeWinner = $transformetRatingWin / ($transformetRatingWin + $transformetRatingLoose);
-        $expectedScopeLooser = $transformetRatingLoose / ($transformetRatingWin + $transformetRatingLoose);
+        $expectedScopeWinner = $transformetRatingWinner / ($transformetRatingWinner + $transformetRatingLooser);
+        $expectedScopeLooser = $transformetRatingLooser / ($transformetRatingWinner + $transformetRatingLooser);
    
-        $newRatingWinner = round($oldWinnerRating + ($kfactor * (1 - $expectedScopeWin)));
-        $newRatingLooser = round($oldLooserRating - ($kfactor * $expectedScopeLoose));
+        $newRatingWinner = round($oldWinnerRating + ($kfactor * (1 - $expectedScopeWinner)));
+        $newRatingLooser = round($oldLooserRating - ($kfactor * $expectedScopeLooser));
 
         return [$newRatingWinner, $newRatingLooser];
     }
