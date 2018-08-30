@@ -6,9 +6,9 @@ class UsersCtrl {
 
     public function getUsers() {
         $sql = '
-        SELECT u.user_nid, u.name, u.code, u.rating, IFNULL(rh.games_no, 0) as games_no FROM users u 
+        SELECT u.user_nid, u.name, u.code, u.rating, history_counter - 1 as games_no FROM users u 
         LEFT JOIN (
-            SELECT user_nid, count(user_nid) as games_no FROM ratings_history
+            SELECT user_nid, count(user_nid) as history_counter FROM ratings_history
             GROUP BY user_nid
         ) rh ON u.user_nid = rh.user_nid
         ORDER BY u.rating DESC, u.code ASC
@@ -17,6 +17,27 @@ class UsersCtrl {
         return $this->db
             ->query($sql)
             ->fetchAll();
+    }
+
+    private function insertIntoRatingsHistory($userNid, $rating) {
+        $stmInsert = $this->db->prepare('
+        INSERT INTO ratings_history (user_nid, rating) VALUES (:userNid, :rating)');
+        $stmInsert->bindValue(':userNid', $userNid, PDO::PARAM_INT);
+        $stmInsert->bindValue(':rating', $rating, PDO::PARAM_INT);
+        $stmInsert->execute();
+    }
+
+    public function addUser($user) {
+        $initRating = 1500;
+
+        $stm1 = $this->db->prepare('INSERT INTO users (code, name, rating) VALUES (:code, :name, :rating)');
+        $stm1->bindValue(':code', $user['code'], PDO::PARAM_STR);
+        $stm1->bindValue(':name', $user['name'], PDO::PARAM_STR);
+        $stm1->bindValue(':rating', $initRating, PDO::PARAM_INT);
+        $stm1->execute();
+        $userNid = $this->db->lastInsertId();
+
+        $this->insertIntoRatingsHistory($userNid, $initRating);
     }
 
     private function getUserRating($userNid) {
@@ -32,11 +53,7 @@ class UsersCtrl {
         $stmUpdate->bindValue(':rating', $newRating, PDO::PARAM_INT);
         $stmUpdate->execute();
 
-        $stmInsert = $this->db->prepare('
-        INSERT INTO ratings_history (user_nid, rating) VALUES (:userNid, :rating)');
-        $stmInsert->bindValue(':userNid', $userNid, PDO::PARAM_INT);
-        $stmInsert->bindValue(':rating', $newRating, PDO::PARAM_INT);
-        $stmInsert->execute();
+        $this->insertIntoRatingsHistory($userNid, $newRating);
     }
 
     private function calcNewRatings($oldWinnerRating, $oldLooserRating) {

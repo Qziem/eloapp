@@ -41,6 +41,16 @@ $app->get('/users', function (Request $request, Response $response, array $args)
     return $response->withJson($respArray);
 });
 
+$app->post('/users/add', function (Request $request, Response $response, array $args) {
+    AuthCtrl::assertIsLogged();
+    $json = $request->getBody();
+    $user = json_decode($json, true);
+    // sleep(1);
+    $usersCtrl = new UsersCtrl($this->db);
+    $respArray = $usersCtrl->addUser($user);
+    return $response->withJson([]);
+});
+
 $app->post('/users/update_ratings', function (Request $request, Response $response, array $args) {
     AuthCtrl::assertIsLogged();
     // sleep(1);
