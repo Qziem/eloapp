@@ -1,24 +1,5 @@
-@import 'src/components/colors.scss';
-
 .appContainer {
     width: 500px;
     margin-left: auto;
     margin-right: auto;
-
-    .sectionLabel {
-        font-size: 20px;
-        font-weight: bold;
-        padding-top: 5px;
-        padding-bottom: 5px;
-    }
-
-    .section {
-        margin-left: 10px;
-    }
-
-    .loadingMsg {
-        text-align: center;
-        margin-top: 30px;
-        color: $progress-msg-color;
-    }
 }

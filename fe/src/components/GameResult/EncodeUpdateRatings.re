@@ -1,4 +1,4 @@
-open Types;
+open EloTypes;
 
 let encode = (winnerLooserNids: winnerLooserNids) =>
   Json.Encode.(

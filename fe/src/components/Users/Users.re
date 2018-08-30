@@ -1,4 +1,4 @@
-open Types;
+open EloTypes;
 open ReasonReact;
 
 type userForDisp = {

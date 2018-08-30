@@ -1,66 +1,19 @@
-open Types;
-open Svc;
+/* open EloTypes;
+   open Svc; */
 [%bs.raw {|require('./AppContainer.scss')|}];
 /* open ReasonReact; */
-type state = {users: list(user)};
+/* type state = {isLogged: bool}; */
 
-let component = ReasonReact.reducerComponent("AppContainer");
+/* let component = ReasonReact.reducerComponent("contentContainer"); */
+let component = ReasonReact.statelessComponent("AppContainer");
 
-let initialState = () => {users: []};
-
-let getUsersSvc = () =>
-  ReasonReact.UpdateWithSideEffects(
-    {users: []},
-    self =>
-      Js.Promise.(
-        svcGet("users")
-        |> then_(json => DecodeUsers.users(json) |> resolve)
-        |> then_(users => self.send(SetUsersToState(users)) |> resolve)
-      )
-      |> ignore,
-  );
-
-let reducer = (action, _state) =>
-  switch (action) {
-  | GetUsersSvc => getUsersSvc()
-  | SetUsersToState(users) => ReasonReact.Update({users: users})
-  };
+/* let initialState = () => {isLogged: true}; */
+/* let reducer = (_action, _state) => ReasonReact.NoUpdate; */
 
 let make = _children => {
   ...component,
-  initialState,
-  reducer,
-  didMount: self => self.send(GetUsersSvc),
-  render: self =>
-    <div className="appContainer">
-      {
-        switch (List.length(self.state.users)) {
-        | 0 =>
-          <div className="loadingMsg">
-            {ReasonReact.string("Loading data")}
-          </div>
-        | _ =>
-          <div>
-            <div className="sectionLabel">
-              {ReasonReact.string("Ranking")}
-            </div>
-            <div className="section">
-              <Users users={self.state.users} />
-              <GameResult
-                users={self.state.users}
-                containterSend={self.send}
-              />
-            </div>
-            <hr />
-            <div className="sectionLabel">
-              {ReasonReact.string("Add player")}
-            </div>
-            <hr />
-            <div className="sectionLabel">
-              {ReasonReact.string("Statistics for player")}
-            </div>
-          </div>
-        }
-      }
-    </div>,
+  /* initialState,
+     reducer, */
+  /* didMount: self => self.send(GetUsersSvc), */
+  render: _self => <div className="appContainer"> <ContentContainer /> </div>,
 };

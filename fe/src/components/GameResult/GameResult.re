@@ -1,4 +1,4 @@
-open Types;
+open EloTypes;
 [%bs.raw {|require('./GameResult.scss')|}];
 
 type action =

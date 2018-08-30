@@ -1,4 +1,4 @@
-open Types;
+open EloTypes;
 
 let user = user =>
   Json.Decode.{
