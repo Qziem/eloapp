@@ -13,4 +13,5 @@ let svcPost = (resource, payload) =>
       ~headers=Fetch.HeadersInit.make({"Content-Type": "application/json"}),
       (),
     ),
-  );
+  )
+  |> then_(Fetch.Response.json);

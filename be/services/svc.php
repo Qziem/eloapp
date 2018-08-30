@@ -5,6 +5,7 @@ use \Psr\Http\Message\ResponseInterface as Response;
 require '../config.php';
 require '../vendor/autoload.php';
 require 'UsersCtrl.php';
+require 'AuthCtrl.php';
 
 $app = new \Slim\App(['settings' => $config]);
 $container = $app->getContainer();
@@ -18,10 +19,24 @@ $container['db'] = function ($container) {
     return $pdo;
 };
 
+$app->get('/auth/isLogged', function (Request $request, Response $response, array $args) {
+    $authCtrl = new AuthCtrl($this->db);
+    $isLogged = $authCtrl->isLogged();
+    return $response->withJson(['isLogged' => $isLogged]);
+});
+
+$app->post('/auth/login', function (Request $request, Response $response, array $args) {
+    $authCtrl = new AuthCtrl($this->db);
+    $json = $request->getBody();
+    $payload = json_decode($json, true);
+    $logged = $authCtrl->login($payload['password']);
+    return $response->withJson(['logged' => $logged]);
+});
+
 $app->get('/users', function (Request $request, Response $response, array $args) {
     sleep(1);
-    $usersSvc = new UsersCtrl($this->db);
-    $respArray = $usersSvc->getUsers();
+    $usersCtrl = new UsersCtrl($this->db);
+    $respArray = $usersCtrl->getUsers();
     return $response->withJson($respArray);
 });
 
@@ -33,8 +48,8 @@ $app->post('/users/update_ratings', function (Request $request, Response $respon
     $winnerUserNid = $usersCodes['winnerUserNid'];
     $looserUserNid = $usersCodes['looserUserNid'];
 
-    $usersSvc = new UsersCtrl($this->db);
-    $usersSvc->updateRatings($winnerUserNid, $looserUserNid);
+    $usersCtrl = new UsersCtrl($this->db);
+    $usersCtrl->updateRatings($winnerUserNid, $looserUserNid);
     return $response->withJson([]);
 });
 

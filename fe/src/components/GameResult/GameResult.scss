@@ -5,7 +5,7 @@
         height: 20px;
 
         .warrning{
-            color: rgb(179, 35, 35);
+            color: $warning-color;
         }
         .saving{
             color: $progress-msg-color;

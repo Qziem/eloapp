@@ -1,0 +1,8 @@
+@import 'src/components/colors.scss';
+.loginPage {
+    text-align: center;
+
+    .warning {
+        color: $warning-color;
+    }
+}
