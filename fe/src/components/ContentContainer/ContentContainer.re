@@ -60,6 +60,7 @@ let make = _children => {
             <div className="sectionLabel">
               {ReasonReact.string("Statistics for player")}
             </div>
+            <div className="section"> <Stats users /> </div>
           </div>
         }
       }

@@ -1,4 +1,5 @@
 open EloTypes;
+open Helpers;
 [%bs.raw {|require('./GameResult.scss')|}];
 
 type action =
@@ -21,14 +22,6 @@ let initialState = () => {
   userLooserCode: "",
   warningMsg: None,
   saving: false,
-};
-
-let compareCodes = (code1, code2) =>
-  String.lowercase(code1) === String.lowercase(code2);
-
-let getUserNidFromCode = (code, users) => {
-  let user = List.find(user => compareCodes(user.code, code), users);
-  user.userNid;
 };
 
 let handleUpdateClickReducer = (state, users, containterSend) => {
