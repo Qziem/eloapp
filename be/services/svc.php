@@ -7,6 +7,7 @@ require '../config.php';
 require '../vendor/autoload.php';
 require 'UsersCtrl.php';
 require 'AuthCtrl.php';
+require 'RatingsHistoryCtrl.php';
 
 $app = new \Slim\App(['settings' => $config]);
 $container = $app->getContainer();
@@ -63,6 +64,17 @@ $app->post('/users/update_ratings', function (Request $request, Response $respon
     $usersCtrl = new UsersCtrl($this->db);
     $usersCtrl->updateRatings($winnerUserNid, $looserUserNid);
     return $response->withJson([]);
+});
+
+$app->post('/ratings_history', function (Request $request, Response $response, array $args) {
+    AuthCtrl::assertIsLogged();
+    $json = $request->getBody();
+    $user = json_decode($json, true);
+    $userNid = $user['userNid'];
+
+    $ratingsHistoryCtrl = new RatingsHistoryCtrl($this->db);
+    $respArray = $ratingsHistoryCtrl->getRatingsHistory($userNid);
+    return $response->withJson($respArray);
 });
 
 $app->run();

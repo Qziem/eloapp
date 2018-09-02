@@ -3,11 +3,6 @@ open EloTypes;
 open Helpers;
 [%bs.raw {|require('./Stats.scss')|}];
 
-type ratingHistory = {
-  rating: int,
-  date: string,
-};
-
 type state = {
   ratingsHistory: list(ratingHistory),
   inputCode: string,
@@ -33,7 +28,10 @@ let getHistorySvc = (state, users) => {
     self =>
       Js.Promise.(
         svcPost("ratings_history", payload)
-        |> then_(_result => self.send(SetHistory([])) |> resolve)
+        |> then_(json =>
+             DecodeRatingsHistory.ratingsHistoryDec(json) |> resolve
+           )
+        |> then_(result => self.send(SetHistory(result)) |> resolve)
       )
       |> ignore,
   );

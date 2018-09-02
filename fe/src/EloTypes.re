@@ -6,6 +6,11 @@ type user = {
   rating: int,
 };
 
+type ratingHistory = {
+  rating: int,
+  date: string,
+};
+
 type containerActions =
   | GetUsersSvc
   | SetUsersToState(list(user));
