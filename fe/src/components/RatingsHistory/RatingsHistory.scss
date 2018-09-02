@@ -1,10 +1,10 @@
 @import 'src/components/colors.scss';
-.stats {
+.ratingsHistory {
     .warning {
         color: $warning-color;
     }
 
-    button {
-        margin-left: 5px;
+    .ratingsHistoryTable {
+        margin-top: 10px;
     }
 }

@@ -59,7 +59,7 @@ let make = (~users, _children) => {
   initialState,
   reducer,
   render: self =>
-    <div className="stats">
+    <div className="ratingsHistory">
       {
         self.state.warning ?
           <div className="warning">
@@ -75,13 +75,31 @@ let make = (~users, _children) => {
             self.send(GetHistory(users));
           }
         }>
-        <input
-          placeholder="code"
-          onChange={
-            event => self.send(ChangeCode(GameResult.valueFromEvent(event)))
-          }
-        />
-        <button> {ReasonReact.string("Get stats")} </button>
+        <table>
+          <tbody>
+            <tr>
+              <td>
+                <input
+                  placeholder="code"
+                  onChange={
+                    event =>
+                      self.send(
+                        ChangeCode(GameResult.valueFromEvent(event)),
+                      )
+                  }
+                />
+              </td>
+              <td> <button> {ReasonReact.string("Get stats")} </button> </td>
+            </tr>
+          </tbody>
+        </table>
       </form>
+      {
+        switch (List.length(self.state.ratingsHistory)) {
+        | 0 => ReasonReact.null
+        | _ =>
+          <RatingsHistoryTable ratingsHistory={self.state.ratingsHistory} />
+        }
+      }
     </div>,
 };
