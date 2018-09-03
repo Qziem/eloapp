@@ -28,11 +28,13 @@ let prepareStructure = users => {
   let prevUserForDisp = ref(None);
   List.mapi(
     (i, user: user) => {
+      let lp = i + 1;
+
       let newPos =
         switch (prevUserForDisp^) {
-        | None => i + 1
+        | None => lp
         | Some({rating: prevRating, pos: prevPos}) =>
-          prevRating === user.rating ? prevPos : prevPos + 1
+          prevRating === user.rating ? prevPos : lp
         };
 
       let userForDisp = {
