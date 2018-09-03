@@ -2,7 +2,6 @@ type user = {
   userNid: int,
   code: string,
   name: string,
-  gamesNo: int,
   rating: int,
 };
 

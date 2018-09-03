@@ -6,5 +6,9 @@
 
     .ratingsHistoryTable {
         margin-top: 10px;
+
+        .lpTd, .ratingTd {
+            text-align: center
+        }
     }
 }

@@ -6,11 +6,8 @@ class UsersCtrl {
 
     public function getUsers() {
         $sql = '
-        SELECT u.user_nid, u.name, u.code, u.rating, history_counter - 1 as games_no FROM users u 
-        LEFT JOIN (
-            SELECT user_nid, count(user_nid) as history_counter FROM ratings_history
-            GROUP BY user_nid
-        ) rh ON u.user_nid = rh.user_nid
+        SELECT u.user_nid, u.name, u.code, u.rating
+        FROM users u 
         ORDER BY u.rating DESC, u.code ASC
         ';
 

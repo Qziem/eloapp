@@ -6,7 +6,6 @@ type userForDisp = {
   code: string,
   name: string,
   rating: int,
-  gamesNo: int,
   pos: int,
 };
 
@@ -15,13 +14,12 @@ let component = statelessComponent("Users");
 
 let tableRow = (userForDisp: userForDisp) =>
   <tr key={string_of_int(userForDisp.userNid)}>
-    <td> {string(string_of_int(userForDisp.pos))} </td>
-    <td> {string(userForDisp.code)} </td>
-    <td> {string(userForDisp.name)} </td>
-    <td className="gamesNo">
-      {string(string_of_int(userForDisp.gamesNo))}
+    <td className="posTd"> {string(string_of_int(userForDisp.pos))} </td>
+    <td className="codeTd"> {string(userForDisp.code)} </td>
+    <td className="nameTd"> {string(userForDisp.name)} </td>
+    <td className="ratingTd">
+      {string(string_of_int(userForDisp.rating))}
     </td>
-    <td> {string(string_of_int(userForDisp.rating))} </td>
   </tr>;
 
 let prepareStructure = users => {
@@ -42,7 +40,6 @@ let prepareStructure = users => {
         code: user.code,
         name: user.name,
         rating: user.rating,
-        gamesNo: user.gamesNo,
         pos: newPos,
       };
 
@@ -62,11 +59,10 @@ let make = (~users, _children) => {
       <table>
         <thead>
           <tr>
-            <th> {string("Pos")} </th>
-            <th> {string("Code")} </th>
-            <th> {string("Name")} </th>
-            <th> {string("Games")} </th>
-            <th> {string("Rating")} </th>
+            <th className="posTh"> {string("Pos")} </th>
+            <th className="codeTh"> {string("Code")} </th>
+            <th className="nameTh"> {string("Name")} </th>
+            <th className="ratingTh"> {string("Rating")} </th>
           </tr>
         </thead>
         <tbody> {usersTrs |> Array.of_list |> array} </tbody>

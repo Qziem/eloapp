@@ -6,9 +6,11 @@ let component = statelessComponent("RatingsHistoryTable");
 
 let tableRow = (i, ratingsHistory) =>
   <tr key={string_of_int(i + 1)}>
-    <td> {string(string_of_int(i + 1))} </td>
-    <td> {string(string_of_int(ratingsHistory.rating))} </td>
-    <td> {string(ratingsHistory.date)} </td>
+    <td className="lpTd"> {string(string_of_int(i + 1))} </td>
+    <td className="ratingTd">
+      {string(string_of_int(ratingsHistory.rating))}
+    </td>
+    <td className="dateTd"> {string(ratingsHistory.date)} </td>
   </tr>;
 
 let make = (~ratingsHistory, _children) => {
