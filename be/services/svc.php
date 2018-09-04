@@ -42,7 +42,7 @@ $app->get('/users', function (Request $request, Response $response, array $args)
     return $response->withJson($respArray);
 });
 
-$app->post('/users/add', function (Request $request, Response $response, array $args) {
+$app->post('/users', function (Request $request, Response $response, array $args) {
     AuthCtrl::assertIsLogged();
 
     $json = $request->getBody();
@@ -53,7 +53,7 @@ $app->post('/users/add', function (Request $request, Response $response, array $
     return $response->withJson([]);
 });
 
-$app->post('/users/update_ratings', function (Request $request, Response $response, array $args) {
+$app->put('/users/update_ratings', function (Request $request, Response $response, array $args) {
     AuthCtrl::assertIsLogged();
 
     $json = $request->getBody();
@@ -66,13 +66,10 @@ $app->post('/users/update_ratings', function (Request $request, Response $respon
     return $response->withJson([]);
 });
 
-$app->post('/ratings_history', function (Request $request, Response $response, array $args) {
+$app->get('/ratings_history/{userNid}', function (Request $request, Response $response, array $args) {
     AuthCtrl::assertIsLogged();
 
-    $json = $request->getBody();
-    $user = json_decode($json, true);
-    $userNid = $user['userNid'];
-
+    $userNid = $args['userNid'];
     $ratingsHistoryCtrl = new RatingsHistoryCtrl($this->db);
     $respArray = $ratingsHistoryCtrl->getRatingsHistory($userNid);
     return $response->withJson($respArray);

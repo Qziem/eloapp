@@ -65,7 +65,7 @@ let updateRatingsSvc = (winnerLooserNids, state, containterSend) =>
     _self => {
       let payload = EncodeUpdateRatings.encode(winnerLooserNids);
       Js.Promise.(
-        Svc.svcPost("users/update_ratings", payload)
+        Svc.svcPut("users/update_ratings", payload)
         |> then_(_resp => containterSend(GetUsersSvc) |> resolve)
       )
       |> ignore;

@@ -20,14 +20,12 @@ let initialState = () => {ratingsHistory: [], inputCode: "", warning: false};
 
 let getHistorySvc = (state, users) => {
   let userNid = getUserNidFromCode(state.inputCode, users);
-  let payload =
-    Json.Encode.object_([("userNid", Json.Encode.int(userNid))]);
 
   ReasonReact.UpdateWithSideEffects(
     {...state, warning: false},
     self =>
       Js.Promise.(
-        svcPost("ratings_history", payload)
+        svcGet("ratings_history/" ++ string_of_int(userNid))
         |> then_(json =>
              DecodeRatingsHistory.ratingsHistoryDec(json) |> resolve
            )

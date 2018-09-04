@@ -28,7 +28,7 @@ let addPlayerSvc = (state, containterSend) => {
     {...state, warning: false},
     _self =>
       Js.Promise.(
-        svcPost("users/add", payload)
+        svcPost("users", payload)
         |> then_(_result => containterSend(GetUsersSvc) |> resolve)
       )
       |> ignore,
