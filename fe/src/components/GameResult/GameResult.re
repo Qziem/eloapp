@@ -24,6 +24,21 @@ let initialState = () => {
   saving: false,
 };
 
+let updateStateWarningMsg = (state: gameResultState, msg: string) =>
+  ReasonReact.Update({...state, warningMsg: Some(msg)});
+
+let clearWarningAndSendUpdateRatingAction = (state, users, containterSend) =>
+  ReasonReact.UpdateWithSideEffects(
+    {...state, warningMsg: None},
+    self => {
+      let winnerLooserNids = {
+        winnerUserNid: getUserNidFromCode(state.userWinnerCode, users),
+        looserUserNid: getUserNidFromCode(state.userLooserCode, users),
+      };
+      self.send(UpdateRatingsSvc(winnerLooserNids, containterSend));
+    },
+  );
+
 let handleUpdateClickReducer = (state, users, containterSend) => {
   let winCode = state.userWinnerCode;
   let looseCode = state.userLooserCode;
@@ -34,27 +49,13 @@ let handleUpdateClickReducer = (state, users, containterSend) => {
 
   switch (winUserExist, looseUserExist) {
   | (true, true) =>
-    ReasonReact.UpdateWithSideEffects(
-      {...state, warningMsg: None},
-      (
-        self => {
-          let winnerLooserNids = {
-            winnerUserNid: getUserNidFromCode(winCode, users),
-            looserUserNid: getUserNidFromCode(looseCode, users),
-          };
-          self.send(UpdateRatingsSvc(winnerLooserNids, containterSend));
-        }
-      ),
-    )
-  | (true, false) =>
-    ReasonReact.Update({...state, warningMsg: Some("Looser doesen't exist")})
-  | (false, true) =>
-    ReasonReact.Update({...state, warningMsg: Some("Winner doesen't exist")})
-  | (false, false) =>
-    ReasonReact.Update({
-      ...state,
-      warningMsg: Some("Players doesen't exist"),
-    })
+    winCode !== looseCode ?
+      clearWarningAndSendUpdateRatingAction(state, users, containterSend) :
+      updateStateWarningMsg(state, "Codes are the same")
+
+  | (true, false) => updateStateWarningMsg(state, "Looser doesen't exist")
+  | (false, true) => updateStateWarningMsg(state, "Winner doesen't exist")
+  | (false, false) => updateStateWarningMsg(state, "Players doesen't exist")
   };
 };
 
