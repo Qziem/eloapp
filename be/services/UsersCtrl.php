@@ -71,6 +71,8 @@ class UsersCtrl {
     public function updateRatings($winnerUserNid, $looserUserNid) {
         $oldWinnerRating = $this->getUserRating($winnerUserNid); 
         $oldLooserRating = $this->getUserRating($looserUserNid);
+        if ($oldWinnerRating === false || $oldLooserRating === false) throw new Exception('Winner or looser rating does not exist');
+        if ($winnerUserNid === $looserUserNid) throw new Exception("Winner and looser nids are the same");
 
         list($newWinnerRating, $newLooserRating) = $this->calcNewRatings($oldWinnerRating, $oldLooserRating);
 
