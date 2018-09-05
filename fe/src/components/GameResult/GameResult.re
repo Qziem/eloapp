@@ -49,7 +49,7 @@ let handleUpdateClickReducer = (state, users, containterSend) => {
 
   switch (winUserExist, looseUserExist) {
   | (true, true) =>
-    winCode !== looseCode ?
+    !compareCodes(winCode, looseCode) ?
       clearWarningAndSendUpdateRatingAction(state, users, containterSend) :
       updateStateWarningMsg(state, "Codes are the same")
 
