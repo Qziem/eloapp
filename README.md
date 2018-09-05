@@ -43,6 +43,7 @@ Dobrze by było, że jeśli znadzie się jakiś chętny do zrobinia, to aby skon
 ### Zagadnienia czysto techniczne
 - [FE] W reasonie stworzyć odpowiednie, bardziej szczegółowe typy danych (kod, nazwa, itp.)
 - [BE] Użyć doctrine [KUZ]
+- [FE BE] - Otestować
 
 ### Zagadnienia funkcjonalne
 - Dorobić aby wynik rozgrywki był zapisywany w bazie (czyli kto z kim grał i jaki był wynik) - to umożliwiłoby pokazywanie bardziej szczegółowych statystyk danego gracza (przedewszystkim można by pokazywać oponenta)
