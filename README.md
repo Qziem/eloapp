@@ -6,7 +6,7 @@ https://metinmediamath.wordpress.com/2013/11/27/how-to-calculate-the-elo-rating-
 https://en.wikipedia.org/wiki/Elo_rating_system
 
 ## Opis jak skonfigurować środowisko lokalnie
-Przede wszystkim potrzebujemy serwerka z obsługą php i bazę danych mysql
+Przede wszystkim potrzebujemy serwerka z obsługą php i bazę danych mysql.
 Ja skorzystałem z xampa (działa pod windows, dla linuxa jest coś podobnego: lamp) który ma już to wszystko (apache + php + mysql).
 Oczywiście jak ktoś chce może sobie skomponować dowolny serwer http z php + mysql
 
@@ -42,6 +42,7 @@ Dobrze by było, że jeśli znadzie się jakiś chętny do zrobinia, to aby skon
 
 ### Zagadnienia czysto techniczne
 - [FE] W reasonie stworzyć odpowiednie, bardziej szczegółowe typy danych (kod, nazwa, itp.)
+- [FE] Stan aplikacji jest obecnie rozproszony na komponenty, być może trzebaby przerobić aby był jeden komponent który byłby kontenerem stanu, a pozostałe tylko wysyłały do niego akcjie - coś na kształt reduxa
 - [BE] Użyć doctrine [KUZ]
 - [FE BE] - Otestować
 
