@@ -10,6 +10,12 @@ type ratingHistory = {
   date: string,
 };
 
+type ratingHistoryWithWin = {
+  rating: int,
+  date: string,
+  isWin: bool,
+};
+
 type containerActions =
   | GetUsersSvc
   | SetUsersToState(list(user));

@@ -4,21 +4,53 @@ open ReasonReact;
 /* [%bs.raw {|require('./Users.scss')|}]; */
 let component = statelessComponent("RatingsHistoryTable");
 
-let tableRow = (i, ratingsHistory) =>
-  <tr key={string_of_int(i + 1)}>
+let tableRow = (i, ratingHistoryWithWin) => {
+  let {rating, date, isWin} = ratingHistoryWithWin;
+  let classe = isWin ? "win" : "loose";
+  <tr key={string_of_int(i + 1)} className=classe>
     <td className="lpTd"> {string(string_of_int(i + 1))} </td>
-    <td className="ratingTd">
-      {string(string_of_int(ratingsHistory.rating))}
-    </td>
-    <td className="dateTd"> {string(ratingsHistory.date)} </td>
+    <td className="ratingTd"> {string(string_of_int(rating))} </td>
+    <td className="dateTd"> {string(date)} </td>
   </tr>;
+};
 
-let make = (~ratingsHistory, _children) => {
+let calcWinsOrLooses = (ratingsHistoryWithWin, isWinCalc) =>
+  List.fold_left(
+    (acc, ratingHistory) => {
+      let addVal = ratingHistory.isWin === isWinCalc ? 1 : 0;
+      acc + addVal;
+    },
+    0,
+    ratingsHistoryWithWin,
+  );
+
+let make = (~ratingsHistoryWithWin, _children) => {
   ...component,
   render: _self => {
-    let ratingsHistoryTrs = ratingsHistory |> List.mapi(tableRow);
+    let ratingsHistoryTrs = ratingsHistoryWithWin |> List.mapi(tableRow);
 
     <div className="ratingsHistoryTable">
+      <div className="topBar">
+        <span className="winsLabel"> {"Wins: " |> ReasonReact.string} </span>
+        <span className="winsSum">
+          {
+            calcWinsOrLooses(ratingsHistoryWithWin, true)
+            - 1
+            |> string_of_int
+            |> ReasonReact.string
+          }
+        </span>
+        <span className="loosesLabel">
+          {"Looses: " |> ReasonReact.string}
+        </span>
+        <span className="loosesSum">
+          {
+            calcWinsOrLooses(ratingsHistoryWithWin, false)
+            |> string_of_int
+            |> ReasonReact.string
+          }
+        </span>
+      </div>
       <table>
         <thead>
           <tr>

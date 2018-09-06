@@ -1,4 +1,6 @@
 @import 'src/components/colors.scss';
+$win-color: darkgreen;
+$loose-color: darkred;
 .ratingsHistory {
     .warning {
         color: $warning-color;
@@ -9,6 +11,18 @@
 
         .lpTd, .ratingTd {
             text-align: center
+        }
+
+        tr.win, .winsSum {
+            color: $win-color,
+        }
+
+        tr.loose, .loosesSum {
+            color: $loose-color;
+        }
+
+        .loosesLabel {
+            margin-left: 10px;
         }
     }
 }
