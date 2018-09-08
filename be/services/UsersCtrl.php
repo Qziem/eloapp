@@ -1,19 +1,24 @@
 <?php
+use Doctrine\ORM\EntityManager;
+
 class UsersCtrl {
-    function __construct($db) {
+    function __construct($db, EntityManager $em) {
         $this->db = $db;
+        $this->em = $em;
     }
 
     public function getUsers() {
-        $sql = '
-        SELECT u.user_nid, u.name, u.code, u.rating
-        FROM users u 
-        ORDER BY u.rating DESC, u.code ASC
-        ';
+        // $sql = '
+        // SELECT u.user_nid, u.name, u.code, u.rating
+        // FROM users u 
+        // ORDER BY u.rating DESC, u.code ASC
+        // ';
 
-        return $this->db
-            ->query($sql)
-            ->fetchAll();
+        // return $this->db
+        //     ->query($sql)
+        //     ->fetchAll();
+
+        return $this->em->getRepository('Entity\User')->findAll();
     }
 
     private function insertIntoRatingsHistory($userNid, $rating) {

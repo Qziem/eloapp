@@ -3,8 +3,16 @@ session_start();
 use \Psr\Http\Message\ServerRequestInterface as Request;
 use \Psr\Http\Message\ResponseInterface as Response;
 
+use Doctrine\Common\Annotations\AnnotationReader;
+use Doctrine\Common\Cache\FilesystemCache;
+use Doctrine\ORM\EntityManager;
+use Doctrine\ORM\Mapping\Driver\AnnotationDriver;
+use Doctrine\ORM\Tools\Setup;
+
+
 require '../config.php';
 require '../vendor/autoload.php';
+require '../entities/User.php';
 require 'UsersCtrl.php';
 require 'AuthCtrl.php';
 require 'RatingsHistoryCtrl.php';
@@ -26,6 +34,14 @@ $container['db'] = function ($container) {
     return $pdo;
 };
 
+$container['em'] = function ($container) {
+    $config = \Doctrine\ORM\Tools\Setup::createAnnotationMetadataConfiguration(
+        $container['settings']['doctrine']['metadata_dirs'],
+        $container['settings']['doctrine']['dev_mode']
+    );
+    return \Doctrine\ORM\EntityManager::create($container['settings']['doctrine']['connection'], $config);
+};
+
 $app->get('/auth/isLogged', function (Request $request, Response $response, array $args) {
     $isLogged = AuthCtrl::isLogged();
     return $response->withJson(['isLogged' => $isLogged]);
@@ -42,7 +58,7 @@ $app->post('/auth/login', function (Request $request, Response $response, array 
 $app->get('/users', function (Request $request, Response $response, array $args) {
     AuthCtrl::assertIsLogged();
 
-    $usersCtrl = new UsersCtrl($this->db);
+    $usersCtrl = new UsersCtrl($this->db, $this->em);
     $respArray = $usersCtrl->getUsers();
     return $response->withJson($respArray);
 });
