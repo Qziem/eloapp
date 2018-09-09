@@ -24,6 +24,9 @@ SET time_zone = "+00:00";
 
 -- --------------------------------------------------------
 
+CREATE DATABASE elo_app;
+USE elo_app;
+
 --
 -- Struktura tabeli dla tabeli `ratings_history`
 --
