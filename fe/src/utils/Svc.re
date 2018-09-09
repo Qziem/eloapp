@@ -1,8 +1,10 @@
 open Js.Promise;
 
+let svcUrl = "be/svc.php/";
+
 let svcGeneric = (method, resource, payload) =>
   Fetch.fetchWithInit(
-    "be/services/svc.php/" ++ resource,
+    svcUrl ++ resource,
     Fetch.RequestInit.make(
       ~method_=method,
       ~body=Fetch.BodyInit.make(Js.Json.stringify(payload)),
@@ -13,8 +15,7 @@ let svcGeneric = (method, resource, payload) =>
   |> then_(Fetch.Response.json);
 
 let svcGet = resource =>
-  Fetch.fetch("be/services/svc.php/" ++ resource)
-  |> then_(Fetch.Response.json);
+  Fetch.fetch(svcUrl ++ resource) |> then_(Fetch.Response.json);
 
 let svcPost = svcGeneric(Post);
 let svcPut = svcGeneric(Put);

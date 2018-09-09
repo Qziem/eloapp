@@ -12,3 +12,4 @@ node_modules/
 /be/vendor/
 /be/config.php
 /be/config_cba.php
+/be/var

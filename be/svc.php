@@ -9,16 +9,16 @@ use Doctrine\ORM\EntityManager;
 use Doctrine\ORM\Mapping\Driver\AnnotationDriver;
 use Doctrine\ORM\Tools\Setup;
 
+require 'config.php';
+require 'vendor/autoload.php';
+require 'Entity/User.php';
+require 'Controller/UsersCtrl.php';
+require 'Controller/AuthCtrl.php';
+require 'Controller/RatingsHistoryCtrl.php';
+require 'Util/Helpers.php';
 
-require '../config.php';
-require '../vendor/autoload.php';
-require '../entities/User.php';
-require 'UsersCtrl.php';
-require 'AuthCtrl.php';
-require 'RatingsHistoryCtrl.php';
+$container = new Slim\Container(['settings' => $config]);
 
-$app = new \Slim\App(['settings' => $config]);
-$container = $app->getContainer();
 $container['db'] = function ($container) {
     $db = $container["settings"]["db"];
     $pdo = new PDO(
@@ -39,15 +39,31 @@ $container['em'] = function ($container) {
         $container['settings']['doctrine']['metadata_dirs'],
         $container['settings']['doctrine']['dev_mode']
     );
+
+    $config->setMetadataDriverImpl(
+        new AnnotationDriver(
+            new AnnotationReader,
+            $container['settings']['doctrine']['metadata_dirs']
+        )
+    );
+
+    $config->setMetadataCacheImpl(
+        new FilesystemCache(
+            $container['settings']['doctrine']['cache_dir']
+        )
+    );
+
     return \Doctrine\ORM\EntityManager::create($container['settings']['doctrine']['connection'], $config);
 };
 
-$app->get('/auth/isLogged', function (Request $request, Response $response, array $args) {
+$app = new \Slim\App($container);
+
+$app->get('/auth/isLogged', function (Request $request, Response $response) {
     $isLogged = AuthCtrl::isLogged();
     return $response->withJson(['isLogged' => $isLogged]);
 });
 
-$app->post('/auth/login', function (Request $request, Response $response, array $args) {
+$app->post('/auth/login', function (Request $request, Response $response) {
     $authCtrl = new AuthCtrl();
     $json = $request->getBody();
     $payload = json_decode($json, true);
@@ -55,7 +71,7 @@ $app->post('/auth/login', function (Request $request, Response $response, array 
     return $response->withJson(['logged' => $logged]);
 });
 
-$app->get('/users', function (Request $request, Response $response, array $args) {
+$app->get('/users', function (Request $request, Response $response) {
     AuthCtrl::assertIsLogged();
 
     $usersCtrl = new UsersCtrl($this->db, $this->em);
@@ -63,18 +79,18 @@ $app->get('/users', function (Request $request, Response $response, array $args)
     return $response->withJson($respArray);
 });
 
-$app->post('/users', function (Request $request, Response $response, array $args) {
+$app->post('/users', function (Request $request, Response $response) {
     AuthCtrl::assertIsLogged();
 
     $json = $request->getBody();
     $user = json_decode($json, true);
 
-    $usersCtrl = new UsersCtrl($this->db);
+    $usersCtrl = new UsersCtrl($this->db, $this->em);
     $respArray = $usersCtrl->addUser($user);
     return $response->withJson([]);
 });
 
-$app->put('/users/update_ratings', function (Request $request, Response $response, array $args) {
+$app->put('/users/update_ratings', function (Request $request, Response $response) {
     AuthCtrl::assertIsLogged();
 
     $json = $request->getBody();
@@ -82,7 +98,7 @@ $app->put('/users/update_ratings', function (Request $request, Response $respons
     $winnerUserNid = $usersCodes['winnerUserNid'];
     $looserUserNid = $usersCodes['looserUserNid'];
 
-    $usersCtrl = new UsersCtrl($this->db);
+    $usersCtrl = new UsersCtrl($this->db, $this->em);
     $usersCtrl->updateRatings($winnerUserNid, $looserUserNid);
     return $response->withJson([]);
 });

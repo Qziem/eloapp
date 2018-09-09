@@ -1,5 +1,6 @@
 <?php
 use Doctrine\ORM\EntityManager;
+use Util\Helpers;
 
 class UsersCtrl {
     function __construct($db, EntityManager $em) {
@@ -8,17 +9,8 @@ class UsersCtrl {
     }
 
     public function getUsers() {
-        // $sql = '
-        // SELECT u.user_nid, u.name, u.code, u.rating
-        // FROM users u 
-        // ORDER BY u.rating DESC, u.code ASC
-        // ';
-
-        // return $this->db
-        //     ->query($sql)
-        //     ->fetchAll();
-
-        return $this->em->getRepository('Entity\User')->findAll();
+        $usersEntities = $this->em->getRepository('Entity\User')->findAll();
+        return Helpers::entitiesListToArray($usersEntities);
     }
 
     private function insertIntoRatingsHistory($userNid, $rating) {
