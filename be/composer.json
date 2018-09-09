@@ -1,6 +1,12 @@
 {
+    "config": {
+        "platform": {
+            "php": "5.6"
+        }
+    },
     "require": {
+        "php": "5.6",
         "slim/slim": "^3.0",
-        "doctrine/orm": "2.6.2"
+        "doctrine/orm": "2.5.14"
     }
 }
