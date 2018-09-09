@@ -21,31 +21,30 @@ class UsersCtrl {
         $stmInsert->execute();
     }
 
-    public function addUser($user) {
+    public function addUser($userArr) {
         $initRating = 1500;
 
-        $stm1 = $this->db->prepare('INSERT INTO users (code, name, rating) VALUES (:code, :name, :rating)');
-        $stm1->bindValue(':code', $user['code'], PDO::PARAM_STR);
-        $stm1->bindValue(':name', $user['name'], PDO::PARAM_STR);
-        $stm1->bindValue(':rating', $initRating, PDO::PARAM_INT);
-        $stm1->execute();
-        $userNid = $this->db->lastInsertId();
+        $user = new Entity\User();
+        $user->setCode($userArr['code']);
+        $user->setName($userArr['name']);
+        $user->setRating($initRating);
 
+        $this->em->persist($user);
+        $this->em->flush();
+
+        $userNid = $user->getUserNid();
         $this->insertIntoRatingsHistory($userNid, $initRating);
     }
 
     private function getUserRating($userNid) {
-        $stm = $this->db->prepare('SELECT rating FROM users WHERE user_nid = :userNid');
-        $stm->bindValue(':userNid', $userNid, PDO::PARAM_INT);
-        $stm->execute();
-        return $stm->fetchColumn();
+        $user = $this->em->getRepository('Entity\User')->find($userNid);
+        return $user->getRating();
     }
 
     private function updateUserRating($userNid, $newRating) {
-        $stmUpdate = $this->db->prepare('UPDATE users SET rating = :rating WHERE user_nid = :userNid');
-        $stmUpdate->bindValue(':userNid', $userNid, PDO::PARAM_INT);
-        $stmUpdate->bindValue(':rating', $newRating, PDO::PARAM_INT);
-        $stmUpdate->execute();
+        $user = $this->em->getRepository('Entity\User')->find($userNid);
+        $user->setRating($newRating);
+        $this->em->flush();
 
         $this->insertIntoRatingsHistory($userNid, $newRating);
     }

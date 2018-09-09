@@ -10,10 +10,11 @@ use Doctrine\ORM\Mapping as ORM;
 class User
 {
     /**
+     * @ORM\Column(type="integer", name="user_nid")
      * @ORM\Id
-     * @ORM\Column(type="integer")
+     * @ORM\GeneratedValue(strategy="AUTO")
      */
-    protected $user_nid;
+    protected $userNid;
 
     /**
      * @ORM\Column(type="string")
@@ -32,15 +33,15 @@ class User
 
     public function toArray() {
         return [
-            'user_nid' => $this->user_nid,
+            'user_nid' => $this->userNid,
             'code' => $this->code,
             'name' => $this->name,
             'rating' => $this->rating,
         ];
     }
 
-    public function getUser_nid() {
-        return $this->column1;
+    public function getUserNid() {
+        return $this->userNid;
     }
 
     public function getCode() {
@@ -55,8 +56,8 @@ class User
         return $this->rating;
     }
 
-    public function setUser_nid($user_nid) {
-        $this->user_nid = $user_nid;
+    public function setUserNid($userNid) {
+        $this->userNid = $userNid;
         return $this;
     }
 
