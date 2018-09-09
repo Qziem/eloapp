@@ -1,6 +1,6 @@
 <?php
 
-namespace Eloapp\Services;
+namespace Eloapp\services;
 
 class RatingsHistoryCtrl
 {
@@ -16,7 +16,7 @@ class RatingsHistoryCtrl
         WHERE user_nid = :userNid
         ORDER BY cdate DESC
         ');
-        $stm->bindValue(':userNid', $userNid, PDO::PARAM_INT);
+        $stm->bindValue(':userNid', $userNid, \PDO::PARAM_INT);
 
         $stm->execute();
 

@@ -2,24 +2,25 @@ version: '2'
 services:
   eloapp:
     container_name: eloapp
-    image: php:7.2-cli
+    image: pszmagaj1983/php7-pdo:stable
     volumes:
-      - $ELOAPP_DIR/be:/usr/src/myapp
+      - $ELOAPP_DIR:/usr/src/myapp
     expose:
       - 80
     ports:
       - "127.0.0.1:$ELOAPP_PORT:80"
     working_dir: /usr/src/myapp
     entrypoint: php
-    command: "-S 0.0.0.0:80 services/svc.php"
+    command: "-S 0.0.0.0:80 -t be be/index.php"
     networks:
       elonet:
         ipv4_address: 172.16.11.2
   elowww:
     container_name: elowww
-    image: sebp/lighttpd
+    image: nginx
     volumes:
-      - $ELOAPP_DIR:/var/www/localhost/htdocs
+      - $ELOAPP_DIR:/usr/share/nginx/html
+      - $ELOAPP_DIR/site.conf:/etc/nginx/conf.d/default.conf
     expose:
       - 80
     ports:

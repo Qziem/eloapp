@@ -1,6 +1,6 @@
 <?php
 
-namespace Eloapp\Services;
+namespace Eloapp\services;
 
 class UsersCtrl
 {
@@ -26,8 +26,8 @@ class UsersCtrl
     {
         $stmInsert = $this->db->prepare('
         INSERT INTO ratings_history (user_nid, rating) VALUES (:userNid, :rating)');
-        $stmInsert->bindValue(':userNid', $userNid, PDO::PARAM_INT);
-        $stmInsert->bindValue(':rating', $rating, PDO::PARAM_INT);
+        $stmInsert->bindValue(':userNid', $userNid, \PDO::PARAM_INT);
+        $stmInsert->bindValue(':rating', $rating, \PDO::PARAM_INT);
         $stmInsert->execute();
     }
 
@@ -36,9 +36,9 @@ class UsersCtrl
         $initRating = 1500;
 
         $stm1 = $this->db->prepare('INSERT INTO users (code, name, rating) VALUES (:code, :name, :rating)');
-        $stm1->bindValue(':code', $user['code'], PDO::PARAM_STR);
-        $stm1->bindValue(':name', $user['name'], PDO::PARAM_STR);
-        $stm1->bindValue(':rating', $initRating, PDO::PARAM_INT);
+        $stm1->bindValue(':code', $user['code'], \PDO::PARAM_STR);
+        $stm1->bindValue(':name', $user['name'], \PDO::PARAM_STR);
+        $stm1->bindValue(':rating', $initRating, \PDO::PARAM_INT);
         $stm1->execute();
         $userNid = $this->db->lastInsertId();
 
@@ -48,7 +48,7 @@ class UsersCtrl
     private function getUserRating($userNid)
     {
         $stm = $this->db->prepare('SELECT rating FROM users WHERE user_nid = :userNid');
-        $stm->bindValue(':userNid', $userNid, PDO::PARAM_INT);
+        $stm->bindValue(':userNid', $userNid, \PDO::PARAM_INT);
         $stm->execute();
 
         return $stm->fetchColumn();
@@ -57,8 +57,8 @@ class UsersCtrl
     private function updateUserRating($userNid, $newRating)
     {
         $stmUpdate = $this->db->prepare('UPDATE users SET rating = :rating WHERE user_nid = :userNid');
-        $stmUpdate->bindValue(':userNid', $userNid, PDO::PARAM_INT);
-        $stmUpdate->bindValue(':rating', $newRating, PDO::PARAM_INT);
+        $stmUpdate->bindValue(':userNid', $userNid, \PDO::PARAM_INT);
+        $stmUpdate->bindValue(':rating', $newRating, \PDO::PARAM_INT);
         $stmUpdate->execute();
 
         $this->insertIntoRatingsHistory($userNid, $newRating);

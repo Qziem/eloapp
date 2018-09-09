@@ -2,7 +2,7 @@ open Js.Promise;
 
 let svcGeneric = (method, resource, payload) =>
   Fetch.fetchWithInit(
-    "http://localhost:8000//" ++ resource,
+    "http://localhost:8000/api/" ++ resource,
     Fetch.RequestInit.make(
       ~method_=method,
       ~body=Fetch.BodyInit.make(Js.Json.stringify(payload)),
@@ -13,7 +13,7 @@ let svcGeneric = (method, resource, payload) =>
   |> then_(Fetch.Response.json);
 
 let svcGet = resource =>
-  Fetch.fetch("http://localhost:8000//" ++ resource)
+  Fetch.fetch("http://localhost:8000/api/" ++ resource)
   |> then_(Fetch.Response.json);
 
 let svcPost = svcGeneric(Post);
