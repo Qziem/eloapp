@@ -4,7 +4,7 @@ open Helpers;
 [%bs.raw {|require('./RatingsHistory.scss')|}];
 
 type state = {
-  ratingsHistory: list(ratingHistory),
+  ratingsHistory: option(list(ratingHistory)),
   inputCode: string,
   warning: bool,
 };
@@ -16,7 +16,11 @@ type action =
 
 let component = ReasonReact.reducerComponent("Stats");
 
-let initialState = () => {ratingsHistory: [], inputCode: "", warning: false};
+let initialState = () => {
+  ratingsHistory: None,
+  inputCode: "",
+  warning: false,
+};
 
 let getHistorySvc = (state, users) => {
   let userNid = getUserNidFromCode(state.inputCode, users);
@@ -49,7 +53,7 @@ let reducer = (action, state) =>
   | GetHistory(users) => getHistoryReducer(state, users)
   | ChangeCode(code) => ReasonReact.Update({...state, inputCode: code})
   | SetHistory(ratingsHistory) =>
-    ReasonReact.Update({...state, ratingsHistory})
+    ReasonReact.Update({...state, ratingsHistory: Some(ratingsHistory)})
   };
 
 let make = (~users, _children) => {
@@ -93,10 +97,14 @@ let make = (~users, _children) => {
         </table>
       </form>
       {
-        switch (List.length(self.state.ratingsHistory)) {
-        | 0 => ReasonReact.null
-        | _ =>
-          <RatingsHistoryTable ratingsHistory={self.state.ratingsHistory} />
+        switch (self.state.ratingsHistory) {
+        | None => ReasonReact.null
+        | Some(ratingsHistory) =>
+          List.length(ratingsHistory) === 0 ?
+            <div className="warning">
+              {"This player has no games" |> ReasonReact.string}
+            </div> :
+            <RatingsHistoryTable ratingsHistory />
         }
       }
     </div>,
