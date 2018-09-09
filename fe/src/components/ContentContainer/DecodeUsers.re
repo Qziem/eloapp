@@ -2,7 +2,7 @@ open EloTypes;
 
 let user = user =>
   Json.Decode.{
-    userNid: field("user_nid", int, user),
+    userNid: field("userNid", int, user),
     code: field("code", string, user),
     name: field("name", string, user),
     rating: field("rating", int, user),

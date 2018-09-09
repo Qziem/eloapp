@@ -33,7 +33,7 @@ class User
 
     public function toArray() {
         return [
-            'user_nid' => $this->userNid,
+            'userNid' => $this->userNid,
             'code' => $this->code,
             'name' => $this->name,
             'rating' => $this->rating,

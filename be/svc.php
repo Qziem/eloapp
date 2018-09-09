@@ -6,6 +6,7 @@ use \Psr\Http\Message\ResponseInterface as Response;
 require 'config.php';
 require 'vendor/autoload.php';
 require 'Entity/User.php';
+require 'Entity/Game.php';
 require 'Controller/UsersCtrl.php';
 require 'Controller/AuthCtrl.php';
 require 'Controller/RatingsHistoryCtrl.php';
@@ -30,7 +31,7 @@ $app->post('/auth/login', function (Request $request, Response $response) {
 $app->get('/users', function (Request $request, Response $response) {
     AuthCtrl::assertIsLogged();
 
-    $usersCtrl = new UsersCtrl($this->db, $this->em);
+    $usersCtrl = new UsersCtrl($this->em);
     $respArray = $usersCtrl->getUsers();
     return $response->withJson($respArray);
 });
@@ -41,7 +42,7 @@ $app->post('/users', function (Request $request, Response $response) {
     $json = $request->getBody();
     $user = json_decode($json, true);
 
-    $usersCtrl = new UsersCtrl($this->db, $this->em);
+    $usersCtrl = new UsersCtrl($this->em);
     $respArray = $usersCtrl->addUser($user);
     return $response->withJson([]);
 });
@@ -54,7 +55,7 @@ $app->put('/users/update_ratings', function (Request $request, Response $respons
     $winnerUserNid = $usersCodes['winnerUserNid'];
     $looserUserNid = $usersCodes['looserUserNid'];
 
-    $usersCtrl = new UsersCtrl($this->db, $this->em);
+    $usersCtrl = new UsersCtrl($this->em);
     $usersCtrl->updateRatings($winnerUserNid, $looserUserNid);
     return $response->withJson([]);
 });
@@ -62,8 +63,8 @@ $app->put('/users/update_ratings', function (Request $request, Response $respons
 $app->get('/ratings_history/{userNid}', function (Request $request, Response $response, array $args) {
     AuthCtrl::assertIsLogged();
 
-    $userNid = $args['userNid'];
-    $ratingsHistoryCtrl = new RatingsHistoryCtrl($this->db);
+    $userNid = (int) $args['userNid'];
+    $ratingsHistoryCtrl = new RatingsHistoryCtrl($this->em);
     $respArray = $ratingsHistoryCtrl->getRatingsHistory($userNid);
     return $response->withJson($respArray);
 });
