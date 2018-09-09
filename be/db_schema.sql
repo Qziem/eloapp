@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1
--- Czas generowania: 05 Wrz 2018, 18:19
+-- Czas generowania: 09 Wrz 2018, 17:02
 -- Wersja serwera: 10.1.34-MariaDB
 -- Wersja PHP: 7.2.8
 
@@ -25,15 +25,18 @@ SET time_zone = "+00:00";
 -- --------------------------------------------------------
 
 --
--- Struktura tabeli dla tabeli `ratings_history`
+-- Struktura tabeli dla tabeli `games`
 --
 
-CREATE TABLE `ratings_history` (
-  `rating_history_nid` int(11) NOT NULL,
-  `user_nid` int(11) NOT NULL,
-  `rating` int(11) NOT NULL,
+CREATE TABLE `games` (
+  `game_nid` int(11) NOT NULL,
+  `winner_user_nid` int(11) NOT NULL,
+  `looser_user_nid` int(11) NOT NULL,
+  `winner_rating_before` int(11) NOT NULL,
+  `looser_rating_before` int(11) NOT NULL,
+  `rating_diff` int(11) NOT NULL,
   `cdate` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
 
 -- --------------------------------------------------------
 
@@ -46,7 +49,7 @@ CREATE TABLE `users` (
   `code` text NOT NULL,
   `name` text NOT NULL,
   `rating` int(11) NOT NULL,
-  `cdate` timestamp NULL DEFAULT CURRENT_TIMESTAMP
+  `cdate` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 --
@@ -54,28 +57,28 @@ CREATE TABLE `users` (
 --
 
 --
--- Indeksy dla tabeli `ratings_history`
+-- Indeksy dla tabeli `games`
 --
-ALTER TABLE `ratings_history`
-  ADD PRIMARY KEY (`rating_history_nid`),
-  ADD KEY `login_nid` (`user_nid`);
+ALTER TABLE `games`
+  ADD PRIMARY KEY (`game_nid`),
+  ADD KEY `winner_user_nid` (`winner_user_nid`),
+  ADD KEY `looser_user_nid` (`looser_user_nid`);
 
 --
 -- Indeksy dla tabeli `users`
 --
 ALTER TABLE `users`
-  ADD PRIMARY KEY (`user_nid`),
-  ADD UNIQUE KEY `code` (`code`(10));
+  ADD PRIMARY KEY (`user_nid`);
 
 --
 -- AUTO_INCREMENT for dumped tables
 --
 
 --
--- AUTO_INCREMENT dla tabeli `ratings_history`
+-- AUTO_INCREMENT dla tabeli `games`
 --
-ALTER TABLE `ratings_history`
-  MODIFY `rating_history_nid` int(11) NOT NULL AUTO_INCREMENT;
+ALTER TABLE `games`
+  MODIFY `game_nid` int(11) NOT NULL AUTO_INCREMENT;
 
 --
 -- AUTO_INCREMENT dla tabeli `users`
@@ -88,10 +91,11 @@ ALTER TABLE `users`
 --
 
 --
--- Ograniczenia dla tabeli `ratings_history`
+-- Ograniczenia dla tabeli `games`
 --
-ALTER TABLE `ratings_history`
-  ADD CONSTRAINT `ratings_history_ibfk_1` FOREIGN KEY (`user_nid`) REFERENCES `users` (`user_nid`) ON DELETE CASCADE;
+ALTER TABLE `games`
+  ADD CONSTRAINT `games_ibfk_1` FOREIGN KEY (`winner_user_nid`) REFERENCES `users` (`user_nid`) ON DELETE CASCADE,
+  ADD CONSTRAINT `games_ibfk_2` FOREIGN KEY (`looser_user_nid`) REFERENCES `users` (`user_nid`) ON DELETE CASCADE;
 COMMIT;
 
 /*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;
