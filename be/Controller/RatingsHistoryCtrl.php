@@ -28,14 +28,14 @@ class RatingsHistoryCtrl {
                 ? $entity->getRatingDiff()
                 : -$entity->getRatingDiff();
 
-            $oponent = $entityWinnerUserNid === $userNid
+            $oponentName = $entityWinnerUserNid === $userNid
                 ? $this->getOponentName($entity->getLooserUser())
                 : $this->getOponentName($entity->getWinnerUser());
 
             $output[] = [
                 'userRating' => $userRating,
                 'oponentRating' => $oponentRating,
-                'oponent' => $oponent,
+                'oponentName' => $oponentName,
                 'ratingDiff' => $ratingDiff,
                 'date' => $entity->getCdate()->format('Y-m-d H:i:s')
             ];

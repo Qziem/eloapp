@@ -4,7 +4,7 @@ open Helpers;
 [%bs.raw {|require('./RatingsHistory.scss')|}];
 
 type state = {
-  ratingHistoryWithWin: list(ratingHistoryWithWin),
+  ratingsHistory: list(ratingHistory),
   inputCode: string,
   warning: bool,
 };
@@ -16,11 +16,7 @@ type action =
 
 let component = ReasonReact.reducerComponent("Stats");
 
-let initialState = () => {
-  ratingHistoryWithWin: [],
-  inputCode: "",
-  warning: false,
-};
+let initialState = () => {ratingsHistory: [], inputCode: "", warning: false};
 
 let getHistorySvc = (state, users) => {
   let userNid = getUserNidFromCode(state.inputCode, users);
@@ -48,30 +44,12 @@ let getHistoryReducer = (state: state, users: list(user)) => {
     ReasonReact.Update({...state, warning: true});
 };
 
-let addWinsToRatingsHistory =
-    (ratingsHistory: list(ratingHistory)): list(ratingHistoryWithWin) =>
-  ratingsHistory
-  |> List.rev
-  |> List.map(
-       withPrevValue((ratingHistory: ratingHistory, prevRatingHistory) => {
-         let {rating, date}: ratingHistory = ratingHistory;
-         switch (prevRatingHistory) {
-         | Some(pv) => {rating, date, isWin: rating > pv.rating}
-         | None => {rating, date, isWin: true}
-         };
-       }),
-     )
-  |> List.rev;
-
 let reducer = (action, state) =>
   switch (action) {
   | GetHistory(users) => getHistoryReducer(state, users)
   | ChangeCode(code) => ReasonReact.Update({...state, inputCode: code})
   | SetHistory(ratingsHistory) =>
-    ReasonReact.Update({
-      ...state,
-      ratingHistoryWithWin: addWinsToRatingsHistory(ratingsHistory),
-    })
+    ReasonReact.Update({...state, ratingsHistory})
   };
 
 let make = (~users, _children) => {
@@ -115,12 +93,10 @@ let make = (~users, _children) => {
         </table>
       </form>
       {
-        switch (List.length(self.state.ratingHistoryWithWin)) {
+        switch (List.length(self.state.ratingsHistory)) {
         | 0 => ReasonReact.null
         | _ =>
-          <RatingsHistoryTable
-            ratingsHistoryWithWin={self.state.ratingHistoryWithWin}
-          />
+          <RatingsHistoryTable ratingsHistory={self.state.ratingsHistory} />
         }
       }
     </div>,

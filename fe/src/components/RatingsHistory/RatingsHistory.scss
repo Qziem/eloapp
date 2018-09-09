@@ -9,8 +9,17 @@ $loose-color: darkred;
     .ratingsHistoryTable {
         margin-top: 10px;
 
-        .lpTd, .ratingTd {
+        table {
+            border-collapse: collapse;
+        }
+
+        td {
             text-align: center
+        }
+
+        thead tr th {
+            border-top: 1px solid darkgrey;
+            border-bottom: 1px solid darkgrey;
         }
 
         tr.win, .winsSum {

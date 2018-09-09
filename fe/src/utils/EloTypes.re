@@ -6,14 +6,11 @@ type user = {
 };
 
 type ratingHistory = {
-  rating: int,
+  userRating: int,
+  oponentName: string,
+  oponentRating: int,
+  ratingDiff: int,
   date: string,
-};
-
-type ratingHistoryWithWin = {
-  rating: int,
-  date: string,
-  isWin: bool,
 };
 
 type containerActions =
