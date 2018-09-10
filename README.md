@@ -43,7 +43,6 @@ Dobrze by było, że jeśli znadzie się jakiś chętny do zrobinia, to aby skon
 ### Zagadnienia czysto techniczne
 - [FE] W reasonie stworzyć odpowiednie, bardziej szczegółowe typy danych (kod, nazwa, itp.)
 - [FE] Stan aplikacji jest obecnie rozproszony na komponenty, być może trzebaby przerobić aby był jeden komponent który byłby kontenerem stanu, a pozostałe tylko wysyłały do niego akcjie - coś na kształt reduxa
-- [BE] Użyć doctrine [KUZ]
 - [FE BE] - Otestować
 
 ### Zagadnienia funkcjonalne
