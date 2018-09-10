@@ -46,7 +46,6 @@ Dobrze by było, że jeśli znadzie się jakiś chętny do zrobinia, to aby skon
 - [FE BE] - Otestować
 
 ### Zagadnienia funkcjonalne
-- Dorobić aby wynik rozgrywki był zapisywany w bazie (czyli kto z kim grał i jaki był wynik) - to umożliwiłoby pokazywanie bardziej szczegółowych statystyk danego gracza (przedewszystkim można by pokazywać oponenta)
 - Dorobić możliwość logowania się każdego użytkownia, aby każdy mógł mieć swoje hasło
 - Gdy powyższe już będzie, można w jakiś sposób blokować, aby nie można było wpisać wyniku bez swojego udziału i być może jakieś inne restrykcje/możliwości (np. może kasowanie gry, jeśli ktoś by się pomylił ??)
 - [Do uzgodnienia] Pokazywanie par które najmniej z sobą grały aby można było parować userów którzy powinni z sobą zagrać
