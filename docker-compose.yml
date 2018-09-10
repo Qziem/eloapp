@@ -20,11 +20,11 @@ services:
     image: nginx
     volumes:
       - $ELOAPP_DIR:/usr/share/nginx/html
-      - $ELOAPP_DIR/site.conf:/etc/nginx/conf.d/default.conf
+      - $ELOAPP_DIR/site.conf:/etc/nginx/conf.d/site.conf
     expose:
-      - 80
+      - 81
     ports:
-      - "127.0.0.1:$ELOWWW_PORT:80"
+      - "127.0.0.1:$ELOWWW_PORT:81"
     networks:
       elonet:
         ipv4_address: 172.16.11.3
