@@ -1,6 +1,6 @@
 open Js.Promise;
 
-let svcUrl = "api/";
+let svcUrl = "be/index.php/";
 
 let svcGeneric = (method, resource, payload) =>
   Fetch.fetchWithInit(
