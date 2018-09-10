@@ -1,4 +1,5 @@
 *.bs.js
+.env
 node_modules/
 /fe/.DS_Store
 /fe/.merlin

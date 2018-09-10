@@ -4,14 +4,14 @@ services:
     container_name: eloapp
     image: pszmagaj1983/php7-pdo:stable
     volumes:
-      - $ELOAPP_DIR:/usr/src/myapp
+      - $ELOAPP_DIR/be:/usr/src/myapp
     expose:
       - 80
     ports:
       - "127.0.0.1:$ELOAPP_PORT:80"
     working_dir: /usr/src/myapp
     entrypoint: php
-    command: "-S 0.0.0.0:80 -t be be/svc.php"
+    command: "-S 0.0.0.0:80 index.php"
     networks:
       elonet:
         ipv4_address: 172.16.11.2

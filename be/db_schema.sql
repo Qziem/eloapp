@@ -28,6 +28,10 @@ SET time_zone = "+00:00";
 -- Struktura tabeli dla tabeli `games`
 --
 
+CREATE DATABASE IF NOT EXISTS elo_app;
+
+USE elo_app;
+
 CREATE TABLE `games` (
   `game_nid` int(11) NOT NULL,
   `winner_user_nid` int(11) NOT NULL,
