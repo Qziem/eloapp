@@ -1,0 +1,56 @@
+version: '2'
+services:
+  eloapp:
+    container_name: eloapp
+    image: pszmagaj1983/php7-pdo:stable
+    volumes:
+      - $ELOAPP_DIR:/usr/src/myapp
+    expose:
+      - 80
+    ports:
+      - "127.0.0.1:$ELOAPP_PORT:80"
+    working_dir: /usr/src/myapp
+    entrypoint: php
+    command: "-S 0.0.0.0:80 -t be be/svc.php"
+    networks:
+      elonet:
+        ipv4_address: 172.16.11.2
+  elowww:
+    container_name: elowww
+    image: nginx
+    volumes:
+      - $ELOAPP_DIR:/usr/share/nginx/html
+      - $ELOAPP_DIR/site.conf:/etc/nginx/conf.d/default.conf
+    expose:
+      - 80
+    ports:
+      - "127.0.0.1:$ELOWWW_PORT:80"
+    networks:
+      elonet:
+        ipv4_address: 172.16.11.3
+  elodb:
+    container_name: elodb
+    image: mysql:5.7
+    ports:
+      - 127.0.0.1:$ELODB_PORT:3306
+    environment:
+      MYSQL_ROOT_PASSWORD: $ELODB_ROOT_PASSWORD
+    networks:
+      elonet:
+        ipv4_address: 172.16.11.4
+  eloadminer:
+    container_name: eloadminer
+    image: adminer
+    ports:
+      - 127.0.0.1:$ELOADMINER_PORT:8080
+    networks:
+      elonet:
+        ipv4_address: 172.16.11.5
+networks:
+  elonet:
+    driver: bridge
+    ipam:
+      driver: default
+      config: 
+        - subnet: 172.16.11.0/28
+          gateway: 172.16.11.1
