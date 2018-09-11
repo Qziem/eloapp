@@ -24,7 +24,7 @@ services:
     expose:
       - 81
     ports:
-      - "127.0.0.1:$ELOWWW_PORT:81"
+      - "0.0.0.0:$ELOWWW_PORT:81"
     networks:
       elonet:
         ipv4_address: 172.16.11.3
