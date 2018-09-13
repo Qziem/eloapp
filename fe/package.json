@@ -6,6 +6,7 @@
     "start": "bsb -make-world -w",
     "clean": "bsb -clean-world",
     "webpack": "webpack -w",
+    "build-production": "yarn build && yarn webpack:production",
     "webpack:production": "NODE_ENV=production webpack"
   },
   "keywords": [
