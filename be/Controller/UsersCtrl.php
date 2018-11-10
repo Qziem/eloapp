@@ -8,7 +8,7 @@ class UsersCtrl {
     }
 
     public function getUsers() {
-        $usersEntities = $this->em->getRepository('Entity\User')->findBy([], ['rating' => 'DESC', 'code' => 'ASC']);
+        $usersEntities = $this->em->getRepository('Entity\User')->findBy(['deleted' => 0], ['rating' => 'DESC', 'code' => 'ASC']);
         return Helpers::entitiesListToArray($usersEntities);
     }
 

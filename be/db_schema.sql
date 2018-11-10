@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1
--- Czas generowania: 09 Wrz 2018, 17:02
+-- Czas generowania: 10 Lis 2018, 16:31
 -- Wersja serwera: 10.1.34-MariaDB
 -- Wersja PHP: 7.2.8
 
@@ -49,7 +49,8 @@ CREATE TABLE `users` (
   `code` text NOT NULL,
   `name` text NOT NULL,
   `rating` int(11) NOT NULL,
-  `cdate` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP
+  `deleted` tinyint(1) NOT NULL DEFAULT '0',
+  `cdate` timestamp NULL DEFAULT CURRENT_TIMESTAMP
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 --
@@ -61,6 +62,7 @@ CREATE TABLE `users` (
 --
 ALTER TABLE `games`
   ADD PRIMARY KEY (`game_nid`),
+  ADD UNIQUE KEY `winner_user_nid_2` (`winner_user_nid`,`looser_user_nid`,`cdate`),
   ADD KEY `winner_user_nid` (`winner_user_nid`),
   ADD KEY `looser_user_nid` (`looser_user_nid`);
 
@@ -68,7 +70,8 @@ ALTER TABLE `games`
 -- Indeksy dla tabeli `users`
 --
 ALTER TABLE `users`
-  ADD PRIMARY KEY (`user_nid`);
+  ADD PRIMARY KEY (`user_nid`),
+  ADD UNIQUE KEY `code` (`code`(10));
 
 --
 -- AUTO_INCREMENT for dumped tables

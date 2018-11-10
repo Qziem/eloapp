@@ -3,10 +3,18 @@ open EloTypes;
 open Helpers;
 [%bs.raw {|require('./RatingsHistory.scss')|}];
 
-type state = {
-  ratingsHistory: option(list(ratingHistory)),
+type dataStateType =
+  | INITIAL
+  | LOADING
+  | WARNING(string)
+  | LOADED(list(ratingHistory));
+
+type stateType = {
   inputCode: string,
-  warning: bool,
+  dataState: dataStateType,
+  /* ratingsHistory: option(list(ratingHistory)),
+     warning: bool,
+     loading: bool, */
 };
 
 type action =
@@ -16,17 +24,13 @@ type action =
 
 let component = ReasonReact.reducerComponent("Stats");
 
-let initialState = () => {
-  ratingsHistory: None,
-  inputCode: "",
-  warning: false,
-};
+let initialState = (): stateType => {inputCode: "", dataState: INITIAL};
 
 let getHistorySvc = (state, users) => {
   let userNid = getUserNidFromCode(state.inputCode, users);
 
   ReasonReact.UpdateWithSideEffects(
-    {...state, warning: false},
+    {...state, dataState: LOADING},
     self =>
       Js.Promise.(
         svcGet("ratings_history/" ++ string_of_int(userNid))
@@ -39,42 +43,38 @@ let getHistorySvc = (state, users) => {
   );
 };
 
-let getHistoryReducer = (state: state, users: list(user)) => {
+let getHistoryReducer = (state: stateType, users: list(user)) => {
   let userExist =
     List.exists(user => compareCodes(user.code, state.inputCode), users);
 
   userExist ?
     getHistorySvc(state, users) :
-    ReasonReact.Update({...state, warning: true});
+    ReasonReact.Update({
+      ...state,
+      dataState: WARNING("Player doesn't exist"),
+    });
 };
 
-let reducer = (action, state) =>
+let reducer = (action, state: stateType) =>
   switch (action) {
-  | GetHistory(users) => getHistoryReducer(state, users)
   | ChangeCode(code) => ReasonReact.Update({...state, inputCode: code})
+  | GetHistory(users) => getHistoryReducer(state, users)
   | SetHistory(ratingsHistory) =>
-    ReasonReact.Update({...state, ratingsHistory: Some(ratingsHistory)})
+    ReasonReact.Update({...state, dataState: LOADED(ratingsHistory)})
   };
 
 let make = (~users, _children) => {
   ...component,
   initialState,
   reducer,
-  render: self =>
+  render: ({state, send}) =>
     <div className="ratingsHistory">
-      {
-        self.state.warning ?
-          <div className="warning">
-            {ReasonReact.string("Player doesn't exist")}
-          </div> :
-          ReasonReact.null
-      }
       <form
         className="topBar"
         onSubmit={
           event => {
             event |> ReactEvent.Form.preventDefault;
-            self.send(GetHistory(users));
+            send(GetHistory(users));
           }
         }>
         <table>
@@ -85,26 +85,35 @@ let make = (~users, _children) => {
                   placeholder="code"
                   onChange={
                     event =>
-                      self.send(
-                        ChangeCode(GameResult.valueFromEvent(event)),
-                      )
+                      send(ChangeCode(GameResult.valueFromEvent(event)))
                   }
                 />
               </td>
-              <td> <button> {ReasonReact.string("Get stats")} </button> </td>
+              <td>
+                <button
+                  disabled={
+                    switch (state.dataState) {
+                    | LOADING => true
+                    | _ => false
+                    }
+                  }>
+                  {ReasonReact.string("Get stats")}
+                </button>
+              </td>
             </tr>
           </tbody>
         </table>
       </form>
       {
-        switch (self.state.ratingsHistory) {
-        | None => ReasonReact.null
-        | Some(ratingsHistory) =>
-          List.length(ratingsHistory) === 0 ?
-            <div className="warning">
-              {"This player has no games" |> ReasonReact.string}
-            </div> :
-            <RatingsHistoryTable ratingsHistory />
+        switch (state.dataState) {
+        | INITIAL => ReasonReact.null
+        | LOADING =>
+          <div className="loadingMsg">
+            {"Loading data" |> ReasonReact.string}
+          </div>
+        | WARNING(msg) =>
+          <div className="warningMsg"> {msg |> ReasonReact.string} </div>
+        | LOADED(ratingsHistory) => <RatingsHistoryTable ratingsHistory />
         }
       }
     </div>,

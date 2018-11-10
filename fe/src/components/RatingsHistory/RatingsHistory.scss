@@ -2,9 +2,17 @@
 $win-color: darkgreen;
 $loose-color: darkred;
 .ratingsHistory {
-    .warning {
-        color: $warning-color;
+    .warningMsg {
+      text-align: center;
+      margin-top: 10px;
+      color: $warning-color;
     }
+
+    .loadingMsg {
+      text-align: center;
+      margin-top: 10px;
+      color: $progress-msg-color;
+  }
 
     .ratingsHistoryTable {
         margin-top: 10px;

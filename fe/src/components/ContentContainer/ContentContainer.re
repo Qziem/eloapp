@@ -37,7 +37,7 @@ let make = _children => {
       {
         switch (self.state.users) {
         | None =>
-          <div className="loadingMsg">
+          <div className="contentLoadingMsg">
             {ReasonReact.string("Loading data")}
           </div>
         | Some(users) =>

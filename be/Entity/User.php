@@ -31,6 +31,11 @@ class User
      */
     protected $rating;
 
+    /**
+     * @ORM\Column(type="integer")
+     */
+    protected $deleted;
+
     public function toArray() {
         return [
             'userNid' => $this->userNid,
@@ -56,6 +61,10 @@ class User
         return $this->rating;
     }
 
+    public function getDeleted() {
+      return $this->deleted;
+    }
+
     public function setUserNid($userNid) {
         $this->userNid = $userNid;
         return $this;
@@ -74,5 +83,10 @@ class User
     public function setRating($rating) {
         $this->rating = $rating;
         return $this;
+    }
+
+    public function setDeleted($deleted) {
+      $this->deleted = $deleted;
+      return $this;
     }
 }

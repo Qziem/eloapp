@@ -11,7 +11,7 @@ class AuthCtrl {
     }
 
     public function login($password) {
-        $accessPassword = '613b88d193a2be96cb728060933ed74166db46f7';
+        $accessPassword = '31137594f95f0bc00c08a98caf14ed3b5905bbee';
         $isPass = sha1($password) === $accessPassword;
         if ($isPass) {
             $_SESSION['isLogged'] = true;
