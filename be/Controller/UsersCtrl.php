@@ -19,6 +19,7 @@ class UsersCtrl {
         $user->setCode($userArr['code']);
         $user->setName($userArr['name']);
         $user->setRating($initRating);
+        $user->setDeleted(false);
 
         $this->em->persist($user);
         $this->em->flush();
