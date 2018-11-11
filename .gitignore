@@ -1,5 +1,6 @@
 *.bs.js
 node_modules/
+/fe/yarn.lock
 /fe/.DS_Store
 /fe/.merlin
 /fe/.bsb.lock
@@ -12,4 +13,5 @@ node_modules/
 /be/vendor/
 /be/config.php
 /be/config_cba.php
+/be/config_webd.php
 /be/var

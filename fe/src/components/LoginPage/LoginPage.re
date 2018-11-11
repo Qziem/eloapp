@@ -2,9 +2,14 @@ open EloTypes;
 open Svc;
 [%bs.raw {|require('./LoginPage.scss')|}];
 
+type warningType =
+  | NOTHING
+  | WRONG_PASSWORD
+  | SVC_FAILURE;
+
 type state = {
   password: string,
-  warning: bool,
+  warning: warningType,
 };
 
 type parentSend = appContainerActions => unit;
@@ -12,11 +17,12 @@ type parentSend = appContainerActions => unit;
 type action =
   | ChangePassword(string)
   | Login(parentSend)
-  | SetWarning;
+  | SetWarningWrongPass
+  | SetWarningFailure;
 
 let component = ReasonReact.reducerComponent("LoginPage");
 
-let initialState = () => {password: "", warning: false};
+let initialState = () => {password: "", warning: NOTHING};
 
 let loginSvc = (password, parentSend) => {
   let payload =
@@ -30,7 +36,13 @@ let loginSvc = (password, parentSend) => {
            )
         |> then_(isSuccess => {
              isSuccess ?
-               parentSend(SetIsLogged(true)) : self.send(SetWarning);
+               parentSend(SetIsLogged(true)) :
+               self.send(SetWarningWrongPass);
+             resolve(true);
+           })
+        |> catch(err => {
+             self.send(SetWarningFailure);
+             Js.Console.error(err);
              resolve(true);
            })
       )
@@ -42,8 +54,30 @@ let reducer = (action, state) =>
   switch (action) {
   | ChangePassword(password) => ReasonReact.Update({...state, password})
   | Login(parentSend) => loginSvc(state.password, parentSend)
-  | SetWarning => ReasonReact.Update({...state, warning: true})
+  | SetWarningWrongPass =>
+    ReasonReact.Update({...state, warning: WRONG_PASSWORD})
+  | SetWarningFailure => ReasonReact.Update({...state, warning: SVC_FAILURE})
   };
+
+let imgNosacz = <img src="fe/src/images/nosacz.jpg" />;
+
+let warningWrongPass = () =>
+  <div className="warning wrongPass">
+    imgNosacz
+    <div className="label">
+      {"Kuurla, zle haslo panie!" |> ReasonReact.string}
+      <br />
+      {"Podaj dobre i bedzie pryma sort" |> ReasonReact.string}
+    </div>
+  </div>;
+
+let warningFailure = () =>
+  <div className="warning failure">
+    imgNosacz
+    <div className="label">
+      {"Kuuuuuuurla, cos sie zrombalo !" |> ReasonReact.string}
+    </div>
+  </div>;
 
 let make = (~parentSend, _children) => {
   ...component,
@@ -52,11 +86,11 @@ let make = (~parentSend, _children) => {
   render: self =>
     <div className="loginPage">
       {
-        self.state.warning ?
-          <div className="warning">
-            {ReasonReact.string("Kuuurla, zle haslo panie")}
-          </div> :
-          ReasonReact.null
+        switch (self.state.warning) {
+        | NOTHING => ReasonReact.null
+        | WRONG_PASSWORD => warningWrongPass()
+        | SVC_FAILURE => warningFailure()
+        }
       }
       <form
         onSubmit={
@@ -65,7 +99,7 @@ let make = (~parentSend, _children) => {
             self.send(Login(parentSend));
           }
         }>
-        {ReasonReact.string("Podaj haslo panie kochany: ")}
+        {ReasonReact.string("Podaj haslo: ")}
         <input
           placeholder="password"
           type_="password"
