@@ -2,21 +2,28 @@ open EloTypes;
 
 open Svc;
 [%bs.raw {|require('./ContentContainer.scss')|}];
-/* open ReasonReact; */
-type state = {users: option(list(user))};
+
+type state =
+  | LOADING
+  | LOADED(list(user))
+  | FAILURE;
 
 let component = ReasonReact.reducerComponent("ContentContainer");
 
-let initialState = () => {users: None};
+let initialState = () => LOADING;
 
 let getUsersSvc = () =>
   ReasonReact.UpdateWithSideEffects(
-    {users: None},
+    LOADING,
     self =>
       Js.Promise.(
         svcGet("users")
         |> then_(json => DecodeUsers.users(json) |> resolve)
         |> then_(users => self.send(SetUsersToState(users)) |> resolve)
+        |> catch(_err => {
+             self.send(SetFailure);
+             resolve();
+           })
       )
       |> ignore,
   );
@@ -24,38 +31,38 @@ let getUsersSvc = () =>
 let reducer = (action, _state) =>
   switch (action) {
   | GetUsersSvc => getUsersSvc()
-  | SetUsersToState(users) => ReasonReact.Update({users: Some(users)})
+  | SetUsersToState(users) => ReasonReact.Update(LOADED(users))
+  | SetFailure => ReasonReact.Update(FAILURE)
   };
 
 let make = _children => {
   ...component,
   initialState,
   reducer,
-  didMount: self => self.send(GetUsersSvc),
-  render: self =>
+  didMount: ({send}) => send(GetUsersSvc),
+  render: ({state, send}) =>
     <div className="contentContainer">
       {
-        switch (self.state.users) {
-        | None =>
+        switch (state) {
+        | LOADING =>
           <div className="contentLoadingMsg">
-            {ReasonReact.string("Loading data")}
+            {ReasonReact.string("Loading data...")}
           </div>
-        | Some(users) =>
+        | FAILURE => <FailureMask />
+        | LOADED(users) =>
           <div>
             <div className="sectionLabel">
               {ReasonReact.string("Ranking")}
             </div>
             <div className="section">
               <Users users />
-              <GameResult users containterSend={self.send} />
+              <GameResult users containterSend=send />
             </div>
             <hr />
             <div className="sectionLabel">
               {ReasonReact.string("Add player")}
             </div>
-            <div className="section">
-              <AddPlayer containterSend={self.send} />
-            </div>
+            <div className="section"> <AddPlayer containterSend=send /> </div>
             <hr />
             <div className="sectionLabel">
               {ReasonReact.string("Statistics for player")}

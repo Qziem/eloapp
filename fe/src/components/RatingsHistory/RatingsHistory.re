@@ -109,7 +109,7 @@ let make = (~users, _children) => {
         | INITIAL => ReasonReact.null
         | LOADING =>
           <div className="loadingMsg">
-            {"Loading data" |> ReasonReact.string}
+            {"Loading data..." |> ReasonReact.string}
           </div>
         | WARNING(msg) =>
           <div className="warningMsg"> {msg |> ReasonReact.string} </div>

@@ -1,3 +1,5 @@
+@import 'src/components/colors.scss';
+
 .appContainer {
     width: 350px;
     margin-left: auto;
@@ -7,5 +9,11 @@
 
     input {
         width: 80px;
+    }
+
+    .isLoggedloadingMsg {
+      text-align: center;
+      margin-top: 10px;
+      color: $progress-msg-color;
     }
 }

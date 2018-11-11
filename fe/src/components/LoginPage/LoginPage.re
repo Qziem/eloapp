@@ -59,23 +59,13 @@ let reducer = (action, state) =>
   | SetWarningFailure => ReasonReact.Update({...state, warning: SVC_FAILURE})
   };
 
-let imgNosacz = <img src="fe/src/images/nosacz.jpg" />;
-
 let warningWrongPass = () =>
-  <div className="warning wrongPass">
-    imgNosacz
+  <div className="wrongPass">
+    FailureMask.imgNosacz
     <div className="label">
       {"Kuurla, zle haslo panie!" |> ReasonReact.string}
       <br />
       {"Podaj dobre i bedzie pryma sort" |> ReasonReact.string}
-    </div>
-  </div>;
-
-let warningFailure = () =>
-  <div className="warning failure">
-    imgNosacz
-    <div className="label">
-      {"Kuuuuuuurla, cos sie zrombalo !" |> ReasonReact.string}
     </div>
   </div>;
 
@@ -89,7 +79,7 @@ let make = (~parentSend, _children) => {
         switch (self.state.warning) {
         | NOTHING => ReasonReact.null
         | WRONG_PASSWORD => warningWrongPass()
-        | SVC_FAILURE => warningFailure()
+        | SVC_FAILURE => <FailureMask />
         }
       }
       <form

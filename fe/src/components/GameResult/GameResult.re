@@ -103,7 +103,7 @@ let make = (~users, ~containterSend, _children) => {
         {
           self.state.saving ?
             <div className="saving">
-              {"Saving in progress" |> ReasonReact.string}
+              {"Saving in progress..." |> ReasonReact.string}
             </div> :
             ReasonReact.null
         }

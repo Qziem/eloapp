@@ -15,7 +15,8 @@ type ratingHistory = {
 
 type containerActions =
   | GetUsersSvc
-  | SetUsersToState(list(user));
+  | SetUsersToState(list(user))
+  | SetFailure;
 
 type appContainerActions =
   | IsLogged

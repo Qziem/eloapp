@@ -2,8 +2,12 @@
 .loginPage {
     text-align: center;
 
-    .warning {
+    .wrongPass {
         color: $warning-color;
         margin-bottom: 20px;
+    }
+
+    .FailureMask {
+      margin-bottom: 20px;
     }
 }
