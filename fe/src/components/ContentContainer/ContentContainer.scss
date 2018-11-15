@@ -2,10 +2,17 @@
 
 .contentContainer {
     .sectionLabel {
-        font-size: 20px;
+        font-size: 22px;
         font-weight: bold;
         padding-top: 5px;
         padding-bottom: 5px;
+    }
+
+    .sectionSmallLabel {
+      font-size: 17px;
+      color:  rgb(53, 53, 53);
+      padding-top: 5px;
+      padding-bottom: 5px;
     }
 
     .section {

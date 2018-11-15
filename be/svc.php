@@ -10,6 +10,7 @@ require 'Entity/Game.php';
 require 'Controller/UsersCtrl.php';
 require 'Controller/AuthCtrl.php';
 require 'Controller/RatingsHistoryCtrl.php';
+require 'Controller/RemoveGameCtrl.php';
 require 'Util/Helpers.php';
 $container = require 'container.php';
 
@@ -67,6 +68,15 @@ $app->get('/ratings_history/{userNid}', function (Request $request, Response $re
     $ratingsHistoryCtrl = new RatingsHistoryCtrl($this->em);
     $respArray = $ratingsHistoryCtrl->getRatingsHistory($userNid);
     return $response->withJson($respArray);
+});
+
+$app->delete('/remove_game/{userNid}', function (Request $request, Response $response, array $args) {
+  AuthCtrl::assertIsLogged();
+
+  $userNid = (int) $args['userNid'];
+  $removeGameCtrl = new RemoveGameCtrl($this->em);
+  $respArray = $removeGameCtrl->removeLastGameIfPossible($userNid);
+  return $response->withJson($respArray);
 });
 
 $app->run();

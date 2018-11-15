@@ -60,14 +60,22 @@ let make = _children => {
             </div>
             <hr />
             <div className="sectionLabel">
+              {ReasonReact.string("Statistics for player")}
+            </div>
+            <div className="section"> <RatingsHistory users /> </div>
+            <hr />
+            <hr />
+            <div className="sectionSmallLabel">
               {ReasonReact.string("Add player")}
             </div>
             <div className="section"> <AddPlayer containterSend=send /> </div>
             <hr />
-            <div className="sectionLabel">
-              {ReasonReact.string("Statistics for player")}
+            <div className="sectionSmallLabel">
+              {ReasonReact.string("Remove last game")}
             </div>
-            <div className="section"> <RatingsHistory users /> </div>
+            <div className="section">
+              <RemoveGame users containterSend=send />
+            </div>
           </div>
         }
       }
