@@ -20,11 +20,11 @@ $container['em'] = function ($container) {
         )
     );
 
-    // $config->setMetadataCacheImpl(
-    //     new FilesystemCache(
-    //         $container['settings']['doctrine']['cache_dir']
-    //     )
-    // );
+    $config->setMetadataCacheImpl(
+        new FilesystemCache(
+            $container['settings']['doctrine']['cache_dir']
+        )
+    );
 
     return \Doctrine\ORM\EntityManager::create($container['settings']['doctrine']['connection'], $config);
 };

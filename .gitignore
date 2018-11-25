@@ -14,4 +14,4 @@ node_modules/
 /be/config.php
 /be/config_cba.php
 /be/config_webd.php
-/be/var
+/be/cache
