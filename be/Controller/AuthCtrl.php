@@ -2,14 +2,8 @@
 namespace Controller;
 
 class AuthCtrl {
-    static public function isLogged() {
+    public function isLogged() {
         return isset($_SESSION['isLogged']);
-    }
-
-    static public function assertIsLogged() {
-        if (!AuthCtrl::isLogged()) {
-            throw new Exception('Not logged');
-        }
     }
 
     public function login($password) {
