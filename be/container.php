@@ -26,6 +26,8 @@ $container['em'] = function ($container) {
         )
     );
 
+    $config->setProxyDir($container['settings']['doctrine']['cache_proxy_dir']);
+
     return \Doctrine\ORM\EntityManager::create($container['settings']['doctrine']['connection'], $config);
 };
 
