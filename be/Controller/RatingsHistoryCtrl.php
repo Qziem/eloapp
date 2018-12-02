@@ -1,4 +1,6 @@
 <?php
+namespace Controller;
+
 use Doctrine\ORM\EntityManager;
 use Util\Helpers;
 

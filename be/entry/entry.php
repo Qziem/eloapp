@@ -3,16 +3,16 @@ session_start();
 use \Psr\Http\Message\ServerRequestInterface as Request;
 use \Psr\Http\Message\ResponseInterface as Response;
 
-require 'config.php';
-require 'vendor/autoload.php';
-require 'Entity/User.php';
-require 'Entity/Game.php';
-require 'Controller/UsersCtrl.php';
-require 'Controller/AuthCtrl.php';
-require 'Controller/RatingsHistoryCtrl.php';
-require 'Controller/RemoveGameCtrl.php';
-require 'Util/Helpers.php';
+use Controller\UsersCtrl;
+use Controller\AuthCtrl;
+use Controller\RatingsHistoryCtrl;
+use Controller\RemoveGameCtrl;
+
+require 'autoload.php';
+require '../vendor/autoload.php';
+require '../config.php';
 $container = require 'container.php';
+
 
 $app = new \Slim\App($container);
 

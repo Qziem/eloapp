@@ -1,4 +1,6 @@
 <?php
+namespace Controller;
+
 class AuthCtrl {
     static public function isLogged() {
         return isset($_SESSION['isLogged']);
