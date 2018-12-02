@@ -3,17 +3,18 @@ namespace Controller;
 
 use Doctrine\ORM\EntityManager;
 use Util\Helpers;
+use Entity\User;
 
 class RatingsHistoryCtrl {
     function __construct(EntityManager $em) {
         $this->em = $em;
     }
 
-    private function getOponentName($user) {
+    private function getOponentName(User $user): string {
         return "(" . $user->getCode() . ") " . $user->getName();
     }
 
-    private function entitiesListToOutput($gamesEntities, $userNid) {
+    private function entitiesListToOutput(array $gamesEntities, int $userNid): array {
         $output = [];
         foreach($gamesEntities as $entity) {
             $entityWinnerUserNid = $entity->getWinnerUser()->getUserNid();
@@ -45,7 +46,7 @@ class RatingsHistoryCtrl {
         return $output;
     }
 
-    public function getRatingsHistory($userNid) {
+    public function getRatingsHistory(int $userNid): array {
         $query = $this->em->createQuery(
             'SELECT g FROM Entity\Game g
             WHERE g.winnerUserNid = :userNid

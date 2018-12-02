@@ -3,13 +3,15 @@ namespace Controller;
 
 use Doctrine\ORM\EntityManager;
 use Util\Helpers;
+use Entity\Game;
+use Entity\User;
 
 class RemoveGameCtrl {
     function __construct(EntityManager $em) {
         $this->em = $em;
     }
 
-    private function getLastGame($userNid) {
+    private function getLastGame(int $userNid): ?Game {
       $dql = 'SELECT g FROM Entity\Game g
       WHERE g.winnerUserNid = :userNid
       OR g.looserUserNid = :userNid
@@ -23,7 +25,7 @@ class RemoveGameCtrl {
       return isset($games[0]) ? $games[0] : null ;
     }
 
-    private function getUserAndOponentFromGame($lastGame, $userNid) {
+    private function getUserAndOponentFromGame(Game $lastGame, int $userNid): array {
       $winnerUser = $lastGame->getWinnerUser();
       $looserUser = $lastGame->getLooserUser();
 
@@ -35,7 +37,7 @@ class RemoveGameCtrl {
       return [$user, $oponentUser];
     }
 
-    private function removeLastGame($lastGame, $user, $oponentUser) {
+    private function removeLastGame(Game $lastGame, User $user, User $oponentUser): void {
       $isWinner = $lastGame->getWinnerUser()->getUserNid() === $user->getUserNid();
       
       $ratingDiff = $lastGame->getRatingDiff();
@@ -49,7 +51,7 @@ class RemoveGameCtrl {
       $this->em->flush();
     }
 
-    public function removeLastGameIfPossible($userNid) {
+    public function removeLastGameIfPossible(int $userNid): array {
       $lastGame = $this->getLastGame($userNid);
 
       if (!isset($lastGame)) {
