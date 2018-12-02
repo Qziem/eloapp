@@ -47,14 +47,8 @@ class RatingsHistoryCtrl {
     }
 
     public function getRatingsHistory(int $userNid): array {
-        $query = $this->em->createQuery(
-            'SELECT g FROM Entity\Game g
-            WHERE g.winnerUserNid = :userNid
-            OR g.looserUserNid = :userNid
-            ORDER BY g.cdate DESC'
-        )->setParameter('userNid', $userNid);
-        
-        $gamesEntities = $query->getResult();
+        $gameRepository = $this->em->getRepository('Entity\Game');
+        $gamesEntities = $gameRepository->findSortedGamesForUser($userNid);
 
         return $this->entitiesListToOutput($gamesEntities, $userNid);
     }

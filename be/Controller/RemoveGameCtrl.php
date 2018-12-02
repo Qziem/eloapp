@@ -11,20 +11,6 @@ class RemoveGameCtrl {
         $this->em = $em;
     }
 
-    private function getLastGame(int $userNid): ?Game {
-      $dql = 'SELECT g FROM Entity\Game g
-      WHERE g.winnerUserNid = :userNid
-      OR g.looserUserNid = :userNid
-      ORDER BY g.cdate DESC';
-
-      $games = $this->em->createQuery($dql)
-        ->setParameter('userNid', $userNid)
-        ->setMaxResults(1)
-        ->getResult();
-
-      return isset($games[0]) ? $games[0] : null ;
-    }
-
     private function getUserAndOponentFromGame(Game $lastGame, int $userNid): array {
       $winnerUser = $lastGame->getWinnerUser();
       $looserUser = $lastGame->getLooserUser();
@@ -52,7 +38,8 @@ class RemoveGameCtrl {
     }
 
     public function removeLastGameIfPossible(int $userNid): array {
-      $lastGame = $this->getLastGame($userNid);
+      $gameRepository = $this->em->getRepository('Entity\Game');
+      $lastGame = $gameRepository->findLastGame($userNid);
 
       if (!isset($lastGame)) {
         return [
@@ -63,7 +50,7 @@ class RemoveGameCtrl {
 
       list($user, $oponentUser) = $this->getUserAndOponentFromGame($lastGame, $userNid);
 
-      $oponentLastGame = $this->getLastGame($oponentUser->getUserNid());
+      $oponentLastGame = $gameRepository->findLastGame($oponentUser->getUserNid());
       if ($lastGame->getGameNid() !== $oponentLastGame->getGameNid()) {
         return [
           'removed' => false,
