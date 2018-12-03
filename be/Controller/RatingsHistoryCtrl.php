@@ -1,6 +1,9 @@
 <?php
 namespace Controller;
 
+use \Psr\Http\Message\ServerRequestInterface as Request;
+use \Psr\Http\Message\ResponseInterface as Response;
+
 use Doctrine\ORM\EntityManager;
 use Util\Helpers;
 use Entity\User;
@@ -46,10 +49,12 @@ class RatingsHistoryCtrl {
         return $output;
     }
 
-    public function getRatingsHistory(int $userNid): array {
+    public function getRatingsHistory(Request $request, Response $response, $userNid): Response {
+        $ratingsHistoryCtrl = new RatingsHistoryCtrl($this->em);
         $gameRepository = $this->em->getRepository('Entity\Game');
         $gamesEntities = $gameRepository->findSortedGamesForUser($userNid);
 
-        return $this->entitiesListToOutput($gamesEntities, $userNid);
+        $respArray = $this->entitiesListToOutput($gamesEntities, $userNid);
+        return $response->withJson($respArray);
     }
 }

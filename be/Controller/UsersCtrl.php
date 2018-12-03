@@ -1,6 +1,9 @@
 <?php
 namespace Controller;
 
+use \Psr\Http\Message\ServerRequestInterface as Request;
+use \Psr\Http\Message\ResponseInterface as Response;
+
 use Doctrine\ORM\EntityManager;
 use Util\Helpers;
 use Entity\Game;
@@ -11,24 +14,28 @@ class UsersCtrl {
         $this->em = $em;
     }
 
-    public function getUsers(): array {
+    public function getUsers(Request $request, Response $response): Response {
         $usersEntities = $this->em->getRepository('Entity\User')->findBy(['deleted' => 0], ['rating' => 'DESC', 'code' => 'ASC']);
-        return Helpers::entitiesListToArray($usersEntities);
+        $respArray = Helpers::entitiesListToArray($usersEntities);
+        return $response->withJson($respArray);
     }
 
-    public function addUser(array $userArr): void {
+    public function addUser(Request $request, Response $response): Response {
+        $json = $request->getBody();
+        $userArray = json_decode($json, true);
+
         $initRating = 1500;
 
         $user = new User();
-        $user->setCode($userArr['code']);
-        $user->setName($userArr['name']);
+        $user->setCode($userArray['code']);
+        $user->setName($userArray['name']);
         $user->setRating($initRating);
         $user->setDeleted(false);
 
         $this->em->persist($user);
         $this->em->flush();
 
-        $userNid = $user->getUserNid();
+        return $response->withJson([]);
     }
 
      private function getGame(User $winnerUser, User $looserUser, int $oldWinnerRating, int $oldLooserRating, int $ratingDiff): Game {
@@ -57,7 +64,7 @@ class UsersCtrl {
         return [$newRatingWinner, $newRatingLooser];
     }
 
-    public function updateRatings(int $winnerUserNid, int $looserUserNid): void {
+    private function updateRatingsInDb(int $winnerUserNid, int $looserUserNid): void {
         $winnerUser = $this->em->getRepository('Entity\User')->find($winnerUserNid);
         $looserUser = $this->em->getRepository('Entity\User')->find($looserUserNid);
         if (!isset($winnerUser) || !isset($looserUser)) throw new \Exception('Winner or looser does not exist');
@@ -75,5 +82,15 @@ class UsersCtrl {
 
         $this->em->persist($game);
         $this->em->flush();
+    }
+
+    public function updateRatings(Request $request, Response $response): Response {
+        $json = $request->getBody();
+        $usersCodes = json_decode($json, true);
+        $winnerUserNid = $usersCodes['winnerUserNid'];
+        $looserUserNid = $usersCodes['looserUserNid'];
+    
+        $this->updateRatingsInDb($winnerUserNid, $looserUserNid);
+        return $response->withJson([]);
     }
 }

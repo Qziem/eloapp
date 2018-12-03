@@ -1,6 +1,9 @@
 <?php
 namespace Controller;
 
+use \Psr\Http\Message\ServerRequestInterface as Request;
+use \Psr\Http\Message\ResponseInterface as Response;
+
 use Doctrine\ORM\EntityManager;
 use Util\Helpers;
 use Entity\Game;
@@ -37,7 +40,7 @@ class RemoveGameCtrl {
       $this->em->flush();
     }
 
-    public function removeLastGameIfPossible(int $userNid): array {
+    private function removeLastGameIfPossibleInDb(int $userNid): array {
       $gameRepository = $this->em->getRepository('Entity\Game');
       $lastGame = $gameRepository->findLastGame($userNid);
 
@@ -60,5 +63,10 @@ class RemoveGameCtrl {
 
       $this->removeLastGame($lastGame, $user, $oponentUser);
       return ['removed' => true];
+    }
+
+    public function removeLastGameIfPossible(Response $response, $userNid): Response {
+      $respArray = $this->removeLastGameIfPossibleInDb($userNid);
+      return $response->withJson($respArray);
     }
 }
