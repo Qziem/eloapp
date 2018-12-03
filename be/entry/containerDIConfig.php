@@ -1,5 +1,5 @@
 <?php
-$config = require '../config.php';
+require '../config.php';
 
 use Doctrine\ORM\EntityManager;
 use Doctrine\ORM\Mapping\Driver\AnnotationDriver;
