@@ -12,7 +12,7 @@ $config = [
         'cache_proxy_dir' => __DIR__ . '/cache/doctrine_proxy',
 
         // you should add any other path containing annotated entity classes
-        'metadata_dirs' => [__DIR__ . '/Entity'],
+        'metadata_dirs' => [__DIR__ . '/Model/Entity'],
 
         'connection' => [
             'driver' => 'pdo_mysql',

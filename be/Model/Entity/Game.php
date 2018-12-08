@@ -1,10 +1,10 @@
 <?php
-namespace Entity;
+namespace Model\Entity;
 
 use Doctrine\ORM\Mapping as ORM;
 
 /**
- * @ORM\Entity(repositoryClass="Repository\GameRepository")
+ * @ORM\Entity(repositoryClass="Model\Repository\GameRepository")
  * @ORM\Table(name="games")
  */
 class Game
@@ -49,13 +49,13 @@ class Game
   protected $looserUserNid;
 
 	/**
-    * @ORM\ManyToOne(targetEntity="Entity\User", inversedBy="games")
+    * @ORM\ManyToOne(targetEntity="Model\Entity\User", inversedBy="games")
     * @ORM\JoinColumn(name="winner_user_nid", referencedColumnName="user_nid")
     */
 	protected $winnerUser;
 
 	/**
-    * @ORM\ManyToOne(targetEntity="Entity\User", inversedBy="games")
+    * @ORM\ManyToOne(targetEntity="Model\Entity\User", inversedBy="games")
     * @ORM\JoinColumn(name="looser_user_nid", referencedColumnName="user_nid")
     */
 	protected $looserUser;  

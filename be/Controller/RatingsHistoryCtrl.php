@@ -6,7 +6,8 @@ use \Psr\Http\Message\ResponseInterface as Response;
 
 use Doctrine\ORM\EntityManager;
 use Util\Helpers;
-use Entity\User;
+use Model\Entity\User;
+use Model\Entity\Game;
 
 class RatingsHistoryCtrl {
     function __construct(EntityManager $em) {
@@ -51,7 +52,7 @@ class RatingsHistoryCtrl {
 
     public function getRatingsHistory(Request $request, Response $response, $userNid): Response {
         $ratingsHistoryCtrl = new RatingsHistoryCtrl($this->em);
-        $gameRepository = $this->em->getRepository('Entity\Game');
+        $gameRepository = $this->em->getRepository(Game::class);
         $gamesEntities = $gameRepository->findSortedGamesForUser($userNid);
 
         $respArray = $this->entitiesListToOutput($gamesEntities, $userNid);

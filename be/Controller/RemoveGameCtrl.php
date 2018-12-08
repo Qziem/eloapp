@@ -6,8 +6,8 @@ use \Psr\Http\Message\ResponseInterface as Response;
 
 use Doctrine\ORM\EntityManager;
 use Util\Helpers;
-use Entity\Game;
-use Entity\User;
+use Model\Entity\Game;
+use Model\Entity\User;
 
 class RemoveGameCtrl {
     function __construct(EntityManager $em) {
@@ -41,7 +41,7 @@ class RemoveGameCtrl {
     }
 
     private function removeLastGameIfPossibleInDb(int $userNid): array {
-      $gameRepository = $this->em->getRepository('Entity\Game');
+      $gameRepository = $this->em->getRepository(Game::class);
       $lastGame = $gameRepository->findLastGame($userNid);
 
       if (!isset($lastGame)) {

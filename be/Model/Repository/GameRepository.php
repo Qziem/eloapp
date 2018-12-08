@@ -1,9 +1,9 @@
 <?php
-namespace Repository;
+namespace Model\Repository;
 
 use Doctrine\ORM\Query;
 use Doctrine\ORM\EntityRepository;
-use Entity\Game;
+use Model\Entity\Game;
 
 class GameRepository extends EntityRepository {
   private function querySortedGamesForUser(int $userNid): Query {
