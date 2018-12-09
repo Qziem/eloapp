@@ -26,13 +26,18 @@ let component = ReasonReact.reducerComponent("LoginPage");
 
 let initialState = () => {password: "", warning: NOTHING};
 
-let onSuccess = (parentSend, send, json) =>
+let onLoginSuccess = parentSend => {
+  parentSend(SetIsLogged(true));
+  DefaultPlace.setIfUrlEmpty();
+};
+
+let onServiceSuccess = (parentSend, send, json) =>
   json
   |> Json.Decode.field("logged", Json.Decode.bool)
   |> (
     isLoginSuccessfully =>
       isLoginSuccessfully ?
-        parentSend(SetIsLogged(true)) : send(SetWarningWrongPass)
+        onLoginSuccess(parentSend) : send(SetWarningWrongPass)
   );
 
 let onError = (send, err) => {
@@ -46,7 +51,7 @@ let loginSvc = (password, parentSend) => {
   ReasonReact.SideEffects(
     ({send}) =>
       svcPost("auth/login", payload)
-      |> then_(json => onSuccess(parentSend, send, json) |> resolve)
+      |> then_(json => onServiceSuccess(parentSend, send, json) |> resolve)
       |> catch(err => onError(send, err) |> resolve)
       |> ignore,
   );

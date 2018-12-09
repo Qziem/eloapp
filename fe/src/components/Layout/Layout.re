@@ -8,7 +8,17 @@ type action =
 
 let component = ReasonReact.reducerComponent("Layout");
 
-let initialState = () => RANK_AND_STATS;
+let getPlaceFromUrl = (url: ReasonReact.Router.url) => {
+  Js.log("hash: " ++ url.hash);
+  switch (url.hash) {
+  | "rank_and_stats" => RANK_AND_STATS
+  | "operations" => OPERATIONS
+  | _ => NOT_FOUND
+  };
+};
+
+let initialState = () =>
+  ReasonReact.Router.dangerouslyGetInitialUrl() |> getPlaceFromUrl;
 
 let reducer = (action, _state) =>
   switch (action) {
@@ -21,12 +31,8 @@ let make = _children => {
   reducer,
   didMount: ({send}) =>
     ReasonReact.Router.watchUrl(url => {
-      Js.log("hash: " ++ url.hash);
-      switch (url.hash) {
-      | "rank_and_stats" => send(SetPlace(RANK_AND_STATS))
-      | "operations" => send(SetPlace(OPERATIONS))
-      | _ => send(SetPlace(NOT_FOUND))
-      };
+      let place = getPlaceFromUrl(url);
+      send(SetPlace(place));
     })
     |> ignore,
   render: ({state}) =>
