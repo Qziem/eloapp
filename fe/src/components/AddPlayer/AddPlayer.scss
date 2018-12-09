@@ -1,6 +1,17 @@
 @import 'src/components/colors.scss';
 .addPlayer {
     .warning {
-        color: $warning-color;
+      color: $warning-color;
+      padding-bottom: 5px;
+    }
+  
+    .saving {
+      color: $progress-msg-color;
+      padding-bottom: 5px;
+    }
+
+    .success {
+      color: $success-msg-color;
+      padding-bottom: 5px;
     }
 }

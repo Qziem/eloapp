@@ -5,7 +5,8 @@ open Js.Promise;
 type saveStateType =
   | NOTHING
   | SAVING
-  | WARNING(string);
+  | WARNING(string)
+  | SUCCESS;
 
 type state = {
   code: string,
@@ -15,7 +16,7 @@ type state = {
 type action =
   | ChangeCode(string)
   | RemoveGame
-  | SetSaved
+  | SetSuccess
   | SetWarning(string);
 
 type removeGameResult = {
@@ -41,7 +42,7 @@ let onSuccess = (send, json) =>
   |> (
     removeGameResult =>
       switch (removeGameResult) {
-      | {removed: true, warning: None} => send(SetSaved)
+      | {removed: true, warning: None} => send(SetSuccess)
       | {removed: false, warning: Some(msg)} => send(SetWarning(msg))
       | _ => raise(IllegalCombinationInRemoveGameResult)
       }
@@ -65,7 +66,7 @@ let reducer = (action, state) =>
   switch (action) {
   | ChangeCode(code) => ReasonReact.Update({...state, code})
   | RemoveGame => removeGameSvc(state)
-  | SetSaved => ReasonReact.NoUpdate /* TODO: ustawiać jakas wiadomosc ze sie udalo */
+  | SetSuccess => ReasonReact.Update({...state, saveState: SUCCESS})
   | SetWarning(msg) =>
     ReasonReact.Update({...state, saveState: WARNING(msg)})
   };
@@ -80,6 +81,10 @@ let make = _children => {
     <div className="removeGame">
       {
         switch (state.saveState) {
+        | SUCCESS =>
+          <div className="success">
+            {"Successfully removed :)" |> ReasonReact.string}
+          </div>
         | WARNING(msg) =>
           <div className="warning"> {msg |> ReasonReact.string} </div>
         | SAVING =>

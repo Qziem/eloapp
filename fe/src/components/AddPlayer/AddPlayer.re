@@ -2,24 +2,29 @@ open Svc;
 open Js.Promise;
 [%bs.raw {|require('./AddPlayer.scss')|}];
 
+type savingState =
+  | NOTHING
+  | SAVING
+  | WARNING(string)
+  | SUCCESS;
+
 type state = {
   code: string,
   name: string,
-  warning: bool,
+  savingState,
 };
 
 type action =
   | ChangeCode(string)
   | ChangeName(string)
-  | SetWarning(bool)
+  | SetSavingState(savingState)
   | AddPlayer;
 
 let component = ReasonReact.reducerComponent("AddPlayer");
 
-let initialState = () => {code: "", name: "", warning: false};
+let initialState = () => {code: "", name: "", savingState: NOTHING};
 
-/* TODO: ustawić jakąs wiadomosc ze sie udalo */
-let onSuccess = _json => ();
+let onSuccess = send => send(SetSavingState(SUCCESS));
 
 let addPlayerSvc = state => {
   let payload =
@@ -28,10 +33,10 @@ let addPlayerSvc = state => {
       ("name", Json.Encode.string(state.name)),
     ]);
   ReasonReact.UpdateWithSideEffects(
-    {...state, warning: false},
-    _self =>
+    {...state, savingState: SAVING},
+    ({send}) =>
       svcPost("users", payload)
-      |> then_(json => onSuccess(json) |> resolve)
+      |> then_(_json => onSuccess(send) |> resolve)
       |> ignore,
   );
 };
@@ -41,7 +46,11 @@ let addPlayerReducer = state => {
   let nameValid = String.trim(state.name) !== "";
   switch (codeValid, nameValid) {
   | (true, true) => addPlayerSvc(state)
-  | _ => ReasonReact.Update({...state, warning: true})
+  | _ =>
+    ReasonReact.Update({
+      ...state,
+      savingState: WARNING("Fields can not be empty"),
+    })
   };
 };
 
@@ -49,7 +58,10 @@ let reducer = (action, state) =>
   switch (action) {
   | ChangeCode(code) => ReasonReact.Update({...state, code})
   | ChangeName(name) => ReasonReact.Update({...state, name})
-  | SetWarning(warning) => ReasonReact.Update({...state, warning})
+  | SetSavingState(SUCCESS) =>
+    ReasonReact.Update({code: "", name: "", savingState: SUCCESS})
+  | SetSavingState(savingState) =>
+    ReasonReact.Update({...state, savingState})
   | AddPlayer => addPlayerReducer(state)
   };
 
@@ -57,20 +69,28 @@ let make = _children => {
   ...component,
   initialState,
   reducer,
-  render: self =>
+  render: ({state, send}) =>
     <div className="addPlayer">
       {
-        self.state.warning ?
-          <div className="warning">
-            {ReasonReact.string("Fields can not be empty")}
-          </div> :
-          ReasonReact.null
+        switch (state.savingState) {
+        | NOTHING => ReasonReact.null
+        | SUCCESS =>
+          <div className="success">
+            {"Successfully saved :)" |> ReasonReact.string}
+          </div>
+        | SAVING =>
+          <div className="saving">
+            {"Removing in progress..." |> ReasonReact.string}
+          </div>
+        | WARNING(msg) =>
+          <div className="warning"> {ReasonReact.string(msg)} </div>
+        }
       }
       <form
         onSubmit={
           event => {
             event |> ReactEvent.Form.preventDefault;
-            self.send(AddPlayer);
+            send(AddPlayer);
           }
         }>
         <table>
@@ -79,22 +99,20 @@ let make = _children => {
               <td>
                 <input
                   placeholder="code"
+                  value={state.code}
                   onChange={
                     event =>
-                      self.send(
-                        ChangeCode(GameResult.valueFromEvent(event)),
-                      )
+                      send(ChangeCode(GameResult.valueFromEvent(event)))
                   }
                 />
               </td>
               <td>
                 <input
                   placeholder="name"
+                  value={state.name}
                   onChange={
                     event =>
-                      self.send(
-                        ChangeName(GameResult.valueFromEvent(event)),
-                      )
+                      send(ChangeName(GameResult.valueFromEvent(event)))
                   }
                 />
               </td>

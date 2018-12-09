@@ -8,14 +8,12 @@ type action =
 
 let component = ReasonReact.reducerComponent("Layout");
 
-let getPlaceFromUrl = (url: ReasonReact.Router.url) => {
-  Js.log("hash: " ++ url.hash);
+let getPlaceFromUrl = (url: ReasonReact.Router.url) =>
   switch (url.hash) {
   | "rank_and_stats" => RANK_AND_STATS
   | "operations" => OPERATIONS
   | _ => NOT_FOUND
   };
-};
 
 let initialState = () =>
   ReasonReact.Router.dangerouslyGetInitialUrl() |> getPlaceFromUrl;
