@@ -14,16 +14,13 @@ class RemoveGameCtrl {
         $this->em = $em;
     }
 
-    private function getUserAndOponentFromGame(Game $lastGame, int $userNid): array {
+    private function getOponentFromGame(Game $lastGame, int $userNid): ?User {
       $winnerUser = $lastGame->getWinnerUser();
       $looserUser = $lastGame->getLooserUser();
 
       $isWinner = $winnerUser->getUserNid() === $userNid;
 
-      $user = $isWinner ? $winnerUser : $looserUser;
-      $oponentUser = $isWinner ? $looserUser : $winnerUser;
-
-      return [$user, $oponentUser];
+      return $isWinner ? $looserUser : $winnerUser;
     }
 
     private function removeLastGame(Game $lastGame, User $user, User $oponentUser): void {
@@ -40,7 +37,17 @@ class RemoveGameCtrl {
       $this->em->flush();
     }
 
-    private function removeLastGameIfPossibleInDb(int $userNid): array {
+    private function removeLastGameIfPossibleInDb(string $code): array {
+      $userRepository = $this->em->getRepository(User::class);
+      $user = $userRepository->findUserByCode($code);
+      if (!isset($user)) {
+        return [
+          'removed' => false,
+          'warning' => 'Player does not exist',
+        ];
+      }
+
+      $userNid = $user->getUserNid();
       $gameRepository = $this->em->getRepository(Game::class);
       $lastGame = $gameRepository->findLastGame($userNid);
 
@@ -51,7 +58,7 @@ class RemoveGameCtrl {
         ];
       }
 
-      list($user, $oponentUser) = $this->getUserAndOponentFromGame($lastGame, $userNid);
+      $oponentUser = $this->getOponentFromGame($lastGame, $userNid);
 
       $oponentLastGame = $gameRepository->findLastGame($oponentUser->getUserNid());
       if ($lastGame->getGameNid() !== $oponentLastGame->getGameNid()) {
@@ -65,8 +72,8 @@ class RemoveGameCtrl {
       return ['removed' => true];
     }
 
-    public function removeLastGameIfPossible(Response $response, $userNid): Response {
-      $respArray = $this->removeLastGameIfPossibleInDb($userNid);
+    public function removeLastGameIfPossible(Response $response, $code): Response {
+      $respArray = $this->removeLastGameIfPossibleInDb($code);
       return $response->withJson($respArray);
     }
 }

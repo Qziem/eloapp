@@ -48,14 +48,13 @@ let onSuccess = (send, json) =>
       }
   );
 
-let removeGameSvc = (state, users) => {
-  let userNid = Helpers.getUserNidFromCode(state.code, users);
+let removeGameSvc = state => {
   let payload = {| {} |} |> Json.parseOrRaise;
 
   ReasonReact.UpdateWithSideEffects(
     {...state, saveState: SAVING},
     ({send}) => {
-      let url = "remove_game/" ++ string_of_int(userNid);
+      let url = "remove_game/" ++ state.code;
       svcDelete(url, payload)
       |> then_(json => onSuccess(send, json) |> resolve)
       |> ignore;
@@ -63,24 +62,10 @@ let removeGameSvc = (state, users) => {
   );
 };
 
-let removeGameReducer = (state, users) => {
-  let userExist =
-    List.exists(
-      (user: user) => Helpers.compareCodes(user.code, state.code),
-      users,
-    );
-
-  userExist ?
-    removeGameSvc(state, users) :
-    ReasonReact.Update({
-      ...state,
-      saveState: WARNING("Player doesn't exist"),
-    });
-};
-let reducer = (users, containterSend, action, state) =>
+let reducer = (containterSend, action, state) =>
   switch (action) {
   | ChangeCode(code) => ReasonReact.Update({...state, code})
-  | RemoveGame => removeGameReducer(state, users)
+  | RemoveGame => removeGameSvc(state)
   | SetSaved =>
     containterSend(GetUsersSvc);
     ReasonReact.NoUpdate;
@@ -90,10 +75,10 @@ let reducer = (users, containterSend, action, state) =>
 
 let onYesClick = (send, ()) => send(RemoveGame);
 
-let make = (~users, ~containterSend, _children) => {
+let make = (~containterSend, _children) => {
   ...component,
   initialState,
-  reducer: reducer(users, containterSend),
+  reducer: reducer(containterSend),
   render: ({state, send}) =>
     <div className="removeGame">
       {

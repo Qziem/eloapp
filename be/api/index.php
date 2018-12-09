@@ -32,7 +32,7 @@ $app->put('/users/update_ratings', [UsersCtrl::class, 'updateRatings'])
 $app->get('/ratings_history/{userNid}', [RatingsHistoryCtrl::class, 'getRatingsHistory'])
   ->add(PrivilegesIsLogged::class);
 
-$app->delete('/remove_game/{userNid}', [RemoveGameCtrl::class, 'removeLastGameIfPossible'])
+$app->delete('/remove_game/{code}', [RemoveGameCtrl::class, 'removeLastGameIfPossible'])
   ->add(PrivilegesIsLogged::class);
 
 $app->run();

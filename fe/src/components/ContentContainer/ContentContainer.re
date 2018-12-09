@@ -76,9 +76,7 @@ let make = _children => {
             <div className="sectionSmallLabel">
               {ReasonReact.string("Remove last game")}
             </div>
-            <div className="section">
-              <RemoveGame users containterSend=send />
-            </div>
+            <div className="section"> <RemoveGame containterSend=send /> </div>
           </div>
         }
       }
