@@ -1,6 +1,5 @@
 [%bs.raw {|require('./RemoveGame.scss')|}];
 open Svc;
-open EloTypes;
 open Js.Promise;
 
 type saveStateType =
@@ -62,23 +61,21 @@ let removeGameSvc = state => {
   );
 };
 
-let reducer = (containterSend, action, state) =>
+let reducer = (action, state) =>
   switch (action) {
   | ChangeCode(code) => ReasonReact.Update({...state, code})
   | RemoveGame => removeGameSvc(state)
-  | SetSaved =>
-    containterSend(GetUsersSvc);
-    ReasonReact.NoUpdate;
+  | SetSaved => ReasonReact.NoUpdate /* TODO: ustawiać jakas wiadomosc ze sie udalo */
   | SetWarning(msg) =>
     ReasonReact.Update({...state, saveState: WARNING(msg)})
   };
 
 let onYesClick = (send, ()) => send(RemoveGame);
 
-let make = (~containterSend, _children) => {
+let make = _children => {
   ...component,
   initialState,
-  reducer: reducer(containterSend),
+  reducer,
   render: ({state, send}) =>
     <div className="removeGame">
       {

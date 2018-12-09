@@ -46,8 +46,8 @@ let make = _children => {
           <div className="isLoggedloadingMsg">
             {"Checking is logged..." |> ReasonReact.string}
           </div>
-        | LOGGED => <ContentContainer />
         | NOT_LOGGED => <LoginPage parentSend=send />
+        | LOGGED => <Layout />
         }
       }
     </div>,

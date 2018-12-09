@@ -1,5 +1,4 @@
 open Svc;
-open EloTypes;
 open Js.Promise;
 [%bs.raw {|require('./AddPlayer.scss')|}];
 
@@ -13,15 +12,16 @@ type action =
   | ChangeCode(string)
   | ChangeName(string)
   | SetWarning(bool)
-  | AddPlayer(containerActions => unit);
+  | AddPlayer;
 
 let component = ReasonReact.reducerComponent("AddPlayer");
 
 let initialState = () => {code: "", name: "", warning: false};
 
-let onSuccess = (containterSend, _json) => containterSend(GetUsersSvc);
+/* TODO: ustawić jakąs wiadomosc ze sie udalo */
+let onSuccess = _json => ();
 
-let addPlayerSvc = (state, containterSend) => {
+let addPlayerSvc = state => {
   let payload =
     Json.Encode.object_([
       ("code", Json.Encode.string(state.code)),
@@ -31,16 +31,16 @@ let addPlayerSvc = (state, containterSend) => {
     {...state, warning: false},
     _self =>
       svcPost("users", payload)
-      |> then_(json => onSuccess(containterSend, json) |> resolve)
+      |> then_(json => onSuccess(json) |> resolve)
       |> ignore,
   );
 };
 
-let addPlayerReducer = (state, containterSend) => {
+let addPlayerReducer = state => {
   let codeValid = String.trim(state.code) !== "";
   let nameValid = String.trim(state.name) !== "";
   switch (codeValid, nameValid) {
-  | (true, true) => addPlayerSvc(state, containterSend)
+  | (true, true) => addPlayerSvc(state)
   | _ => ReasonReact.Update({...state, warning: true})
   };
 };
@@ -50,10 +50,10 @@ let reducer = (action, state) =>
   | ChangeCode(code) => ReasonReact.Update({...state, code})
   | ChangeName(name) => ReasonReact.Update({...state, name})
   | SetWarning(warning) => ReasonReact.Update({...state, warning})
-  | AddPlayer(containterSend) => addPlayerReducer(state, containterSend)
+  | AddPlayer => addPlayerReducer(state)
   };
 
-let make = (~containterSend, _children) => {
+let make = _children => {
   ...component,
   initialState,
   reducer,
@@ -70,7 +70,7 @@ let make = (~containterSend, _children) => {
         onSubmit={
           event => {
             event |> ReactEvent.Form.preventDefault;
-            self.send(AddPlayer(containterSend));
+            self.send(AddPlayer);
           }
         }>
         <table>

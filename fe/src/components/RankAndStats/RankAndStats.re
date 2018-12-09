@@ -2,14 +2,14 @@ open EloTypes;
 open Js.Promise;
 
 open Svc;
-[%bs.raw {|require('./ContentContainer.scss')|}];
+[%bs.raw {|require('./RankAndStats.scss')|}];
 
 type state =
   | LOADING
   | LOADED(list(user))
   | FAILURE;
 
-let component = ReasonReact.reducerComponent("ContentContainer");
+let component = ReasonReact.reducerComponent("RankAndStats");
 
 let initialState = () => LOADING;
 
@@ -44,7 +44,7 @@ let make = _children => {
   reducer,
   didMount: ({send}) => send(GetUsersSvc),
   render: ({state, send}) =>
-    <div className="contentContainer">
+    <div className="rankAndStats">
       {
         switch (state) {
         | LOADING =>
@@ -66,17 +66,6 @@ let make = _children => {
               {ReasonReact.string("Statistics for player")}
             </div>
             <div className="section"> <RatingsHistory users /> </div>
-            <hr />
-            <hr />
-            <div className="sectionSmallLabel">
-              {ReasonReact.string("Add player")}
-            </div>
-            <div className="section"> <AddPlayer containterSend=send /> </div>
-            <hr />
-            <div className="sectionSmallLabel">
-              {ReasonReact.string("Remove last game")}
-            </div>
-            <div className="section"> <RemoveGame containterSend=send /> </div>
           </div>
         }
       }
