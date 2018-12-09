@@ -1,7 +1,8 @@
 open EloTypes;
 open Svc;
+open Js.Promise;
+
 [%bs.raw {|require('./AppContainer.scss')|}];
-/* open ReasonReact; */
 
 type state =
   | LOADING
@@ -9,20 +10,19 @@ type state =
   | NOT_LOGGED;
 
 let component = ReasonReact.reducerComponent("contentContainer");
-/* let component = ReasonReact.statelessComponent("AppContainer"); */
 
 let initialState = () => LOADING;
 
+let onSuccess = (send, json) =>
+  json
+  |> Json.Decode.field("isLogged", Json.Decode.bool)
+  |> (isLogged => send(SetIsLogged(isLogged)));
+
 let isLoggedSvc = () =>
   ReasonReact.SideEffects(
-    self =>
-      Js.Promise.(
-        svcGet("auth/isLogged")
-        |> then_(json =>
-             Json.Decode.field("isLogged", Json.Decode.bool, json) |> resolve
-           )
-        |> then_(isLogged => self.send(SetIsLogged(isLogged)) |> resolve)
-      )
+    ({send}) =>
+      svcGet("auth/isLogged")
+      |> then_(json => onSuccess(send, json) |> resolve)
       |> ignore,
   );
 

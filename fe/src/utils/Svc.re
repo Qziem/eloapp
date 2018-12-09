@@ -19,5 +19,4 @@ let svcGet = resource =>
 
 let svcPost = svcGeneric(Post);
 let svcPut = svcGeneric(Put);
-
 let svcDelete = svcGeneric(Delete);

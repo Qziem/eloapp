@@ -1,5 +1,6 @@
 open Svc;
 open EloTypes;
+open Js.Promise;
 [%bs.raw {|require('./AddPlayer.scss')|}];
 
 type state = {
@@ -18,6 +19,8 @@ let component = ReasonReact.reducerComponent("AddPlayer");
 
 let initialState = () => {code: "", name: "", warning: false};
 
+let onSuccess = (containterSend, _json) => containterSend(GetUsersSvc);
+
 let addPlayerSvc = (state, containterSend) => {
   let payload =
     Json.Encode.object_([
@@ -27,10 +30,8 @@ let addPlayerSvc = (state, containterSend) => {
   ReasonReact.UpdateWithSideEffects(
     {...state, warning: false},
     _self =>
-      Js.Promise.(
-        svcPost("users", payload)
-        |> then_(_result => containterSend(GetUsersSvc) |> resolve)
-      )
+      svcPost("users", payload)
+      |> then_(json => onSuccess(containterSend, json) |> resolve)
       |> ignore,
   );
 };

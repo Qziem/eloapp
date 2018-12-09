@@ -1,4 +1,5 @@
 open EloTypes;
+open Js.Promise;
 
 open Svc;
 [%bs.raw {|require('./ContentContainer.scss')|}];
@@ -12,19 +13,21 @@ let component = ReasonReact.reducerComponent("ContentContainer");
 
 let initialState = () => LOADING;
 
+let onSuccess = (send, json) =>
+  json |> DecodeUsers.users |> (users => send(SetUsersToState(users)));
+
+let onError = (send, err) => {
+  send(SetFailure);
+  Js.Console.error(err);
+};
+
 let getUsersSvc = () =>
   ReasonReact.UpdateWithSideEffects(
     LOADING,
-    self =>
-      Js.Promise.(
-        svcGet("users")
-        |> then_(json => DecodeUsers.users(json) |> resolve)
-        |> then_(users => self.send(SetUsersToState(users)) |> resolve)
-        |> catch(_err => {
-             self.send(SetFailure);
-             resolve();
-           })
-      )
+    ({send}) =>
+      svcGet("users")
+      |> then_(json => onSuccess(send, json) |> resolve)
+      |> catch(err => onError(send, err) |> resolve)
       |> ignore,
   );
 

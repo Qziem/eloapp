@@ -1,6 +1,7 @@
 [%bs.raw {|require('./RemoveGame.scss')|}];
 open Svc;
 open EloTypes;
+open Js.Promise;
 
 type saveStateType =
   | NOTHING
@@ -35,28 +36,30 @@ let decodeRemoveGameResult = json =>
     warning: json |> optional(field("warning", string)),
   };
 
+let onSuccess = (send, json) =>
+  json
+  |> decodeRemoveGameResult
+  |> (
+    removeGameResult =>
+      switch (removeGameResult) {
+      | {removed: true, warning: None} => send(SetSaved)
+      | {removed: false, warning: Some(msg)} => send(SetWarning(msg))
+      | _ => raise(IllegalCombinationInRemoveGameResult)
+      }
+  );
+
 let removeGameSvc = (state, users) => {
   let userNid = Helpers.getUserNidFromCode(state.code, users);
   let payload = {| {} |} |> Json.parseOrRaise;
 
   ReasonReact.UpdateWithSideEffects(
     {...state, saveState: SAVING},
-    self =>
-      Js.Promise.(
-        svcDelete("remove_game/" ++ string_of_int(userNid), payload)
-        |> then_(result => decodeRemoveGameResult(result) |> resolve)
-        |> then_(removeGameResult => {
-             switch (removeGameResult) {
-             | {removed: true, warning: None} => self.send(SetSaved)
-             | {removed: false, warning: Some(msg)} =>
-               self.send(SetWarning(msg))
-             | _ => raise(IllegalCombinationInRemoveGameResult)
-             };
-
-             resolve();
-           })
-      )
-      |> ignore,
+    ({send}) => {
+      let url = "remove_game/" ++ string_of_int(userNid);
+      svcDelete(url, payload)
+      |> then_(json => onSuccess(send, json) |> resolve)
+      |> ignore;
+    },
   );
 };
 

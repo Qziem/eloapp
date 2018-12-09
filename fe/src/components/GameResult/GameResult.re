@@ -1,5 +1,8 @@
 open EloTypes;
 open Helpers;
+open Svc;
+open Js.Promise;
+
 [%bs.raw {|require('./GameResult.scss')|}];
 
 type action =
@@ -59,15 +62,15 @@ let handleUpdateClickReducer = (state, users, containterSend) => {
   };
 };
 
+let onSuccess = (containterSend, _resp) => containterSend(GetUsersSvc);
+
 let updateRatingsSvc = (winnerLooserNids, state, containterSend) =>
   ReasonReact.UpdateWithSideEffects(
     {...state, saving: true},
     _self => {
       let payload = EncodeUpdateRatings.encode(winnerLooserNids);
-      Js.Promise.(
-        Svc.svcPut("users/update_ratings", payload)
-        |> then_(_resp => containterSend(GetUsersSvc) |> resolve)
-      )
+      svcPut("users/update_ratings", payload)
+      |> then_(json => onSuccess(containterSend, json) |> resolve)
       |> ignore;
     },
   );

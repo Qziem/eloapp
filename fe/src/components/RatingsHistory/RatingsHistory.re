@@ -1,6 +1,8 @@
 open Svc;
 open EloTypes;
 open Helpers;
+open Js.Promise;
+
 [%bs.raw {|require('./RatingsHistory.scss')|}];
 
 type dataStateType =
@@ -12,9 +14,6 @@ type dataStateType =
 type stateType = {
   inputCode: string,
   dataState: dataStateType,
-  /* ratingsHistory: option(list(ratingHistory)),
-     warning: bool,
-     loading: bool, */
 };
 
 type action =
@@ -26,20 +25,22 @@ let component = ReasonReact.reducerComponent("Stats");
 
 let initialState = (): stateType => {inputCode: "", dataState: INITIAL};
 
+let onSuccess = (send, json) =>
+  json
+  |> DecodeRatingsHistory.ratingsHistoryDec
+  |> (ratingsHistory => send(SetHistory(ratingsHistory)));
+
 let getHistorySvc = (state, users) => {
   let userNid = getUserNidFromCode(state.inputCode, users);
 
   ReasonReact.UpdateWithSideEffects(
     {...state, dataState: LOADING},
-    self =>
-      Js.Promise.(
-        svcGet("ratings_history/" ++ string_of_int(userNid))
-        |> then_(json =>
-             DecodeRatingsHistory.ratingsHistoryDec(json) |> resolve
-           )
-        |> then_(result => self.send(SetHistory(result)) |> resolve)
-      )
-      |> ignore,
+    ({send}) => {
+      let url = "ratings_history/" ++ string_of_int(userNid);
+      svcGet(url)
+      |> then_(json => onSuccess(send, json) |> resolve)
+      |> ignore;
+    },
   );
 };
 

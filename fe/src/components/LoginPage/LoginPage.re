@@ -1,5 +1,7 @@
 open EloTypes;
 open Svc;
+open Js.Promise;
+
 [%bs.raw {|require('./LoginPage.scss')|}];
 
 type warningType =
@@ -24,28 +26,28 @@ let component = ReasonReact.reducerComponent("LoginPage");
 
 let initialState = () => {password: "", warning: NOTHING};
 
+let onSuccess = (parentSend, send, json) =>
+  json
+  |> Json.Decode.field("logged", Json.Decode.bool)
+  |> (
+    isLoginSuccessfully =>
+      isLoginSuccessfully ?
+        parentSend(SetIsLogged(true)) : send(SetWarningWrongPass)
+  );
+
+let onError = (send, err) => {
+  send(SetWarningFailure);
+  Js.Console.error(err);
+};
+
 let loginSvc = (password, parentSend) => {
   let payload =
     Json.Encode.object_([("password", Json.Encode.string(password))]);
   ReasonReact.SideEffects(
-    self =>
-      Js.Promise.(
-        svcPost("auth/login", payload)
-        |> then_(json =>
-             Json.Decode.field("logged", Json.Decode.bool, json) |> resolve
-           )
-        |> then_(isSuccess => {
-             isSuccess ?
-               parentSend(SetIsLogged(true)) :
-               self.send(SetWarningWrongPass);
-             resolve(true);
-           })
-        |> catch(err => {
-             self.send(SetWarningFailure);
-             Js.Console.error(err);
-             resolve(true);
-           })
-      )
+    ({send}) =>
+      svcPost("auth/login", payload)
+      |> then_(json => onSuccess(parentSend, send, json) |> resolve)
+      |> catch(err => onError(send, err) |> resolve)
       |> ignore,
   );
 };
