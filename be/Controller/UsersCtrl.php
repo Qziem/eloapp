@@ -54,19 +54,17 @@ class UsersCtrl {
     private function calcNewRatings(int $oldWinnerRating, int $oldLooserRating): array {
         $kfactor = 32;
 
-        $transformetRatingWinner = pow(10, ($oldWinnerRating / 400));
-        $transformetRatingLooser = pow(10, ($oldLooserRating / 400));
-   
-        $expectedScopeWinner = $transformetRatingWinner / ($transformetRatingWinner + $transformetRatingLooser);
-        $expectedScopeLooser = $transformetRatingLooser / ($transformetRatingWinner + $transformetRatingLooser);
-   
-        $newRatingWinner = round($oldWinnerRating + ($kfactor * (1 - $expectedScopeWinner)));
-        $newRatingLooser = round($oldLooserRating - ($kfactor * $expectedScopeLooser));
+        $winnerLooserDiff = $oldLooserRating - $oldWinnerRating;
+        $pWinner = 1 / (1 + pow(10, ($winnerLooserDiff / 400))); // propability of winning winner user
 
-        return [$newRatingWinner, $newRatingLooser];
+        $ratingDiff = round($kfactor * (1 - $pWinner));
+        $newWinnerRating = $oldWinnerRating + $ratingDiff;
+        $newLooserRating = $oldLooserRating - $ratingDiff;
+        
+        return [$newWinnerRating, $newLooserRating];
     }
 
-    private function updateRatingsInDb(int $winnerUserNid, int $looserUserNid): void {
+    private function updateRatingsInDb(int $winnerUserNid, int $looserUserNid): int {
         $winnerUser = $this->userRepository->find($winnerUserNid);
         $looserUser = $this->userRepository->find($looserUserNid);
         if (!isset($winnerUser) || !isset($looserUser)) throw new \Exception('Winner or looser does not exist');
@@ -84,6 +82,8 @@ class UsersCtrl {
 
         $this->em->persist($game);
         $this->em->flush();
+
+        return $ratingDiff;
     }
 
     public function updateRatings(Request $request, Response $response): Response {
@@ -92,7 +92,7 @@ class UsersCtrl {
         $winnerUserNid = $usersCodes['winnerUserNid'];
         $looserUserNid = $usersCodes['looserUserNid'];
     
-        $this->updateRatingsInDb($winnerUserNid, $looserUserNid);
-        return $response->withJson([]);
+        $ratingDiff = $this->updateRatingsInDb($winnerUserNid, $looserUserNid);
+        return $response->withJson(['ratingDiff' => $ratingDiff]);
     }
 }
