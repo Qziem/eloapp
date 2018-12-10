@@ -64,7 +64,7 @@ let reducer = (action, state: stateType) =>
     ReasonReact.Update({...state, dataState: LOADED(ratingsHistory)})
   };
 
-let make = (~users, _children) => {
+let make = (~users, ~disable, _children) => {
   ...component,
   initialState,
   reducer,
@@ -93,9 +93,10 @@ let make = (~users, _children) => {
               <td>
                 <button
                   disabled={
-                    switch (state.dataState) {
-                    | LOADING => true
-                    | _ => false
+                    switch (disable, state.dataState) {
+                    | (true, _) => true
+                    | (false, LOADING) => true
+                    | (false, _) => false
                     }
                   }>
                   {ReasonReact.string("Get stats")}

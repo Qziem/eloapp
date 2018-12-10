@@ -20,7 +20,8 @@ type state = {
 type action =
   | ChangeWinUser(string)
   | ChangeLooseUser(string)
-  | UpdateClick;
+  | UpdateClick
+  | SetSaveSuccess;
 
 let component = ReasonReact.reducerComponent("GameResult");
 
@@ -30,7 +31,10 @@ let initialState = () => {
   saveState: NOTHING,
 };
 
-let onSuccess = (containterSend, _resp) => containterSend(GetUsersSvc);
+let onSuccess = (containterSend, send, _resp) => {
+  send(SetSaveSuccess);
+  containterSend(GetUsersSvc);
+};
 
 let updateRatingsSvc = (state, users, containterSend) => {
   let winnerLooserNids = {
@@ -40,10 +44,10 @@ let updateRatingsSvc = (state, users, containterSend) => {
 
   ReasonReact.UpdateWithSideEffects(
     {...state, saveState: SAVING},
-    _self => {
+    ({send}) => {
       let payload = EncodeUpdateRatings.encode(winnerLooserNids);
       svcPut("users/update_ratings", payload)
-      |> then_(json => onSuccess(containterSend, json) |> resolve)
+      |> then_(json => onSuccess(containterSend, send, json) |> resolve)
       |> ignore;
     },
   );
@@ -79,11 +83,12 @@ let reducer = (users, containterSend, action, state) =>
   | ChangeLooseUser(value) =>
     ReasonReact.Update({...state, userLooserCode: value})
   | UpdateClick => handleUpdateClickReducer(state, users, containterSend)
+  | SetSaveSuccess => ReasonReact.Update({...state, saveState: NOTHING})
   };
 
 let valueFromEvent = event => ReactEvent.Form.target(event)##value;
 
-let make = (~users, ~containterSend, _children) => {
+let make = (~users, ~containterSend, ~disable, _children) => {
   ...component,
   initialState,
   reducer: reducer(users, containterSend),
@@ -142,7 +147,8 @@ let make = (~users, ~containterSend, _children) => {
               </td>
               <td>
                 <button
-                  disabled={self.state.saveState === SAVING} type_="submit">
+                  disabled={self.state.saveState === SAVING || disable}
+                  type_="submit">
                   {ReasonReact.string("Update")}
                 </button>
               </td>

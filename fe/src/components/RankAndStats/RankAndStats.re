@@ -38,6 +38,22 @@ let reducer = (action, _state) =>
   | SetFailure => ReasonReact.Update(FAILURE)
   };
 
+let renderContent = (send, users, isUsersLoading) =>
+  <div>
+    <div className="sectionLabel"> {ReasonReact.string("Ranking")} </div>
+    <div className="section">
+      <Users users isUsersLoading />
+      <GameResult users disable=isUsersLoading containterSend=send />
+    </div>
+    <hr />
+    <div className="sectionLabel">
+      {ReasonReact.string("Statistics for player")}
+    </div>
+    <div className="section">
+      <RatingsHistory users disable=isUsersLoading />
+    </div>
+  </div>;
+
 let make = _children => {
   ...component,
   initialState,
@@ -47,26 +63,9 @@ let make = _children => {
     <div className="rankAndStats">
       {
         switch (state) {
-        | LOADING =>
-          <div className="contentLoadingMsg">
-            {ReasonReact.string("Loading data...")}
-          </div>
         | FAILURE => <FailureMask />
-        | LOADED(users) =>
-          <div>
-            <div className="sectionLabel">
-              {ReasonReact.string("Ranking")}
-            </div>
-            <div className="section">
-              <Users users />
-              <GameResult users containterSend=send />
-            </div>
-            <hr />
-            <div className="sectionLabel">
-              {ReasonReact.string("Statistics for player")}
-            </div>
-            <div className="section"> <RatingsHistory users /> </div>
-          </div>
+        | LOADING => renderContent(send, [], true)
+        | LOADED(users) => renderContent(send, users, false)
         }
       }
     </div>,

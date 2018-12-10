@@ -1,3 +1,5 @@
+@import 'src/components/colors.scss';
+
 .users {
     thead {
         color: darkgray;
@@ -13,4 +15,10 @@
     .nameTd {
         padding-left: 5px;
     }
+
+    .loading {
+      text-align: center;
+      margin-top: 10px;
+      color: $progress-msg-color;
+  }
 }
