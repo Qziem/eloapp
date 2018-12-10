@@ -65,8 +65,13 @@ let removeGameSvc = state => {
 let reducer = (action, state) =>
   switch (action) {
   | ChangeCode(code) => ReasonReact.Update({...state, code})
-  | RemoveGame => removeGameSvc(state)
-  | SetSuccess => ReasonReact.Update({...state, saveState: SUCCESS})
+  | RemoveGame =>
+    String.trim(state.code) === "" ?
+      ReasonReact.SideEffects(
+        (({send}) => send(SetWarning("Code can not be empty"))),
+      ) :
+      removeGameSvc(state)
+  | SetSuccess => ReasonReact.Update({code: "", saveState: SUCCESS})
   | SetWarning(msg) =>
     ReasonReact.Update({...state, saveState: WARNING(msg)})
   };

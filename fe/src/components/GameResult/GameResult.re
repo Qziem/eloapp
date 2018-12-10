@@ -5,42 +5,52 @@ open Js.Promise;
 
 [%bs.raw {|require('./GameResult.scss')|}];
 
+type saveStateType =
+  | NOTHING
+  | SAVING
+  | WARNING(string)
+  | SUCCESS;
+
+type state = {
+  userWinnerCode: string,
+  userLooserCode: string,
+  saveState: saveStateType,
+};
+
 type action =
   | ChangeWinUser(string)
   | ChangeLooseUser(string)
-  | UpdateClick(list(user), containerActions => unit)
-  | UpdateRatingsSvc(winnerLooserNids, containerActions => unit);
-
-type gameResultState = {
-  userWinnerCode: string,
-  userLooserCode: string,
-  warningMsg: option(string),
-  saving: bool,
-};
+  | UpdateClick;
 
 let component = ReasonReact.reducerComponent("GameResult");
 
 let initialState = () => {
   userWinnerCode: "",
   userLooserCode: "",
-  warningMsg: None,
-  saving: false,
+  saveState: NOTHING,
 };
 
-let updateStateWarningMsg = (state: gameResultState, msg: string) =>
-  ReasonReact.Update({...state, warningMsg: Some(msg)});
+let onSuccess = (containterSend, _resp) => containterSend(GetUsersSvc);
 
-let clearWarningAndSendUpdateRatingAction = (state, users, containterSend) =>
+let updateRatingsSvc = (state, users, containterSend) => {
+  let winnerLooserNids = {
+    winnerUserNid: getUserNidFromCode(state.userWinnerCode, users),
+    looserUserNid: getUserNidFromCode(state.userLooserCode, users),
+  };
+
   ReasonReact.UpdateWithSideEffects(
-    {...state, warningMsg: None},
-    self => {
-      let winnerLooserNids = {
-        winnerUserNid: getUserNidFromCode(state.userWinnerCode, users),
-        looserUserNid: getUserNidFromCode(state.userLooserCode, users),
-      };
-      self.send(UpdateRatingsSvc(winnerLooserNids, containterSend));
+    {...state, saveState: SAVING},
+    _self => {
+      let payload = EncodeUpdateRatings.encode(winnerLooserNids);
+      svcPut("users/update_ratings", payload)
+      |> then_(json => onSuccess(containterSend, json) |> resolve)
+      |> ignore;
     },
   );
+};
+
+let updateStateWarningMsg = (state, msg: string) =>
+  ReasonReact.Update({...state, saveState: WARNING(msg)});
 
 let handleUpdateClickReducer = (state, users, containterSend) => {
   let winCode = state.userWinnerCode;
@@ -53,7 +63,7 @@ let handleUpdateClickReducer = (state, users, containterSend) => {
   switch (winUserExist, looseUserExist) {
   | (true, true) =>
     !compareCodes(winCode, looseCode) ?
-      clearWarningAndSendUpdateRatingAction(state, users, containterSend) :
+      updateRatingsSvc(state, users, containterSend) :
       updateStateWarningMsg(state, "Codes are the same")
 
   | (true, false) => updateStateWarningMsg(state, "Looser doesen't exist")
@@ -62,29 +72,13 @@ let handleUpdateClickReducer = (state, users, containterSend) => {
   };
 };
 
-let onSuccess = (containterSend, _resp) => containterSend(GetUsersSvc);
-
-let updateRatingsSvc = (winnerLooserNids, state, containterSend) =>
-  ReasonReact.UpdateWithSideEffects(
-    {...state, saving: true},
-    _self => {
-      let payload = EncodeUpdateRatings.encode(winnerLooserNids);
-      svcPut("users/update_ratings", payload)
-      |> then_(json => onSuccess(containterSend, json) |> resolve)
-      |> ignore;
-    },
-  );
-
-let reducer = (action, state) =>
+let reducer = (users, containterSend, action, state) =>
   switch (action) {
   | ChangeWinUser(value) =>
     ReasonReact.Update({...state, userWinnerCode: value})
   | ChangeLooseUser(value) =>
     ReasonReact.Update({...state, userLooserCode: value})
-  | UpdateClick(users, containterSend) =>
-    handleUpdateClickReducer(state, users, containterSend)
-  | UpdateRatingsSvc(winnerLooserNids, containterSend) =>
-    updateRatingsSvc(winnerLooserNids, state, containterSend)
+  | UpdateClick => handleUpdateClickReducer(state, users, containterSend)
   };
 
 let valueFromEvent = event => ReactEvent.Form.target(event)##value;
@@ -92,30 +86,31 @@ let valueFromEvent = event => ReactEvent.Form.target(event)##value;
 let make = (~users, ~containterSend, _children) => {
   ...component,
   initialState,
-  reducer,
+  reducer: reducer(users, containterSend),
   render: self =>
     <div className="gameResult">
       <div className="messageContainer">
         {
-          switch (self.state.warningMsg) {
-          | Some(msg) =>
-            <div className="warrning"> {msg |> ReasonReact.string} </div>
-          | None => ReasonReact.null
-          }
-        }
-        {
-          self.state.saving ?
+          switch (self.state.saveState) {
+          | SUCCESS =>
+            <div className="success">
+              {"Successfully updated :)" |> ReasonReact.string}
+            </div>
+          | WARNING(msg) =>
+            <div className="warning"> {msg |> ReasonReact.string} </div>
+          | SAVING =>
             <div className="saving">
               {"Saving in progress..." |> ReasonReact.string}
-            </div> :
-            ReasonReact.null
+            </div>
+          | NOTHING => ReasonReact.null
+          }
         }
       </div>
       <form
         onSubmit={
           event => {
             event |> ReactEvent.Form.preventDefault;
-            self.send(UpdateClick(users, containterSend));
+            self.send(UpdateClick);
           }
         }>
         <table>
@@ -146,7 +141,8 @@ let make = (~users, ~containterSend, _children) => {
                 />
               </td>
               <td>
-                <button disabled={self.state.saving} type_="submit">
+                <button
+                  disabled={self.state.saveState === SAVING} type_="submit">
                   {ReasonReact.string("Update")}
                 </button>
               </td>
