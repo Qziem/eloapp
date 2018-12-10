@@ -1,6 +1,9 @@
 <?php
 require '../config.php';
 
+use Psr\Container\ContainerInterface;
+use DI\Factory\RequestedEntry;
+
 use Doctrine\ORM\EntityManager;
 use Doctrine\ORM\Mapping\Driver\AnnotationDriver;
 use Doctrine\Common\Annotations\AnnotationReader;
@@ -32,5 +35,13 @@ return [
     $configDoctrine->setProxyDir($config['doctrine']['cache_proxy_dir']);
 
     return EntityManager::create($config['doctrine']['connection'], $configDoctrine);
-	},
+  },
+  'Model\Repository\*' => function (ContainerInterface $container, RequestedEntry $entry) {
+		$entity_class = str_replace("Model\Repository", 'Model\Entity', $entry->getName());
+		$entity_class = str_replace("Repository", '', $entity_class);
+		$repository = $container->get(EntityManager::class)
+			->getRepository($entity_class);
+
+		return $repository;
+	}
 ];

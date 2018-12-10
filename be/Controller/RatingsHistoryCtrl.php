@@ -7,11 +7,12 @@ use \Psr\Http\Message\ResponseInterface as Response;
 use Doctrine\ORM\EntityManager;
 use Util\Helpers;
 use Model\Entity\User;
-use Model\Entity\Game;
+use Model\Repository\GameRepository;
 
 class RatingsHistoryCtrl {
-    function __construct(EntityManager $em) {
+    function __construct(EntityManager $em, GameRepository $gameRepository) {
         $this->em = $em;
+        $this->gameRepository = $gameRepository;
     }
 
     private function getOponentName(User $user): string {
@@ -51,9 +52,7 @@ class RatingsHistoryCtrl {
     }
 
     public function getRatingsHistory(Request $request, Response $response, $userNid): Response {
-        $ratingsHistoryCtrl = new RatingsHistoryCtrl($this->em);
-        $gameRepository = $this->em->getRepository(Game::class);
-        $gamesEntities = $gameRepository->findSortedGamesForUser($userNid);
+        $gamesEntities = $this->gameRepository->findSortedGamesForUser($userNid);
 
         $respArray = $this->entitiesListToOutput($gamesEntities, $userNid);
         return $response->withJson($respArray);

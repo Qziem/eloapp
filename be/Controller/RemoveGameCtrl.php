@@ -8,10 +8,18 @@ use Doctrine\ORM\EntityManager;
 use Util\Helpers;
 use Model\Entity\Game;
 use Model\Entity\User;
+use Model\Repository\GameRepository;
+use Model\Repository\UserRepository;
 
 class RemoveGameCtrl {
-    function __construct(EntityManager $em) {
+    function __construct(
+      EntityManager $em,
+      GameRepository $gameRepository,
+      UserRepository $userRepository
+    ) {
         $this->em = $em;
+        $this->gameRepository = $gameRepository;
+        $this->userRepository = $userRepository;
     }
 
     private function getOponentFromGame(Game $lastGame, int $userNid): ?User {
@@ -38,8 +46,7 @@ class RemoveGameCtrl {
     }
 
     private function removeLastGameIfPossibleInDb(string $code): array {
-      $userRepository = $this->em->getRepository(User::class);
-      $user = $userRepository->findUserByCode($code);
+      $user = $this->userRepository->findUserByCode($code);
       if (!isset($user)) {
         return [
           'removed' => false,
@@ -48,8 +55,7 @@ class RemoveGameCtrl {
       }
 
       $userNid = $user->getUserNid();
-      $gameRepository = $this->em->getRepository(Game::class);
-      $lastGame = $gameRepository->findLastGame($userNid);
+      $lastGame = $this->gameRepository->findLastGame($userNid);
 
       if (!isset($lastGame)) {
         return [
@@ -60,7 +66,7 @@ class RemoveGameCtrl {
 
       $oponentUser = $this->getOponentFromGame($lastGame, $userNid);
 
-      $oponentLastGame = $gameRepository->findLastGame($oponentUser->getUserNid());
+      $oponentLastGame = $this->gameRepository->findLastGame($oponentUser->getUserNid());
       if ($lastGame->getGameNid() !== $oponentLastGame->getGameNid()) {
         return [
           'removed' => false,

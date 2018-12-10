@@ -8,14 +8,16 @@ use Doctrine\ORM\EntityManager;
 use Util\Helpers;
 use Model\Entity\Game;
 use Model\Entity\User;
+use Model\Repository\UserRepository;
 
 class UsersCtrl {
-    function __construct(EntityManager $em) {
+    function __construct(EntityManager $em, UserRepository $userRepository) {
         $this->em = $em;
+        $this->userRepository = $userRepository;
     }
 
     public function getUsers(Request $request, Response $response): Response {
-        $usersEntities = $this->em->getRepository(User::class)->findBy(['deleted' => 0], ['rating' => 'DESC', 'code' => 'ASC']);
+        $usersEntities = $this->userRepository->findBy(['deleted' => 0], ['rating' => 'DESC', 'code' => 'ASC']);
         $respArray = Helpers::entitiesListToArray($usersEntities);
         return $response->withJson($respArray);
     }
@@ -65,9 +67,8 @@ class UsersCtrl {
     }
 
     private function updateRatingsInDb(int $winnerUserNid, int $looserUserNid): void {
-        $userRepository = $this->em->getRepository(User::class);
-        $winnerUser = $userRepository->find($winnerUserNid);
-        $looserUser = $userRepository->find($looserUserNid);
+        $winnerUser = $this->userRepository->find($winnerUserNid);
+        $looserUser = $this->userRepository->find($looserUserNid);
         if (!isset($winnerUser) || !isset($looserUser)) throw new \Exception('Winner or looser does not exist');
         if ($winnerUserNid === $looserUserNid) throw new \Exception("Winner and looser nids are the same");
 
