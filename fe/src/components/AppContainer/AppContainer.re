@@ -2,6 +2,8 @@ open EloTypes;
 open Svc;
 open Js.Promise;
 
+[%bs.raw {|require('bootstrap/dist/css/bootstrap.min.css')|}];
+/* [%bs.raw {|import 'bootstrap/dist/css/bootstrap.css'|}]; */
 [%bs.raw {|require('./AppContainer.scss')|}];
 
 type state =

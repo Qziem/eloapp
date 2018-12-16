@@ -2,6 +2,7 @@ open EloTypes;
 open Helpers;
 open Svc;
 open Js.Promise;
+open BsReactstrap;
 
 [%bs.raw {|require('./GameResult.scss')|}];
 
@@ -158,11 +159,11 @@ let make = (~users, ~containterSend, ~disable, _children) => {
                 />
               </td>
               <td>
-                <button
-                  disabled={state.saveState === SAVING || disable}
-                  type_="submit">
+                <Button
+                  color="primary"
+                  disabled={state.saveState === SAVING || disable}>
                   {ReasonReact.string("Update")}
-                </button>
+                </Button>
               </td>
             </tr>
           </tbody>
