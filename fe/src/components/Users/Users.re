@@ -1,5 +1,6 @@
 open EloTypes;
 open ReasonReact;
+open BsReactstrap;
 
 type userForDisp = {
   userNid: int,
@@ -54,7 +55,7 @@ let renderContent = users => {
   let usersTrs = users |> prepareStructure |> List.map(tableRow);
 
   <div className="users">
-    <table>
+    <Table size="sm">
       <thead>
         <tr>
           <th className="posTh"> {string("Pos")} </th>
@@ -64,7 +65,7 @@ let renderContent = users => {
         </tr>
       </thead>
       <tbody> {usersTrs |> Array.of_list |> array} </tbody>
-    </table>
+    </Table>
   </div>;
 };
 

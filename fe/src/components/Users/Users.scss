@@ -1,19 +1,8 @@
 @import 'src/components/colors.scss';
 
 .users {
-    thead {
-        color: darkgray;
-    }
-    tbody {
-        color: darkblue;
-    }
-
-    .ratingTd, .posTd {
+    .posTd {
         text-align: center;
-    }
-
-    .nameTd {
-        padding-left: 5px;
     }
 
     .loading {

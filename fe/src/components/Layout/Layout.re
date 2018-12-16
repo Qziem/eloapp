@@ -1,10 +1,7 @@
-type placeState =
-  | RANK_AND_STATS
-  | OPERATIONS
-  | NOT_FOUND;
+open EloTypes;
 
 type action =
-  | SetPlace(placeState);
+  | SetPlace(place);
 
 let component = ReasonReact.reducerComponent("Layout");
 
@@ -35,7 +32,7 @@ let make = _children => {
     |> ignore,
   render: ({state}) =>
     <div className="layout">
-      <Menu />
+      <Menu activePlace=state />
       <div className="eloContent">
         {
           switch (state) {

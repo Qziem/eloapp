@@ -40,7 +40,6 @@ let reducer = (action, _state) =>
 
 let renderContent = (send, users, isUsersLoading) =>
   <div>
-    <div className="sectionLabel"> {ReasonReact.string("Ranking")} </div>
     <div className="section">
       <Users users isUsersLoading />
       <GameResult users disable=isUsersLoading containterSend=send />
@@ -53,6 +52,7 @@ let renderContent = (send, users, isUsersLoading) =>
       <RatingsHistory users disable=isUsersLoading />
     </div>
   </div>;
+/* <div className="sectionLabel"> {ReasonReact.string("Ranking")} </div> */
 
 let make = _children => {
   ...component,

@@ -123,51 +123,41 @@ let make = (~users, ~containterSend, ~disable, _children) => {
           }
         }
       </div>
-      <form
+      <Form
         onSubmit={
           event => {
             event |> ReactEvent.Form.preventDefault;
             send(UpdateClick);
           }
         }>
-        <table>
-          <thead>
-            <tr>
-              <th> {ReasonReact.string("Winner")} </th>
-              <th> {ReasonReact.string("Looser")} </th>
-              <th />
-            </tr>
-          </thead>
-          <tbody>
-            <tr>
-              <td>
-                <input
-                  placeholder="code"
-                  value={state.userWinnerCode}
-                  onChange={
-                    event => send(ChangeWinUser(valueFromEvent(event)))
-                  }
-                />
-              </td>
-              <td>
-                <input
-                  placeholder="code"
-                  value={state.userLooserCode}
-                  onChange={
-                    event => send(ChangeLooseUser(valueFromEvent(event)))
-                  }
-                />
-              </td>
-              <td>
-                <Button
-                  color="primary"
-                  disabled={state.saveState === SAVING || disable}>
-                  {ReasonReact.string("Update")}
-                </Button>
-              </td>
-            </tr>
-          </tbody>
-        </table>
-      </form>
+        <Row>
+          <Col>
+            <FormGroup>
+              <Label for_="winnerCode">
+                {"Winner" |> ReasonReact.string}
+              </Label>
+              <Input type_="text" id="winnerCode" placeholder="code" />
+            </FormGroup>
+          </Col>
+          <Col>
+            <FormGroup>
+              <Label for_="looserCode">
+                {"Looser" |> ReasonReact.string}
+              </Label>
+              <Input type_="text" id="looserCode" placeholder="code" />
+            </FormGroup>
+          </Col>
+          <Col className="colButton">
+            <FormGroup>
+              <Button
+                color="primary"
+                outline=true
+                disabled={state.saveState === SAVING || disable}>
+                {ReasonReact.string("Update")}
+              </Button>
+            </FormGroup>
+          </Col>
+        </Row>
+      </Form>
     </div>,
 };

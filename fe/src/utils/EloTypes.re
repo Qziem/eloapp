@@ -26,3 +26,8 @@ type winnerLooserNids = {
   winnerUserNid: int,
   looserUserNid: int,
 };
+
+type place =
+  | RANK_AND_STATS
+  | OPERATIONS
+  | NOT_FOUND;
