@@ -130,13 +130,22 @@ let make = (~users, ~containterSend, ~disable, _children) => {
             send(UpdateClick);
           }
         }>
+        <Container>
         <Row>
           <Col>
             <FormGroup>
               <Label for_="winnerCode">
                 {"Winner" |> ReasonReact.string}
               </Label>
-              <Input type_="text" id="winnerCode" placeholder="code" />
+              <Input
+                type_="text"
+                id="winnerCode"
+                placeholder="code"
+                value={state.userWinnerCode}
+                onChange={
+                  event => send(ChangeWinUser(valueFromEvent(event)))
+                }
+              />
             </FormGroup>
           </Col>
           <Col>
@@ -144,20 +153,28 @@ let make = (~users, ~containterSend, ~disable, _children) => {
               <Label for_="looserCode">
                 {"Looser" |> ReasonReact.string}
               </Label>
-              <Input type_="text" id="looserCode" placeholder="code" />
+              <Input
+                type_="text"
+                id="looserCode"
+                placeholder="code"
+                value={state.userLooserCode}
+                onChange={
+                  event => send(ChangeLooseUser(valueFromEvent(event)))
+                }
+              />
             </FormGroup>
           </Col>
           <Col className="colButton">
             <FormGroup>
               <Button
                 color="primary"
-                outline=true
                 disabled={state.saveState === SAVING || disable}>
                 {ReasonReact.string("Update")}
               </Button>
             </FormGroup>
           </Col>
         </Row>
+        </Container>
       </Form>
     </div>,
 };

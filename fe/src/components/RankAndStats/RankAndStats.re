@@ -45,9 +45,7 @@ let renderContent = (send, users, isUsersLoading) =>
       <GameResult users disable=isUsersLoading containterSend=send />
     </div>
     <hr />
-    <div className="sectionLabel">
-      {ReasonReact.string("Statistics for player")}
-    </div>
+    <h4> {ReasonReact.string("Statistics for player")} </h4>
     <div className="section">
       <RatingsHistory users disable=isUsersLoading />
     </div>

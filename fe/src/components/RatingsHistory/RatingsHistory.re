@@ -2,6 +2,7 @@ open Svc;
 open EloTypes;
 open Helpers;
 open Js.Promise;
+open BsReactstrap;
 
 [%bs.raw {|require('./RatingsHistory.scss')|}];
 
@@ -70,42 +71,42 @@ let make = (~users, ~disable, _children) => {
   reducer,
   render: ({state, send}) =>
     <div className="ratingsHistory">
-      <form
-        className="topBar"
+      <Form
         onSubmit={
           event => {
             event |> ReactEvent.Form.preventDefault;
             send(GetHistory(users));
           }
         }>
-        <table>
-          <tbody>
-            <tr>
-              <td>
-                <input
+        <Container>
+          <Row>
+            <Col md=4>
+              <FormGroup>
+                <Input
                   placeholder="code"
                   onChange={
                     event =>
                       send(ChangeCode(GameResult.valueFromEvent(event)))
                   }
                 />
-              </td>
-              <td>
-                <button
-                  disabled={
-                    switch (disable, state.dataState) {
-                    | (true, _) => true
-                    | (false, LOADING) => true
-                    | (false, _) => false
-                    }
-                  }>
-                  {ReasonReact.string("Get stats")}
-                </button>
-              </td>
-            </tr>
-          </tbody>
-        </table>
-      </form>
+              </FormGroup>
+            </Col>
+            <Col>
+              <Button
+              color="primary"
+                disabled={
+                  switch (disable, state.dataState) {
+                  | (true, _) => true
+                  | (false, LOADING) => true
+                  | (false, _) => false
+                  }
+                }>
+                {ReasonReact.string("Get stats")}
+              </Button>
+            </Col>
+          </Row>
+        </Container>
+      </Form>
       {
         switch (state.dataState) {
         | INITIAL => ReasonReact.null
