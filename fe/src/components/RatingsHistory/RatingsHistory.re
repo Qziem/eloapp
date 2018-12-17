@@ -93,7 +93,7 @@ let make = (~users, ~disable, _children) => {
             </Col>
             <Col>
               <Button
-              color="primary"
+                color="primary"
                 disabled={
                   switch (disable, state.dataState) {
                   | (true, _) => true
@@ -110,10 +110,7 @@ let make = (~users, ~disable, _children) => {
       {
         switch (state.dataState) {
         | INITIAL => ReasonReact.null
-        | LOADING =>
-          <div className="loadingMsg">
-            {"Loading data..." |> ReasonReact.string}
-          </div>
+        | LOADING => <LoadingMask />
         | WARNING(msg) =>
           <div className="warningMsg"> {msg |> ReasonReact.string} </div>
         | LOADED(ratingsHistory) => <RatingsHistoryTable ratingsHistory />

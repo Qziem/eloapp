@@ -71,10 +71,5 @@ let renderContent = users => {
 
 let make = (~users, ~isUsersLoading, _children) => {
   ...component,
-  render: _self =>
-    isUsersLoading ?
-      <div className="loading">
-        {"LoadingData..." |> ReasonReact.string}
-      </div> :
-      renderContent(users),
+  render: _self => isUsersLoading ? <LoadingMask /> : renderContent(users),
 };

@@ -1,6 +1,6 @@
 @import 'src/components/colors.scss';
-$win-color: darkgreen;
-$loose-color: darkred;
+$win-color: #28a745;
+$loose-color: #dc3545;
 .ratingsHistory {
   .row {
     >div {
@@ -22,25 +22,6 @@ $loose-color: darkred;
   }
 
     .ratingsHistoryTable {
-        margin-top: 10px;
-
-        table {
-            border-collapse: collapse;
-        }
-
-        td {
-            text-align: center
-        }
-
-        tr th {
-            border-top: 1px solid black;
-            border-bottom: 1px solid black;
-        }
-
-        tr td {
-            border-bottom: 1px solid darkgrey;
-        }
-
         tr.win, .winsSum {
             color: $win-color,
         }
