@@ -1,13 +1,11 @@
 .buttonWithConfirm {
   .confirmation{
     display: flex;
+    justify-content: space-between;
   }
 
   .sureLabel {
-    margin-right: 5px;
-  }
-
-  .yesButton {
-    margin-right: 5px;
+    display: flex;
+    align-items: center;
   }
 }

@@ -1,10 +1,12 @@
 [%bs.raw {|require('./RemoveGame.scss')|}];
 open Svc;
 open Js.Promise;
+open BsReactstrap;
 
 type saveStateType =
   | NOTHING
   | SAVING
+  | FAILURE
   | WARNING(string)
   | SUCCESS;
 
@@ -17,7 +19,9 @@ type action =
   | ChangeCode(string)
   | RemoveGame
   | SetSuccess
-  | SetWarning(string);
+  | SetWarning(string)
+  | SetFailure
+  | ClearSaveState;
 
 type removeGameResult = {
   removed: bool,
@@ -48,6 +52,11 @@ let onSuccess = (send, json) =>
       }
   );
 
+let onError = (send, err) => {
+  send(SetFailure);
+  Js.Console.error(err);
+};
+
 let removeGameSvc = state => {
   let payload = {| {} |} |> Json.parseOrRaise;
 
@@ -57,6 +66,7 @@ let removeGameSvc = state => {
       let url = "remove_game/" ++ state.code;
       svcDelete(url, payload)
       |> then_(json => onSuccess(send, json) |> resolve)
+      |> catch(err => onError(send, err) |> resolve)
       |> ignore;
     },
   );
@@ -74,9 +84,13 @@ let reducer = (action, state) =>
   | SetSuccess => ReasonReact.Update({code: "", saveState: SUCCESS})
   | SetWarning(msg) =>
     ReasonReact.Update({...state, saveState: WARNING(msg)})
+  | SetFailure => ReasonReact.Update({...state, saveState: FAILURE})
+  | ClearSaveState => ReasonReact.Update({...state, saveState: NOTHING})
   };
 
 let onYesClick = (send, ()) => send(RemoveGame);
+
+let hanldeDismissAlert = (send, ()) => send(ClearSaveState);
 
 let make = _children => {
   ...component,
@@ -87,45 +101,42 @@ let make = _children => {
       {
         switch (state.saveState) {
         | SUCCESS =>
-          <div className="success">
+          <Alert color="success" toggle={hanldeDismissAlert(send)}>
             {"Successfully removed :)" |> ReasonReact.string}
-          </div>
+          </Alert>
         | WARNING(msg) =>
-          <div className="warning"> {msg |> ReasonReact.string} </div>
-        | SAVING =>
-          <div className="saving">
-            {"Removing in progress..." |> ReasonReact.string}
-          </div>
+          <Alert color="warning" toggle={hanldeDismissAlert(send)}>
+            {msg |> ReasonReact.string}
+          </Alert>
+        | FAILURE => <FailureMask />
+        | SAVING => <LoadingMask />
         | NOTHING => ReasonReact.null
         }
       }
-      <table>
-        <tbody>
-          <tr>
-            <td>
-              <input
-                placeholder="code"
-                value={state.code}
-                onChange={
-                  event =>
-                    send(ChangeCode(GameResult.valueFromEvent(event)))
+      <Container>
+        <Row>
+          <Col xs=4>
+            <Input
+              placeholder="code"
+              value={state.code}
+              onChange={
+                event => send(ChangeCode(GameResult.valueFromEvent(event)))
+              }
+            />
+          </Col>
+          <Col>
+            <ButtonWithConfirm
+              disabled={
+                switch (state.saveState) {
+                | SAVING => true
+                | _ => false
                 }
-              />
-            </td>
-            <td>
-              <ButtonWithConfirm
-                disabled={
-                  switch (state.saveState) {
-                  | SAVING => true
-                  | _ => false
-                  }
-                }
-                label="Remove"
-                onYesClick={onYesClick(send)}
-              />
-            </td>
-          </tr>
-        </tbody>
-      </table>
+              }
+              label="Remove"
+              onYesClick={onYesClick(send)}
+            />
+          </Col>
+        </Row>
+      </Container>
     </div>,
 };

@@ -1,4 +1,5 @@
 [%bs.raw {|require('./ButtonWithConfirm.scss')|}];
+open BsReactstrap;
 
 type state =
   | INITIAL
@@ -27,15 +28,17 @@ let make = (~label, ~disabled, ~onYesClick, _children) => {
       {
         switch (state) {
         | INITIAL =>
-          <button disabled onClick=(_event => send(SetConfirm))>
+          <Button
+            color="primary" disabled onClick=(_event => send(SetConfirm))>
             {label |> ReasonReact.string}
-          </button>
+          </Button>
         | CONFIRM =>
           <div className="confirmation">
             <div className="sureLabel">
               {"Are you sure?" |> ReasonReact.string}
             </div>
-            <button
+            <Button
+              color="primary"
               className="yesButton"
               onClick=(
                 _event => {
@@ -44,10 +47,13 @@ let make = (~label, ~disabled, ~onYesClick, _children) => {
                 }
               )>
               {"Yes" |> ReasonReact.string}
-            </button>
-            <button className="noButton" onClick=(_event => send(SetInitial))>
+            </Button>
+            <Button
+              color="secondary"
+              className="noButton"
+              onClick=(_event => send(SetInitial))>
               {"No" |> ReasonReact.string}
-            </button>
+            </Button>
           </div>
         }
       }

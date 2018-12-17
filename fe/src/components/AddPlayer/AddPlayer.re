@@ -107,16 +107,14 @@ let make = _children => {
         <Container>
           <Row>
             <Col>
-              <FormGroup>
-                <Input
-                  placeholder="code"
-                  value={state.code}
-                  onChange={
-                    event =>
-                      send(ChangeCode(GameResult.valueFromEvent(event)))
-                  }
-                />
-              </FormGroup>
+              <Input
+                placeholder="code"
+                value={state.code}
+                onChange={
+                  event =>
+                    send(ChangeCode(GameResult.valueFromEvent(event)))
+                }
+              />
             </Col>
             <Col>
               <FormGroup>
