@@ -5,14 +5,10 @@ let make = _children => {
   ...component,
   render: _self =>
     <div>
-      <div className="sectionSmallLabel">
-        {ReasonReact.string("Add player")}
-      </div>
+      <h5> {ReasonReact.string("Add player")} </h5>
       <div className="section"> <AddPlayer /> </div>
       <hr />
-      <div className="sectionSmallLabel">
-        {ReasonReact.string("Remove last game")}
-      </div>
+      <h5> {ReasonReact.string("Remove last game")} </h5>
       <div className="section"> <RemoveGame /> </div>
     </div>,
 };

@@ -1,10 +1,13 @@
 open Svc;
 open Js.Promise;
+open BsReactstrap;
+
 [%bs.raw {|require('./AddPlayer.scss')|}];
 
 type savingState =
   | NOTHING
   | SAVING
+  | FAILURE
   | WARNING(string)
   | SUCCESS;
 
@@ -26,6 +29,11 @@ let initialState = () => {code: "", name: "", savingState: NOTHING};
 
 let onSuccess = send => send(SetSavingState(SUCCESS));
 
+let onError = (send, err) => {
+  send(SetSavingState(FAILURE));
+  Js.Console.error(err);
+};
+
 let addPlayerSvc = state => {
   let payload =
     Json.Encode.object_([
@@ -37,6 +45,7 @@ let addPlayerSvc = state => {
     ({send}) =>
       svcPost("users", payload)
       |> then_(_json => onSuccess(send) |> resolve)
+      |> catch(err => onError(send, err) |> resolve)
       |> ignore,
   );
 };
@@ -65,6 +74,8 @@ let reducer = (action, state) =>
   | AddPlayer => addPlayerReducer(state)
   };
 
+let hanldeDismissAlert = (send, ()) => send(SetSavingState(NOTHING));
+
 let make = _children => {
   ...component,
   initialState,
@@ -75,29 +86,29 @@ let make = _children => {
         switch (state.savingState) {
         | NOTHING => ReasonReact.null
         | SUCCESS =>
-          <div className="success">
+          <Alert color="success" toggle={hanldeDismissAlert(send)}>
             {"Successfully saved :)" |> ReasonReact.string}
-          </div>
-        | SAVING =>
-          <div className="saving">
-            {"Removing in progress..." |> ReasonReact.string}
-          </div>
+          </Alert>
+        | SAVING => <LoadingMask />
+        | FAILURE => <FailureMask />
         | WARNING(msg) =>
-          <div className="warning"> {ReasonReact.string(msg)} </div>
+          <Alert color="warning" toggle={hanldeDismissAlert(send)}>
+            {ReasonReact.string(msg)}
+          </Alert>
         }
       }
-      <form
+      <Form
         onSubmit={
           event => {
             event |> ReactEvent.Form.preventDefault;
             send(AddPlayer);
           }
         }>
-        <table>
-          <tbody>
-            <tr>
-              <td>
-                <input
+        <Container>
+          <Row>
+            <Col>
+              <FormGroup>
+                <Input
                   placeholder="code"
                   value={state.code}
                   onChange={
@@ -105,9 +116,11 @@ let make = _children => {
                       send(ChangeCode(GameResult.valueFromEvent(event)))
                   }
                 />
-              </td>
-              <td>
-                <input
+              </FormGroup>
+            </Col>
+            <Col>
+              <FormGroup>
+                <Input
                   placeholder="name"
                   value={state.name}
                   onChange={
@@ -115,11 +128,13 @@ let make = _children => {
                       send(ChangeName(GameResult.valueFromEvent(event)))
                   }
                 />
-              </td>
-              <td> <button> {ReasonReact.string("Add")} </button> </td>
-            </tr>
-          </tbody>
-        </table>
-      </form>
+              </FormGroup>
+            </Col>
+            <Col>
+              <Button color="primary"> {ReasonReact.string("Add")} </Button>
+            </Col>
+          </Row>
+        </Container>
+      </Form>
     </div>,
 };
