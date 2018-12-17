@@ -9,6 +9,7 @@ open BsReactstrap;
 type dataStateType =
   | INITIAL
   | LOADING
+  | FAILURE
   | WARNING(string)
   | LOADED(list(ratingHistory));
 
@@ -20,7 +21,9 @@ type stateType = {
 type action =
   | GetHistory(list(user))
   | SetHistory(list(ratingHistory))
-  | ChangeCode(string);
+  | ChangeCode(string)
+  | SetFailure
+  | ClearDataState;
 
 let component = ReasonReact.reducerComponent("Stats");
 
@@ -31,6 +34,11 @@ let onSuccess = (send, json) =>
   |> DecodeRatingsHistory.ratingsHistoryDec
   |> (ratingsHistory => send(SetHistory(ratingsHistory)));
 
+let onError = (send, err) => {
+  send(SetFailure);
+  Js.Console.error(err);
+};
+
 let getHistorySvc = (state, users) => {
   let userNid = getUserNidFromCode(state.inputCode, users);
 
@@ -40,6 +48,7 @@ let getHistorySvc = (state, users) => {
       let url = "ratings_history/" ++ string_of_int(userNid);
       svcGet(url)
       |> then_(json => onSuccess(send, json) |> resolve)
+      |> catch(err => onError(send, err) |> resolve)
       |> ignore;
     },
   );
@@ -63,7 +72,11 @@ let reducer = (action, state: stateType) =>
   | GetHistory(users) => getHistoryReducer(state, users)
   | SetHistory(ratingsHistory) =>
     ReasonReact.Update({...state, dataState: LOADED(ratingsHistory)})
+  | SetFailure => ReasonReact.Update({...state, dataState: FAILURE})
+  | ClearDataState => ReasonReact.Update({...state, dataState: INITIAL})
   };
+
+let hanldeDismissAlert = (send, ()) => send(ClearDataState);
 
 let make = (~users, ~disable, _children) => {
   ...component,
@@ -80,7 +93,7 @@ let make = (~users, ~disable, _children) => {
         }>
         <Container>
           <Row>
-            <Col md=4>
+            <Col xs=4>
               <FormGroup>
                 <Input
                   placeholder="code"
@@ -112,8 +125,11 @@ let make = (~users, ~disable, _children) => {
         | INITIAL => ReasonReact.null
         | LOADING => <LoadingMask />
         | WARNING(msg) =>
-          <div className="warningMsg"> {msg |> ReasonReact.string} </div>
+          <Alert color="warning" toggle={hanldeDismissAlert(send)}>
+            {msg |> ReasonReact.string}
+          </Alert>
         | LOADED(ratingsHistory) => <RatingsHistoryTable ratingsHistory />
+        | FAILURE => <FailureMask />
         }
       }
     </div>,

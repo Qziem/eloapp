@@ -10,6 +10,7 @@ type saveStateType =
   | NOTHING
   | SAVING
   | WARNING(string)
+  | FAILURE
   | SUCCESS(int);
 
 type state = {
@@ -22,7 +23,9 @@ type action =
   | ChangeWinUser(string)
   | ChangeLooseUser(string)
   | UpdateClick
-  | SetSaveSuccess(int);
+  | SetSaveSuccess(int)
+  | SetFailure
+  | ClearSaveState;
 
 let component = ReasonReact.reducerComponent("GameResult");
 
@@ -38,6 +41,11 @@ let onSuccess = (containterSend, send, json) => {
   containterSend(GetUsersSvc);
 };
 
+let onError = (send, err) => {
+  send(SetFailure);
+  Js.Console.error(err);
+};
+
 let updateRatingsSvc = (state, users, containterSend) => {
   let winnerLooserNids = {
     winnerUserNid: getUserNidFromCode(state.userWinnerCode, users),
@@ -50,6 +58,7 @@ let updateRatingsSvc = (state, users, containterSend) => {
       let payload = EncodeUpdateRatings.encode(winnerLooserNids);
       svcPut("users/update_ratings", payload)
       |> then_(json => onSuccess(containterSend, send, json) |> resolve)
+      |> catch(err => onError(send, err) |> resolve)
       |> ignore;
     },
   );
@@ -91,9 +100,13 @@ let reducer = (users, containterSend, action, state) =>
       userLooserCode: "",
       saveState: SUCCESS(ratingDiff),
     })
+  | SetFailure => ReasonReact.Update({...state, saveState: FAILURE})
+  | ClearSaveState => ReasonReact.Update({...state, saveState: NOTHING})
   };
 
 let valueFromEvent = event => ReactEvent.Form.target(event)##value;
+
+let hanldeDismissAlert = (send, ()) => send(ClearSaveState);
 
 let make = (~users, ~containterSend, ~disable, _children) => {
   ...component,
@@ -105,20 +118,20 @@ let make = (~users, ~containterSend, ~disable, _children) => {
         {
           switch (state.saveState) {
           | SUCCESS(ratingDiff) =>
-            <div className="success">
+            <Alert color="success" toggle={hanldeDismissAlert(send)}>
               <span className="success-label">
                 {"Updated, rating diff: " |> ReasonReact.string}
               </span>
               <span className="success-rating-diff">
                 {string_of_int(ratingDiff) |> ReasonReact.string}
               </span>
-            </div>
+            </Alert>
           | WARNING(msg) =>
-            <div className="warning"> {msg |> ReasonReact.string} </div>
-          | SAVING =>
-            <div className="saving">
-              {"Saving in progress..." |> ReasonReact.string}
-            </div>
+            <Alert color="warning" toggle={hanldeDismissAlert(send)}>
+              {msg |> ReasonReact.string}
+            </Alert>
+          | SAVING => <LoadingMask />
+          | FAILURE => <FailureMask />
           | NOTHING => ReasonReact.null
           }
         }
@@ -131,49 +144,49 @@ let make = (~users, ~containterSend, ~disable, _children) => {
           }
         }>
         <Container>
-        <Row>
-          <Col>
-            <FormGroup>
-              <Label for_="winnerCode">
-                {"Winner" |> ReasonReact.string}
-              </Label>
-              <Input
-                type_="text"
-                id="winnerCode"
-                placeholder="code"
-                value={state.userWinnerCode}
-                onChange={
-                  event => send(ChangeWinUser(valueFromEvent(event)))
-                }
-              />
-            </FormGroup>
-          </Col>
-          <Col>
-            <FormGroup>
-              <Label for_="looserCode">
-                {"Looser" |> ReasonReact.string}
-              </Label>
-              <Input
-                type_="text"
-                id="looserCode"
-                placeholder="code"
-                value={state.userLooserCode}
-                onChange={
-                  event => send(ChangeLooseUser(valueFromEvent(event)))
-                }
-              />
-            </FormGroup>
-          </Col>
-          <Col className="colButton">
-            <FormGroup>
-              <Button
-                color="primary"
-                disabled={state.saveState === SAVING || disable}>
-                {ReasonReact.string("Update")}
-              </Button>
-            </FormGroup>
-          </Col>
-        </Row>
+          <Row>
+            <Col>
+              <FormGroup>
+                <Label for_="winnerCode">
+                  {"Winner" |> ReasonReact.string}
+                </Label>
+                <Input
+                  type_="text"
+                  id="winnerCode"
+                  placeholder="code"
+                  value={state.userWinnerCode}
+                  onChange={
+                    event => send(ChangeWinUser(valueFromEvent(event)))
+                  }
+                />
+              </FormGroup>
+            </Col>
+            <Col>
+              <FormGroup>
+                <Label for_="looserCode">
+                  {"Looser" |> ReasonReact.string}
+                </Label>
+                <Input
+                  type_="text"
+                  id="looserCode"
+                  placeholder="code"
+                  value={state.userLooserCode}
+                  onChange={
+                    event => send(ChangeLooseUser(valueFromEvent(event)))
+                  }
+                />
+              </FormGroup>
+            </Col>
+            <Col className="colButton">
+              <FormGroup>
+                <Button
+                  color="primary"
+                  disabled={state.saveState === SAVING || disable}>
+                  {ReasonReact.string("Update")}
+                </Button>
+              </FormGroup>
+            </Col>
+          </Row>
         </Container>
       </Form>
     </div>,

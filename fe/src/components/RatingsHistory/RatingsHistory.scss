@@ -1,4 +1,3 @@
-@import 'src/components/colors.scss';
 $win-color: #28a745;
 $loose-color: #dc3545;
 .ratingsHistory {
@@ -9,29 +8,17 @@ $loose-color: #dc3545;
     }
   }
 
-    .warningMsg {
-      text-align: center;
-      margin-top: 10px;
-      color: $warning-color;
+  .ratingsHistoryTable {
+    tr.win, .winsSum {
+      color: $win-color,
     }
 
-    .loadingMsg {
-      text-align: center;
-      margin-top: 10px;
-      color: $progress-msg-color;
+    tr.loose, .loosesSum {
+      color: $loose-color;
+    }
+
+    .loosesLabel {
+      margin-left: 10px;
+    }
   }
-
-    .ratingsHistoryTable {
-        tr.win, .winsSum {
-            color: $win-color,
-        }
-
-        tr.loose, .loosesSum {
-            color: $loose-color;
-        }
-
-        .loosesLabel {
-            margin-left: 10px;
-        }
-    }
 }

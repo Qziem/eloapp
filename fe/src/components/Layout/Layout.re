@@ -1,5 +1,7 @@
 open EloTypes;
 
+[%bs.raw {|require('./Layout.scss')|}];
+
 type action =
   | SetPlace(place);
 

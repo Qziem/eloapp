@@ -50,7 +50,6 @@ let renderContent = (send, users, isUsersLoading) =>
       <RatingsHistory users disable=isUsersLoading />
     </div>
   </div>;
-/* <div className="sectionLabel"> {ReasonReact.string("Ranking")} </div> */
 
 let make = _children => {
   ...component,
