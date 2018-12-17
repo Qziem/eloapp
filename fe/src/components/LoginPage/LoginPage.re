@@ -1,11 +1,13 @@
 open EloTypes;
 open Svc;
 open Js.Promise;
+open BsReactstrap;
 
 [%bs.raw {|require('./LoginPage.scss')|}];
 
 type warningType =
   | NOTHING
+  | LOADING
   | WRONG_PASSWORD
   | SVC_FAILURE;
 
@@ -45,10 +47,11 @@ let onError = (send, err) => {
   Js.Console.error(err);
 };
 
-let loginSvc = (password, parentSend) => {
+let loginSvc = (state, parentSend) => {
   let payload =
-    Json.Encode.object_([("password", Json.Encode.string(password))]);
-  ReasonReact.SideEffects(
+    Json.Encode.object_([("password", Json.Encode.string(state.password))]);
+  ReasonReact.UpdateWithSideEffects(
+    {...state, warning: LOADING},
     ({send}) =>
       svcPost("auth/login", payload)
       |> then_(json => onServiceSuccess(parentSend, send, json) |> resolve)
@@ -60,7 +63,7 @@ let loginSvc = (password, parentSend) => {
 let reducer = (action, state) =>
   switch (action) {
   | ChangePassword(password) => ReasonReact.Update({...state, password})
-  | Login(parentSend) => loginSvc(state.password, parentSend)
+  | Login(parentSend) => loginSvc(state, parentSend)
   | SetWarningWrongPass =>
     ReasonReact.Update({...state, warning: WRONG_PASSWORD})
   | SetWarningFailure => ReasonReact.Update({...state, warning: SVC_FAILURE})
@@ -82,30 +85,43 @@ let make = (~parentSend, _children) => {
   reducer,
   render: self =>
     <div className="loginPage">
+      <Navbar className="menu" color="light" light=true>
+        <NavbarBrand href="/"> {"Eloapp" |> ReasonReact.string} </NavbarBrand>
+      </Navbar>
       {
         switch (self.state.warning) {
         | NOTHING => ReasonReact.null
         | WRONG_PASSWORD => warningWrongPass()
+        | LOADING => <LoadingMask />
         | SVC_FAILURE => <FailureMask />
         }
       }
-      <form
+      <Form
         onSubmit={
           event => {
             event |> ReactEvent.Form.preventDefault;
             self.send(Login(parentSend));
           }
         }>
-        {ReasonReact.string("Podaj haslo: ")}
-        <input
-          placeholder="password"
-          type_="password"
-          onChange={
-            event =>
-              self.send(ChangePassword(GameResult.valueFromEvent(event)))
-          }
-        />
-        <button> {ReasonReact.string("login")} </button>
-      </form>
+        <Container>
+          <Row>
+            <Col>
+              <Input
+                placeholder="password"
+                type_="password"
+                onChange={
+                  event =>
+                    self.send(
+                      ChangePassword(GameResult.valueFromEvent(event)),
+                    )
+                }
+              />
+            </Col>
+            <Col>
+              <Button color="primary"> {ReasonReact.string("Login")} </Button>
+            </Col>
+          </Row>
+        </Container>
+      </Form>
     </div>,
 };

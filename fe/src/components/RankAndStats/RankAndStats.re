@@ -16,7 +16,7 @@ let initialState = () => LOADING;
 let onSuccess = (send, json) =>
   json |> DecodeUsers.users |> (users => send(SetUsersToState(users)));
 
-let onError = (send, err) => {
+let onError = (send: containerActions => unit, err) => {
   send(SetFailure);
   Js.Console.error(err);
 };
@@ -31,7 +31,7 @@ let getUsersSvc = () =>
       |> ignore,
   );
 
-let reducer = (action, _state) =>
+let reducer = (action: containerActions, _state) =>
   switch (action) {
   | GetUsersSvc => getUsersSvc()
   | SetUsersToState(users) => ReasonReact.Update(LOADED(users))

@@ -1,13 +1,21 @@
 @import 'src/components/colors.scss';
 .loginPage {
+  .col {
+    padding-left: 5px;
+    padding-right: 5px;
+  }
+
+  .wrongPass {
+    color: $warning-color;
+    margin-bottom: 20px;
     text-align: center;
+  }
 
-    .wrongPass {
-        color: $warning-color;
-        margin-bottom: 20px;
-    }
+  .FailureMask {
+    margin-bottom: 20px;
+  }
 
-    .FailureMask {
-      margin-bottom: 20px;
-    }
+  .loadingMask {
+    margin-bottom: 10px;
+  }
 }

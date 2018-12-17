@@ -20,7 +20,8 @@ type containerActions =
 
 type appContainerActions =
   | IsLogged
-  | SetIsLogged(bool);
+  | SetIsLogged(bool)
+  | SetFailure;
 
 type winnerLooserNids = {
   winnerUserNid: int,
