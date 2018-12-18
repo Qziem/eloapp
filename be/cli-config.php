@@ -3,7 +3,7 @@ use Doctrine\ORM\EntityManager;
 use Doctrine\ORM\Tools\Console\ConsoleRunner;
 use Slim\Container;
 
-require_once 'svc.php';
+require_once 'index.php';
 
 // return ConsoleRunner::createHelperSet($container['em']);
 ConsoleRunner::run(
