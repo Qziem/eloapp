@@ -1,3 +1,6 @@
+.idea
+.env
+
 *.bs.js
 node_modules/
 /fe/yarn.lock
