@@ -9,7 +9,6 @@ node_modules/
 /fe/.bsb.lock
 /fe/npm-debug.log
 /fe/lib/bs/
-/fe/node_modules/
 /fe/build/
 /fe/yarn-error.log
 /fe/.vs/
