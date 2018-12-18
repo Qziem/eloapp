@@ -22,6 +22,9 @@ SET time_zone = "+00:00";
 -- Baza danych: `elo_app`
 --
 
+CREATE DATABASE IF NOT EXISTS elo_app;
+USE elo_app;
+
 -- --------------------------------------------------------
 
 --
