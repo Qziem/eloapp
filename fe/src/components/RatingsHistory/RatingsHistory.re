@@ -1,45 +1,56 @@
 open Svc;
 open EloTypes;
 open Helpers;
+open Js.Promise;
+open BsReactstrap;
+
 [%bs.raw {|require('./RatingsHistory.scss')|}];
 
 type dataStateType =
   | INITIAL
   | LOADING
+  | FAILURE
   | WARNING(string)
   | LOADED(list(ratingHistory));
 
 type stateType = {
   inputCode: string,
   dataState: dataStateType,
-  /* ratingsHistory: option(list(ratingHistory)),
-     warning: bool,
-     loading: bool, */
 };
 
 type action =
   | GetHistory(list(user))
   | SetHistory(list(ratingHistory))
-  | ChangeCode(string);
+  | ChangeCode(string)
+  | SetFailure
+  | ClearDataState;
 
 let component = ReasonReact.reducerComponent("Stats");
 
 let initialState = (): stateType => {inputCode: "", dataState: INITIAL};
+
+let onSuccess = (send, json) =>
+  json
+  |> DecodeRatingsHistory.ratingsHistoryDec
+  |> (ratingsHistory => send(SetHistory(ratingsHistory)));
+
+let onError = (send, err) => {
+  send(SetFailure);
+  Js.Console.error(err);
+};
 
 let getHistorySvc = (state, users) => {
   let userNid = getUserNidFromCode(state.inputCode, users);
 
   ReasonReact.UpdateWithSideEffects(
     {...state, dataState: LOADING},
-    self =>
-      Js.Promise.(
-        svcGet("ratings_history/" ++ string_of_int(userNid))
-        |> then_(json =>
-             DecodeRatingsHistory.ratingsHistoryDec(json) |> resolve
-           )
-        |> then_(result => self.send(SetHistory(result)) |> resolve)
-      )
-      |> ignore,
+    ({send}) => {
+      let url = "ratings_history/" ++ string_of_int(userNid);
+      svcGet(url)
+      |> then_(json => onSuccess(send, json) |> resolve)
+      |> catch(err => onError(send, err) |> resolve)
+      |> ignore;
+    },
   );
 };
 
@@ -61,59 +72,64 @@ let reducer = (action, state: stateType) =>
   | GetHistory(users) => getHistoryReducer(state, users)
   | SetHistory(ratingsHistory) =>
     ReasonReact.Update({...state, dataState: LOADED(ratingsHistory)})
+  | SetFailure => ReasonReact.Update({...state, dataState: FAILURE})
+  | ClearDataState => ReasonReact.Update({...state, dataState: INITIAL})
   };
 
-let make = (~users, _children) => {
+let hanldeDismissAlert = (send, ()) => send(ClearDataState);
+
+let make = (~users, ~disable, _children) => {
   ...component,
   initialState,
   reducer,
   render: ({state, send}) =>
     <div className="ratingsHistory">
-      <form
-        className="topBar"
+      <Form
         onSubmit={
           event => {
             event |> ReactEvent.Form.preventDefault;
             send(GetHistory(users));
           }
         }>
-        <table>
-          <tbody>
-            <tr>
-              <td>
-                <input
+        <Container>
+          <Row>
+            <Col xs=4>
+              <FormGroup>
+                <Input
                   placeholder="code"
                   onChange={
                     event =>
                       send(ChangeCode(GameResult.valueFromEvent(event)))
                   }
                 />
-              </td>
-              <td>
-                <button
-                  disabled={
-                    switch (state.dataState) {
-                    | LOADING => true
-                    | _ => false
-                    }
-                  }>
-                  {ReasonReact.string("Get stats")}
-                </button>
-              </td>
-            </tr>
-          </tbody>
-        </table>
-      </form>
+              </FormGroup>
+            </Col>
+            <Col>
+              <Button
+                color="primary"
+                disabled={
+                  switch (disable, state.dataState) {
+                  | (true, _) => true
+                  | (false, LOADING) => true
+                  | (false, _) => false
+                  }
+                }>
+                {ReasonReact.string("Get stats")}
+              </Button>
+            </Col>
+          </Row>
+        </Container>
+      </Form>
       {
         switch (state.dataState) {
         | INITIAL => ReasonReact.null
-        | LOADING =>
-          <div className="loadingMsg">
-            {"Loading data..." |> ReasonReact.string}
-          </div>
+        | LOADING => <LoadingMask />
         | WARNING(msg) =>
-          <div className="warningMsg"> {msg |> ReasonReact.string} </div>
+          <Alert color="warning" toggle={hanldeDismissAlert(send)}>
+            {msg |> ReasonReact.string}
+          </Alert>
         | LOADED(ratingsHistory) => <RatingsHistoryTable ratingsHistory />
+        | FAILURE => <FailureMask />
         }
       }
     </div>,

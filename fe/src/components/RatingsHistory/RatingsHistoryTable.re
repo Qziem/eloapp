@@ -1,7 +1,7 @@
 open EloTypes;
 open ReasonReact;
+open BsReactstrap;
 
-/* [%bs.raw {|require('./Users.scss')|}]; */
 let component = statelessComponent("RatingsHistoryTable");
 
 let tableRow = (ratingsHistoryLength, i, ratingHistory) => {
@@ -48,19 +48,21 @@ let make = (~ratingsHistory, _children) => {
           {calcLooses(ratingsHistory) |> string_of_int |> ReasonReact.string}
         </span>
       </div>
-      <table>
+      <Table size="sm">
         <thead>
           <tr>
             <th> {string("Lp")} </th>
-            <th> {string("Rating diff")} </th>
+            <th> {string("Diff")} </th>
             <th> {string("Rating")} </th>
             <th> {string("Oponent")} </th>
-            <th> {string("Oponent rating")} </th>
+            <th>
+              <span title="Oponent rating"> {string("Op. rating")} </span>
+            </th>
             <th> {string("Date")} </th>
           </tr>
         </thead>
         <tbody> {ratingsHistoryTrs |> Array.of_list |> array} </tbody>
-      </table>
+      </Table>
     </div>;
   },
 };

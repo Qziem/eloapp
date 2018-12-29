@@ -1,49 +1,24 @@
-@import 'src/components/colors.scss';
-$win-color: darkgreen;
-$loose-color: darkred;
+$win-color: #28a745;
+$loose-color: #dc3545;
 .ratingsHistory {
-    .warningMsg {
-      text-align: center;
-      margin-top: 10px;
-      color: $warning-color;
+  .row {
+    >div {
+      padding-left: 5px;
+      padding-right: 5px;
     }
-
-    .loadingMsg {
-      text-align: center;
-      margin-top: 10px;
-      color: $progress-msg-color;
   }
 
-    .ratingsHistoryTable {
-        margin-top: 10px;
-
-        table {
-            border-collapse: collapse;
-        }
-
-        td {
-            text-align: center
-        }
-
-        tr th {
-            border-top: 1px solid black;
-            border-bottom: 1px solid black;
-        }
-
-        tr td {
-            border-bottom: 1px solid darkgrey;
-        }
-
-        tr.win, .winsSum {
-            color: $win-color,
-        }
-
-        tr.loose, .loosesSum {
-            color: $loose-color;
-        }
-
-        .loosesLabel {
-            margin-left: 10px;
-        }
+  .ratingsHistoryTable {
+    tr.win, .winsSum {
+      color: $win-color,
     }
+
+    tr.loose, .loosesSum {
+      color: $loose-color;
+    }
+
+    .loosesLabel {
+      margin-left: 10px;
+    }
+  }
 }

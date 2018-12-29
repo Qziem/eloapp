@@ -1,43 +1,71 @@
 open EloTypes;
 open Helpers;
+open Svc;
+open Js.Promise;
+open BsReactstrap;
+
 [%bs.raw {|require('./GameResult.scss')|}];
+
+type saveStateType =
+  | NOTHING
+  | SAVING
+  | WARNING(string)
+  | FAILURE
+  | SUCCESS(int);
+
+type state = {
+  userWinnerCode: string,
+  userLooserCode: string,
+  saveState: saveStateType,
+};
 
 type action =
   | ChangeWinUser(string)
   | ChangeLooseUser(string)
-  | UpdateClick(list(user), containerActions => unit)
-  | UpdateRatingsSvc(winnerLooserNids, containerActions => unit);
-
-type gameResultState = {
-  userWinnerCode: string,
-  userLooserCode: string,
-  warningMsg: option(string),
-  saving: bool,
-};
+  | UpdateClick
+  | SetSaveSuccess(int)
+  | SetFailure
+  | ClearSaveState;
 
 let component = ReasonReact.reducerComponent("GameResult");
 
 let initialState = () => {
   userWinnerCode: "",
   userLooserCode: "",
-  warningMsg: None,
-  saving: false,
+  saveState: NOTHING,
 };
 
-let updateStateWarningMsg = (state: gameResultState, msg: string) =>
-  ReasonReact.Update({...state, warningMsg: Some(msg)});
+let onSuccess = (containterSend, send, json) => {
+  let ratingDiff = Json.Decode.field("ratingDiff", Json.Decode.int, json);
+  send(SetSaveSuccess(ratingDiff));
+  containterSend(GetUsersSvc);
+};
 
-let clearWarningAndSendUpdateRatingAction = (state, users, containterSend) =>
+let onError = (send, err) => {
+  send(SetFailure);
+  Js.Console.error(err);
+};
+
+let updateRatingsSvc = (state, users, containterSend) => {
+  let winnerLooserNids = {
+    winnerUserNid: getUserNidFromCode(state.userWinnerCode, users),
+    looserUserNid: getUserNidFromCode(state.userLooserCode, users),
+  };
+
   ReasonReact.UpdateWithSideEffects(
-    {...state, warningMsg: None},
-    self => {
-      let winnerLooserNids = {
-        winnerUserNid: getUserNidFromCode(state.userWinnerCode, users),
-        looserUserNid: getUserNidFromCode(state.userLooserCode, users),
-      };
-      self.send(UpdateRatingsSvc(winnerLooserNids, containterSend));
+    {...state, saveState: SAVING},
+    ({send}) => {
+      let payload = EncodeUpdateRatings.encode(winnerLooserNids);
+      svcPut("users/update_ratings", payload)
+      |> then_(json => onSuccess(containterSend, send, json) |> resolve)
+      |> catch(err => onError(send, err) |> resolve)
+      |> ignore;
     },
   );
+};
+
+let updateStateWarningMsg = (state, msg: string) =>
+  ReasonReact.Update({...state, saveState: WARNING(msg)});
 
 let handleUpdateClickReducer = (state, users, containterSend) => {
   let winCode = state.userWinnerCode;
@@ -50,7 +78,7 @@ let handleUpdateClickReducer = (state, users, containterSend) => {
   switch (winUserExist, looseUserExist) {
   | (true, true) =>
     !compareCodes(winCode, looseCode) ?
-      clearWarningAndSendUpdateRatingAction(state, users, containterSend) :
+      updateRatingsSvc(state, users, containterSend) :
       updateStateWarningMsg(state, "Codes are the same")
 
   | (true, false) => updateStateWarningMsg(state, "Looser doesen't exist")
@@ -59,97 +87,107 @@ let handleUpdateClickReducer = (state, users, containterSend) => {
   };
 };
 
-let updateRatingsSvc = (winnerLooserNids, state, containterSend) =>
-  ReasonReact.UpdateWithSideEffects(
-    {...state, saving: true},
-    _self => {
-      let payload = EncodeUpdateRatings.encode(winnerLooserNids);
-      Js.Promise.(
-        Svc.svcPut("users/update_ratings", payload)
-        |> then_(_resp => containterSend(GetUsersSvc) |> resolve)
-      )
-      |> ignore;
-    },
-  );
-
-let reducer = (action, state) =>
+let reducer = (users, containterSend, action, state) =>
   switch (action) {
   | ChangeWinUser(value) =>
     ReasonReact.Update({...state, userWinnerCode: value})
   | ChangeLooseUser(value) =>
     ReasonReact.Update({...state, userLooserCode: value})
-  | UpdateClick(users, containterSend) =>
-    handleUpdateClickReducer(state, users, containterSend)
-  | UpdateRatingsSvc(winnerLooserNids, containterSend) =>
-    updateRatingsSvc(winnerLooserNids, state, containterSend)
+  | UpdateClick => handleUpdateClickReducer(state, users, containterSend)
+  | SetSaveSuccess(ratingDiff) =>
+    ReasonReact.Update({
+      userWinnerCode: "",
+      userLooserCode: "",
+      saveState: SUCCESS(ratingDiff),
+    })
+  | SetFailure => ReasonReact.Update({...state, saveState: FAILURE})
+  | ClearSaveState => ReasonReact.Update({...state, saveState: NOTHING})
   };
 
 let valueFromEvent = event => ReactEvent.Form.target(event)##value;
 
-let make = (~users, ~containterSend, _children) => {
+let hanldeDismissAlert = (send, ()) => send(ClearSaveState);
+
+let make = (~users, ~containterSend, ~disable, _children) => {
   ...component,
   initialState,
-  reducer,
-  render: self =>
+  reducer: reducer(users, containterSend),
+  render: ({state, send}) =>
     <div className="gameResult">
       <div className="messageContainer">
         {
-          switch (self.state.warningMsg) {
-          | Some(msg) =>
-            <div className="warrning"> {msg |> ReasonReact.string} </div>
-          | None => ReasonReact.null
+          switch (state.saveState) {
+          | SUCCESS(ratingDiff) =>
+            <Alert color="success" toggle={hanldeDismissAlert(send)}>
+              <span className="success-label">
+                {"Updated, rating diff: " |> ReasonReact.string}
+              </span>
+              <span className="success-rating-diff">
+                {string_of_int(ratingDiff) |> ReasonReact.string}
+              </span>
+            </Alert>
+          | WARNING(msg) =>
+            <Alert color="warning" toggle={hanldeDismissAlert(send)}>
+              {msg |> ReasonReact.string}
+            </Alert>
+          | SAVING => <LoadingMask />
+          | FAILURE => <FailureMask />
+          | NOTHING => ReasonReact.null
           }
         }
-        {
-          self.state.saving ?
-            <div className="saving">
-              {"Saving in progress..." |> ReasonReact.string}
-            </div> :
-            ReasonReact.null
-        }
       </div>
-      <form
+      <Form
         onSubmit={
           event => {
             event |> ReactEvent.Form.preventDefault;
-            self.send(UpdateClick(users, containterSend));
+            send(UpdateClick);
           }
         }>
-        <table>
-          <thead>
-            <tr>
-              <th> {ReasonReact.string("Winner")} </th>
-              <th> {ReasonReact.string("Looser")} </th>
-              <th />
-            </tr>
-          </thead>
-          <tbody>
-            <tr>
-              <td>
-                <input
+        <Container>
+          <Row>
+            <Col>
+              <FormGroup>
+                <Label for_="winnerCode">
+                  {"Winner" |> ReasonReact.string}
+                </Label>
+                <Input
+                  type_="text"
+                  id="winnerCode"
                   placeholder="code"
+                  value={state.userWinnerCode}
                   onChange={
-                    event => self.send(ChangeWinUser(valueFromEvent(event)))
+                    event => send(ChangeWinUser(valueFromEvent(event)))
                   }
                 />
-              </td>
-              <td>
-                <input
+              </FormGroup>
+            </Col>
+            <Col>
+              <FormGroup>
+                <Label for_="looserCode">
+                  {"Looser" |> ReasonReact.string}
+                </Label>
+                <Input
+                  type_="text"
+                  id="looserCode"
                   placeholder="code"
+                  value={state.userLooserCode}
                   onChange={
-                    event =>
-                      self.send(ChangeLooseUser(valueFromEvent(event)))
+                    event => send(ChangeLooseUser(valueFromEvent(event)))
                   }
                 />
-              </td>
-              <td>
-                <button disabled={self.state.saving} type_="submit">
+              </FormGroup>
+            </Col>
+            <Col className="colButton">
+              <FormGroup>
+                <Button
+                  color="primary"
+                  disabled={state.saveState === SAVING || disable}>
                   {ReasonReact.string("Update")}
-                </button>
-              </td>
-            </tr>
-          </tbody>
-        </table>
-      </form>
+                </Button>
+              </FormGroup>
+            </Col>
+          </Row>
+        </Container>
+      </Form>
     </div>,
 };

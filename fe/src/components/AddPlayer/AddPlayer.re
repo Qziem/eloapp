@@ -1,46 +1,65 @@
 open Svc;
-open EloTypes;
+open Js.Promise;
+open BsReactstrap;
+
 [%bs.raw {|require('./AddPlayer.scss')|}];
+
+type savingState =
+  | NOTHING
+  | SAVING
+  | FAILURE
+  | WARNING(string)
+  | SUCCESS;
 
 type state = {
   code: string,
   name: string,
-  warning: bool,
+  savingState,
 };
 
 type action =
   | ChangeCode(string)
   | ChangeName(string)
-  | SetWarning(bool)
-  | AddPlayer(containerActions => unit);
+  | SetSavingState(savingState)
+  | AddPlayer;
 
 let component = ReasonReact.reducerComponent("AddPlayer");
 
-let initialState = () => {code: "", name: "", warning: false};
+let initialState = () => {code: "", name: "", savingState: NOTHING};
 
-let addPlayerSvc = (state, containterSend) => {
+let onSuccess = send => send(SetSavingState(SUCCESS));
+
+let onError = (send, err) => {
+  send(SetSavingState(FAILURE));
+  Js.Console.error(err);
+};
+
+let addPlayerSvc = state => {
   let payload =
     Json.Encode.object_([
       ("code", Json.Encode.string(state.code)),
       ("name", Json.Encode.string(state.name)),
     ]);
   ReasonReact.UpdateWithSideEffects(
-    {...state, warning: false},
-    _self =>
-      Js.Promise.(
-        svcPost("users", payload)
-        |> then_(_result => containterSend(GetUsersSvc) |> resolve)
-      )
+    {...state, savingState: SAVING},
+    ({send}) =>
+      svcPost("users", payload)
+      |> then_(_json => onSuccess(send) |> resolve)
+      |> catch(err => onError(send, err) |> resolve)
       |> ignore,
   );
 };
 
-let addPlayerReducer = (state, containterSend) => {
+let addPlayerReducer = state => {
   let codeValid = String.trim(state.code) !== "";
   let nameValid = String.trim(state.name) !== "";
   switch (codeValid, nameValid) {
-  | (true, true) => addPlayerSvc(state, containterSend)
-  | _ => ReasonReact.Update({...state, warning: true})
+  | (true, true) => addPlayerSvc(state)
+  | _ =>
+    ReasonReact.Update({
+      ...state,
+      savingState: WARNING("Fields can not be empty"),
+    })
   };
 };
 
@@ -48,59 +67,72 @@ let reducer = (action, state) =>
   switch (action) {
   | ChangeCode(code) => ReasonReact.Update({...state, code})
   | ChangeName(name) => ReasonReact.Update({...state, name})
-  | SetWarning(warning) => ReasonReact.Update({...state, warning})
-  | AddPlayer(containterSend) => addPlayerReducer(state, containterSend)
+  | SetSavingState(SUCCESS) =>
+    ReasonReact.Update({code: "", name: "", savingState: SUCCESS})
+  | SetSavingState(savingState) =>
+    ReasonReact.Update({...state, savingState})
+  | AddPlayer => addPlayerReducer(state)
   };
 
-let make = (~containterSend, _children) => {
+let hanldeDismissAlert = (send, ()) => send(SetSavingState(NOTHING));
+
+let make = _children => {
   ...component,
   initialState,
   reducer,
-  render: self =>
+  render: ({state, send}) =>
     <div className="addPlayer">
       {
-        self.state.warning ?
-          <div className="warning">
-            {ReasonReact.string("Fields can not be empty")}
-          </div> :
-          ReasonReact.null
+        switch (state.savingState) {
+        | NOTHING => ReasonReact.null
+        | SUCCESS =>
+          <Alert color="success" toggle={hanldeDismissAlert(send)}>
+            {"Successfully saved :)" |> ReasonReact.string}
+          </Alert>
+        | SAVING => <LoadingMask />
+        | FAILURE => <FailureMask />
+        | WARNING(msg) =>
+          <Alert color="warning" toggle={hanldeDismissAlert(send)}>
+            {ReasonReact.string(msg)}
+          </Alert>
+        }
       }
-      <form
+      <Form
         onSubmit={
           event => {
             event |> ReactEvent.Form.preventDefault;
-            self.send(AddPlayer(containterSend));
+            send(AddPlayer);
           }
         }>
-        <table>
-          <tbody>
-            <tr>
-              <td>
-                <input
-                  placeholder="code"
-                  onChange={
-                    event =>
-                      self.send(
-                        ChangeCode(GameResult.valueFromEvent(event)),
-                      )
-                  }
-                />
-              </td>
-              <td>
-                <input
+        <Container>
+          <Row>
+            <Col>
+              <Input
+                placeholder="code"
+                value={state.code}
+                onChange={
+                  event =>
+                    send(ChangeCode(GameResult.valueFromEvent(event)))
+                }
+              />
+            </Col>
+            <Col>
+              <FormGroup>
+                <Input
                   placeholder="name"
+                  value={state.name}
                   onChange={
                     event =>
-                      self.send(
-                        ChangeName(GameResult.valueFromEvent(event)),
-                      )
+                      send(ChangeName(GameResult.valueFromEvent(event)))
                   }
                 />
-              </td>
-              <td> <button> {ReasonReact.string("Add")} </button> </td>
-            </tr>
-          </tbody>
-        </table>
-      </form>
+              </FormGroup>
+            </Col>
+            <Col>
+              <Button color="primary"> {ReasonReact.string("Add")} </Button>
+            </Col>
+          </Row>
+        </Container>
+      </Form>
     </div>,
 };

@@ -1,5 +1,6 @@
 open EloTypes;
 open ReasonReact;
+open BsReactstrap;
 
 type userForDisp = {
   userNid: int,
@@ -50,23 +51,25 @@ let prepareStructure = users => {
   );
 };
 
-let make = (~users, _children) => {
-  ...component,
-  render: _self => {
-    let usersTrs = users |> prepareStructure |> List.map(tableRow);
+let renderContent = users => {
+  let usersTrs = users |> prepareStructure |> List.map(tableRow);
 
-    <div className="users">
-      <table>
-        <thead>
-          <tr>
-            <th className="posTh"> {string("Pos")} </th>
-            <th className="codeTh"> {string("Code")} </th>
-            <th className="nameTh"> {string("Name")} </th>
-            <th className="ratingTh"> {string("Rating")} </th>
-          </tr>
-        </thead>
-        <tbody> {usersTrs |> Array.of_list |> array} </tbody>
-      </table>
-    </div>;
-  },
+  <div className="users">
+    <Table size="sm">
+      <thead>
+        <tr>
+          <th className="posTh"> {string("Pos")} </th>
+          <th className="codeTh"> {string("Code")} </th>
+          <th className="nameTh"> {string("Name")} </th>
+          <th className="ratingTh"> {string("Rating")} </th>
+        </tr>
+      </thead>
+      <tbody> {usersTrs |> Array.of_list |> array} </tbody>
+    </Table>
+  </div>;
+};
+
+let make = (~users, ~isUsersLoading, _children) => {
+  ...component,
+  render: _self => isUsersLoading ? <LoadingMask /> : renderContent(users),
 };
