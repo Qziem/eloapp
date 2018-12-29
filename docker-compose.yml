@@ -2,7 +2,8 @@ version: '2'
 services:
   elo_api:
     container_name: elo_api
-    image: pszmagaj1983/php7-pdo:stable
+    build:
+      context: docker/elo_api
     volumes:
     - $SOURCE_DIR/be:/usr/src/myapp
     expose:
