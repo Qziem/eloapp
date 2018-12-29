@@ -1,17 +1,25 @@
 <?php
+namespace Controller;
+
+use \Psr\Http\Message\ServerRequestInterface as Request;
+use \Psr\Http\Message\ResponseInterface as Response;
+
 use Doctrine\ORM\EntityManager;
 use Util\Helpers;
+use Model\Entity\User;
+use Model\Repository\GameRepository;
 
 class RatingsHistoryCtrl {
-    function __construct(EntityManager $em) {
+    function __construct(EntityManager $em, GameRepository $gameRepository) {
         $this->em = $em;
+        $this->gameRepository = $gameRepository;
     }
 
-    private function getOponentName($user) {
+    private function getOponentName(User $user): string {
         return "(" . $user->getCode() . ") " . $user->getName();
     }
 
-    private function entitiesListToOutput($gamesEntities, $userNid) {
+    private function entitiesListToOutput(array $gamesEntities, int $userNid): array {
         $output = [];
         foreach($gamesEntities as $entity) {
             $entityWinnerUserNid = $entity->getWinnerUser()->getUserNid();
@@ -43,16 +51,10 @@ class RatingsHistoryCtrl {
         return $output;
     }
 
-    public function getRatingsHistory($userNid) {
-        $query = $this->em->createQuery(
-            'SELECT g FROM Entity\Game g
-            WHERE g.winnerUserNid = :userNid
-            OR g.looserUserNid = :userNid
-            ORDER BY g.cdate DESC'
-        )->setParameter('userNid', $userNid);
-        
-        $gamesEntities = $query->getResult();
+    public function getRatingsHistory(Request $request, Response $response, $userNid): Response {
+        $gamesEntities = $this->gameRepository->findSortedGamesForUser($userNid);
 
-        return $this->entitiesListToOutput($gamesEntities, $userNid);
+        $respArray = $this->entitiesListToOutput($gamesEntities, $userNid);
+        return $response->withJson($respArray);
     }
 }

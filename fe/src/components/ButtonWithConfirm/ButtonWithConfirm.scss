@@ -1,0 +1,11 @@
+.buttonWithConfirm {
+  .confirmation{
+    display: flex;
+    justify-content: space-between;
+  }
+
+  .sureLabel {
+    display: flex;
+    align-items: center;
+  }
+}

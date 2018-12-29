@@ -8,10 +8,11 @@ $config = [
 
         // path where the compiled metadata info will be cached
         // make sure the path exists and it is writable
-        'cache_dir' => __DIR__ . '/var/doctrine',
+        'cache_dir' => __DIR__ . '/cache/doctrine',
+        'cache_proxy_dir' => __DIR__ . '/cache/doctrine_proxy',
 
         // you should add any other path containing annotated entity classes
-        'metadata_dirs' => [__DIR__ . '/Entity'],
+        'metadata_dirs' => [__DIR__ . '/Model/Entity'],
 
         'connection' => [
             'driver' => 'pdo_mysql',

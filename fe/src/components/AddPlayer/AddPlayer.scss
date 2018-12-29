@@ -1,6 +1,10 @@
-@import 'src/components/colors.scss';
 .addPlayer {
-    .warning {
-        color: $warning-color;
-    }
+  .loadingMask {
+    margin-bottom: 16px;
+  }
+
+  .col {
+    padding-left: 5px;
+    padding-right: 5px;
+  }
 }

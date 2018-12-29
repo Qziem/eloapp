@@ -20,9 +20,15 @@ type containerActions =
 
 type appContainerActions =
   | IsLogged
-  | SetIsLogged(bool);
+  | SetIsLogged(bool)
+  | SetFailure;
 
 type winnerLooserNids = {
   winnerUserNid: int,
   looserUserNid: int,
 };
+
+type place =
+  | RANK_AND_STATS
+  | OPERATIONS
+  | NOT_FOUND;

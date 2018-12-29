@@ -1,34 +1,47 @@
 <?php
+namespace Controller;
+
+use \Psr\Http\Message\ServerRequestInterface as Request;
+use \Psr\Http\Message\ResponseInterface as Response;
+
 use Doctrine\ORM\EntityManager;
 use Util\Helpers;
+use Model\Entity\Game;
+use Model\Entity\User;
+use Model\Repository\UserRepository;
 
 class UsersCtrl {
-    function __construct(EntityManager $em) {
+    function __construct(EntityManager $em, UserRepository $userRepository) {
         $this->em = $em;
+        $this->userRepository = $userRepository;
     }
 
-    public function getUsers() {
-        $usersEntities = $this->em->getRepository('Entity\User')->findBy(['deleted' => 0], ['rating' => 'DESC', 'code' => 'ASC']);
-        return Helpers::entitiesListToArray($usersEntities);
+    public function getUsers(Request $request, Response $response): Response {
+        $usersEntities = $this->userRepository->findBy(['deleted' => 0], ['rating' => 'DESC', 'code' => 'ASC']);
+        $respArray = Helpers::entitiesListToArray($usersEntities);
+        return $response->withJson($respArray);
     }
 
-    public function addUser($userArr) {
+    public function addUser(Request $request, Response $response): Response {
+        $json = $request->getBody();
+        $userArray = json_decode($json, true);
+
         $initRating = 1500;
 
-        $user = new Entity\User();
-        $user->setCode($userArr['code']);
-        $user->setName($userArr['name']);
+        $user = new User();
+        $user->setCode($userArray['code']);
+        $user->setName($userArray['name']);
         $user->setRating($initRating);
         $user->setDeleted(false);
 
         $this->em->persist($user);
         $this->em->flush();
 
-        $userNid = $user->getUserNid();
+        return $response->withJson([]);
     }
 
-     private function getGame($winnerUser, $looserUser, $oldWinnerRating, $oldLooserRating, $ratingDiff) {
-        $game = new Entity\Game();
+     private function getGame(User $winnerUser, User $looserUser, int $oldWinnerRating, int $oldLooserRating, int $ratingDiff): Game {
+        $game = new Game();
         $game->setWinnerUser($winnerUser);
         $game->setLooserUser($looserUser);
         $game->setWinnerRatingBefore($oldWinnerRating);
@@ -38,26 +51,24 @@ class UsersCtrl {
         return $game;
     }
 
-    private function calcNewRatings($oldWinnerRating, $oldLooserRating) {
+    private function calcNewRatings(int $oldWinnerRating, int $oldLooserRating): array {
         $kfactor = 32;
 
-        $transformetRatingWinner = pow(10, ($oldWinnerRating / 400));
-        $transformetRatingLooser = pow(10, ($oldLooserRating / 400));
-   
-        $expectedScopeWinner = $transformetRatingWinner / ($transformetRatingWinner + $transformetRatingLooser);
-        $expectedScopeLooser = $transformetRatingLooser / ($transformetRatingWinner + $transformetRatingLooser);
-   
-        $newRatingWinner = round($oldWinnerRating + ($kfactor * (1 - $expectedScopeWinner)));
-        $newRatingLooser = round($oldLooserRating - ($kfactor * $expectedScopeLooser));
+        $winnerLooserDiff = $oldLooserRating - $oldWinnerRating;
+        $pWinner = 1 / (1 + pow(10, ($winnerLooserDiff / 400))); // propability of winning winner user
 
-        return [$newRatingWinner, $newRatingLooser];
+        $ratingDiff = round($kfactor * (1 - $pWinner));
+        $newWinnerRating = $oldWinnerRating + $ratingDiff;
+        $newLooserRating = $oldLooserRating - $ratingDiff;
+        
+        return [$newWinnerRating, $newLooserRating];
     }
 
-    public function updateRatings($winnerUserNid, $looserUserNid) {
-        $winnerUser = $this->em->getRepository('Entity\User')->find($winnerUserNid);
-        $looserUser = $this->em->getRepository('Entity\User')->find($looserUserNid);
-        if (!isset($winnerUser) || !isset($looserUser)) throw new Exception('Winner or looser does not exist');
-        if ($winnerUserNid === $looserUserNid) throw new Exception("Winner and looser nids are the same");
+    private function updateRatingsInDb(int $winnerUserNid, int $looserUserNid): int {
+        $winnerUser = $this->userRepository->find($winnerUserNid);
+        $looserUser = $this->userRepository->find($looserUserNid);
+        if (!isset($winnerUser) || !isset($looserUser)) throw new \Exception('Winner or looser does not exist');
+        if ($winnerUserNid === $looserUserNid) throw new \Exception("Winner and looser nids are the same");
 
         $oldWinnerRating = $winnerUser->getRating(); 
         $oldLooserRating = $looserUser->getRating();
@@ -71,5 +82,17 @@ class UsersCtrl {
 
         $this->em->persist($game);
         $this->em->flush();
+
+        return $ratingDiff;
+    }
+
+    public function updateRatings(Request $request, Response $response): Response {
+        $json = $request->getBody();
+        $usersCodes = json_decode($json, true);
+        $winnerUserNid = $usersCodes['winnerUserNid'];
+        $looserUserNid = $usersCodes['looserUserNid'];
+    
+        $ratingDiff = $this->updateRatingsInDb($winnerUserNid, $looserUserNid);
+        return $response->withJson(['ratingDiff' => $ratingDiff]);
     }
 }

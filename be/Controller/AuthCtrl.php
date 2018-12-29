@@ -1,16 +1,20 @@
 <?php
+namespace Controller;
+
+use \Psr\Http\Message\ServerRequestInterface as Request;
+use \Psr\Http\Message\ResponseInterface as Response;
+
 class AuthCtrl {
-    static public function isLogged() {
+    public function checkIsLogged(): bool {
         return isset($_SESSION['isLogged']);
     }
 
-    static public function assertIsLogged() {
-        if (!AuthCtrl::isLogged()) {
-            throw new Exception('Not logged');
-        }
+    public function isLogged(Response $response): Response {
+        $isLogged = $this->checkIsLogged();
+        return $response->withJson(['isLogged' => $isLogged]);
     }
 
-    public function login($password) {
+    private function doLogin(string $password): bool {
         $accessPassword = '31137594f95f0bc00c08a98caf14ed3b5905bbee';
         $isPass = sha1($password) === $accessPassword;
         if ($isPass) {
@@ -18,5 +22,12 @@ class AuthCtrl {
         }
 
         return $isPass;
+    }
+
+    public function login(Request $request, Response $response): Response {
+      $json = $request->getBody();
+      $payload = json_decode($json, true);
+      $logged = $this->doLogin($payload['password']);
+      return $response->withJson(['logged' => $logged]);
     }
 }
