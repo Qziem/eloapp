@@ -21,7 +21,7 @@ services:
     image: nginx
     volumes:
     - $SOURCE_DIR:/usr/share/nginx/html
-    - $SOURCE_DIR/site.conf:/etc/nginx/conf.d/site.conf
+    - $SOURCE_DIR/docker/elo_www/site.conf:/etc/nginx/conf.d/site.conf
     expose:
     - 81
     ports:
@@ -37,7 +37,7 @@ services:
     environment:
       MYSQL_ROOT_PASSWORD: $DB_PASSWORD
     volumes:
-      - "/srv/www/eloapp/db:/docker-entrypoint-initdb.d"
+      - $SOURCE_DIR/docker/elo_db:/docker-entrypoint-initdb.d
     networks:
       elonet:
         ipv4_address: 172.16.11.4
