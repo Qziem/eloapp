@@ -12,7 +12,6 @@ use Controller\RemoveGameCtrl;
 use Middleware\PrivilegesIsLogged;
 
 require 'autoload.php';
-require '../vendor/autoload.php';
 
 $app = new EloApp;
 

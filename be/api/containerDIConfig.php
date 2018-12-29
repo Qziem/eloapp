@@ -1,5 +1,5 @@
 <?php
-require '../config.php';
+require __DIR__ . '/../config.php';
 
 use Psr\Container\ContainerInterface;
 use DI\Factory\RequestedEntry;
