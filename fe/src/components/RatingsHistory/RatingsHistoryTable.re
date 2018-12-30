@@ -12,9 +12,11 @@ let tableRow = (ratingsHistoryLength, i, ratingHistory) => {
     <td className="lpTd"> {lp |> string_of_int |> string} </td>
     <td className="ratingDiffTd"> {ratingDiff |> string_of_int |> string} </td>
     <td className="userRatingTd"> {userRating |> string_of_int |> string} </td>
-    <td className="oponentNameTd"> {oponentName |> string} </td>
-    <td className="oponentRatingTd">
-      {oponentRating |> string_of_int |> string}
+    <td className="oponentNameTd">
+      {oponentName |> string}
+      <span className="oponentRatingTd">
+        {oponentRating |> string_of_int |> string}
+      </span>
     </td>
     <td className="dateTd"> {date |> string} </td>
   </tr>;
@@ -67,10 +69,7 @@ let make = (~ratingsHistory, _children) => {
             <th> {string("Lp")} </th>
             <th> {string("Diff")} </th>
             <th> {string("Rating")} </th>
-            <th> {string("Oponent")} </th>
-            <th>
-              <span title="Oponent rating"> {string("Op. rating")} </span>
-            </th>
+            <th> {string("Opponent")} </th>
             <th> {string("Date")} </th>
           </tr>
         </thead>
