@@ -28,6 +28,13 @@ let calcLooses = ratingsHistory =>
   List.filter(ratingHistory => ratingHistory.ratingDiff < 0, ratingsHistory)
   |> List.length;
 
+let calcRatio = ratingsHistory => {
+  let wins = calcWins(ratingsHistory) |> float_of_int;
+  let looses = calcLooses(ratingsHistory) |> float_of_int;
+
+  wins /. looses;
+};
+
 let make = (~ratingsHistory, _children) => {
   ...component,
   render: _self => {
@@ -46,6 +53,12 @@ let make = (~ratingsHistory, _children) => {
         </span>
         <span className="loosesSum">
           {calcLooses(ratingsHistory) |> string_of_int |> ReasonReact.string}
+        </span>
+        <span className="loosesLabel">
+          {"W/L Ratio: " |> ReasonReact.string}
+        </span>
+        <span className="wl_rating">
+          {calcRatio(ratingsHistory) |> string_of_float |> ReasonReact.string}
         </span>
       </div>
       <Table size="sm">
