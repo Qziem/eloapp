@@ -45,6 +45,7 @@ let make = (~ratingsHistory, _children) => {
       ratingsHistory |> List.mapi(tableRow(ratingsHistoryLength));
 
     <div className="ratingsHistoryTable">
+      <RatingsHistoryChart ratingsHistory />
       <div className="topBar">
         <span className="winsLabel"> {"Wins: " |> ReasonReact.string} </span>
         <span className="winsSum">
