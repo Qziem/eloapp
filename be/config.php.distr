@@ -16,11 +16,11 @@ $config = [
 
         'connection' => [
             'driver' => 'pdo_mysql',
-            'host' => 'localhost',
+            'host' => '172.16.11.4',
             'port' => 3306,
-            'dbname' => '',
-            'user' => '',
-            'password' => '',
+            'dbname' => 'elo_app',
+            'user' => 'root',
+            'password' => 'root',
             'charset'  => 'utf8',
         ],
     ],
