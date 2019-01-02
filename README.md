@@ -6,8 +6,7 @@ https://metinmediamath.wordpress.com/2013/11/27/how-to-calculate-the-elo-rating-
 https://en.wikipedia.org/wiki/Elo_rating_system
 
 ## Opis jak skonfigurować środowisko lokalnie
-Przede wszystkim potrzebujemy serwerka z obsługą php i bazę danych mysql.
-Aplikacja jest dostosowana aby działać na dockerze
+Aplikacja jest dostosowana aby działać na dockerze.
 
 ### KONFIGURACJA BE:
 1. Instalujemy dockera i docker-compose
