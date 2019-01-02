@@ -1,6 +1,6 @@
 open Js.Promise;
 
-let svcUrl = "be/api/index.php/";
+let svcUrl = "api/";
 
 /* TODO: Troche slabo ze w dwoch miejscach jest powtorzone to samo (Fetch.RequestInit.make)
  ** Mozna pomyslec zeby to uwspolnic

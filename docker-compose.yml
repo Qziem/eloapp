@@ -1,0 +1,59 @@
+version: '2'
+services:
+  elo_api:
+    container_name: elo_api
+    build:
+      context: docker/elo_api
+    volumes:
+    - $SOURCE_DIR/be:/usr/src/myapp
+    expose:
+    - 80
+    ports:
+    - 127.0.0.1:$ELO_API_PORT:80
+    working_dir: /usr/src/myapp
+    entrypoint: php
+    command: "-S 0.0.0.0:80 api/index.php"
+    networks:
+      elonet:
+        ipv4_address: 172.16.11.2
+  elo_www:
+    container_name: elo_www
+    image: nginx
+    volumes:
+    - $SOURCE_DIR:/usr/share/nginx/html
+    - $SOURCE_DIR/docker/elo_www/site.conf:/etc/nginx/conf.d/site.conf
+    expose:
+    - 81
+    ports:
+    - 0.0.0.0:$ELO_WWW_PORT:81
+    networks:
+      elonet:
+        ipv4_address: 172.16.11.3
+  elo_db:
+    container_name: elo_db
+    image: mysql:5.7
+    ports:
+    - 127.0.0.1:$DB_PORT:3306
+    environment:
+      MYSQL_ROOT_PASSWORD: $DB_PASSWORD
+    volumes:
+      - $SOURCE_DIR/docker/elo_db:/docker-entrypoint-initdb.d
+    networks:
+      elonet:
+        ipv4_address: 172.16.11.4
+  elo_adminer:
+    container_name: elo_adminer
+    image: adminer
+    ports:
+    - 127.0.0.1:$DB_ADMINER_PORT:8080
+    networks:
+      elonet:
+        ipv4_address: 172.16.11.5
+networks:
+  elonet:
+    driver: bridge
+    ipam:
+      driver: default
+      config:
+      - subnet: 172.16.11.0/28
+        gateway: 172.16.11.1

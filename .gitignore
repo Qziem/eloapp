@@ -1,12 +1,15 @@
+.idea
+.env
+
 *.bs.js
 node_modules/
+/db_data
 /fe/yarn.lock
 /fe/.DS_Store
 /fe/.merlin
 /fe/.bsb.lock
 /fe/npm-debug.log
 /fe/lib/bs/
-/fe/node_modules/
 /fe/build/
 /fe/yarn-error.log
 /fe/.vs/
