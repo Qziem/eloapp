@@ -2,6 +2,8 @@ open EloTypes;
 open ReasonReact;
 open BsReactstrap;
 
+[@bs.scope "Math"] [@bs.val] external round: float => float = "round";
+
 let component = statelessComponent("RatingsHistoryTable");
 
 let tableRow = (ratingsHistoryLength, i, ratingHistory) => {
@@ -34,7 +36,7 @@ let calcRatio = ratingsHistory => {
   let wins = calcWins(ratingsHistory) |> float_of_int;
   let looses = calcLooses(ratingsHistory) |> float_of_int;
 
-  wins /. looses;
+  round(wins /. looses *. 100.0) /. 100.0;
 };
 
 let make = (~ratingsHistory, _children) => {
