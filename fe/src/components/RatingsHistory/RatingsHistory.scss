@@ -22,3 +22,14 @@ $loose-color: #dc3545;
     }
   }
 }
+
+.oponentRatingTd {
+  &:before { content: ' ('; }
+  &:after { content: ')'; }
+}
+
+.table-sm td,
+.table-sm th {
+  white-space: nowrap;
+  font-size: 14px;
+}

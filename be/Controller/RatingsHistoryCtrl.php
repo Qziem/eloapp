@@ -4,19 +4,19 @@ namespace Controller;
 use \Psr\Http\Message\ServerRequestInterface as Request;
 use \Psr\Http\Message\ResponseInterface as Response;
 
-use Doctrine\ORM\EntityManager;
-use Util\Helpers;
 use Model\Entity\User;
 use Model\Repository\GameRepository;
 
 class RatingsHistoryCtrl {
-    function __construct(EntityManager $em, GameRepository $gameRepository) {
-        $this->em = $em;
+    /** @var GameRepository  */
+    private $gameRepository;
+
+    public function __construct(GameRepository $gameRepository) {
         $this->gameRepository = $gameRepository;
     }
 
     private function getOponentName(User $user): string {
-        return "(" . $user->getCode() . ") " . $user->getName();
+        return \strtoupper($user->getCode());
     }
 
     private function entitiesListToOutput(array $gamesEntities, int $userNid): array {
@@ -28,7 +28,7 @@ class RatingsHistoryCtrl {
                 ? $entity->getWinnerRatingBefore()
                 : $entity->getLooserRatingBefore();
 
-            $oponentRating = $entityWinnerUserNid === $userNid
+            $opponentRating = $entityWinnerUserNid === $userNid
                 ? $entity->getLooserRatingBefore()
                 : $entity->getWinnerRatingBefore();
 
@@ -36,16 +36,16 @@ class RatingsHistoryCtrl {
                 ? $entity->getRatingDiff()
                 : -$entity->getRatingDiff();
 
-            $oponentName = $entityWinnerUserNid === $userNid
+            $opponentName = $entityWinnerUserNid === $userNid
                 ? $this->getOponentName($entity->getLooserUser())
                 : $this->getOponentName($entity->getWinnerUser());
 
             $output[] = [
                 'userRating' => $userRating,
-                'oponentRating' => $oponentRating,
-                'oponentName' => $oponentName,
+                'oponentRating' => $opponentRating,
+                'oponentName' => $opponentName,
                 'ratingDiff' => $ratingDiff,
-                'date' => $entity->getCdate()->format('Y-m-d H:i:s')
+                'date' => $entity->getCdate()->format('d M H:i')
             ];
         }
         return $output;

@@ -2,6 +2,8 @@ open EloTypes;
 open ReasonReact;
 open BsReactstrap;
 
+[@bs.scope "Math"] [@bs.val] external round: float => float = "round";
+
 let component = statelessComponent("RatingsHistoryTable");
 
 let tableRow = (ratingsHistoryLength, i, ratingHistory) => {
@@ -12,9 +14,11 @@ let tableRow = (ratingsHistoryLength, i, ratingHistory) => {
     <td className="lpTd"> {lp |> string_of_int |> string} </td>
     <td className="ratingDiffTd"> {ratingDiff |> string_of_int |> string} </td>
     <td className="userRatingTd"> {userRating |> string_of_int |> string} </td>
-    <td className="oponentNameTd"> {oponentName |> string} </td>
-    <td className="oponentRatingTd">
-      {oponentRating |> string_of_int |> string}
+    <td className="oponentNameTd">
+      {oponentName |> string}
+      <span className="oponentRatingTd">
+        {oponentRating |> string_of_int |> string}
+      </span>
     </td>
     <td className="dateTd"> {date |> string} </td>
   </tr>;
@@ -28,6 +32,13 @@ let calcLooses = ratingsHistory =>
   List.filter(ratingHistory => ratingHistory.ratingDiff < 0, ratingsHistory)
   |> List.length;
 
+let calcRatio = ratingsHistory => {
+  let wins = calcWins(ratingsHistory) |> float_of_int;
+  let looses = calcLooses(ratingsHistory) |> float_of_int;
+
+  round(wins /. looses *. 100.0) /. 100.0;
+};
+
 let make = (~ratingsHistory, _children) => {
   ...component,
   render: _self => {
@@ -36,6 +47,7 @@ let make = (~ratingsHistory, _children) => {
       ratingsHistory |> List.mapi(tableRow(ratingsHistoryLength));
 
     <div className="ratingsHistoryTable">
+      <RatingsHistoryChart ratingsHistory />
       <div className="topBar">
         <span className="winsLabel"> {"Wins: " |> ReasonReact.string} </span>
         <span className="winsSum">
@@ -47,6 +59,12 @@ let make = (~ratingsHistory, _children) => {
         <span className="loosesSum">
           {calcLooses(ratingsHistory) |> string_of_int |> ReasonReact.string}
         </span>
+        <span className="loosesLabel">
+          {"W/L Ratio: " |> ReasonReact.string}
+        </span>
+        <span className="wl_rating">
+          {calcRatio(ratingsHistory) |> string_of_float |> ReasonReact.string}
+        </span>
       </div>
       <Table size="sm">
         <thead>
@@ -54,10 +72,7 @@ let make = (~ratingsHistory, _children) => {
             <th> {string("Lp")} </th>
             <th> {string("Diff")} </th>
             <th> {string("Rating")} </th>
-            <th> {string("Oponent")} </th>
-            <th>
-              <span title="Oponent rating"> {string("Op. rating")} </span>
-            </th>
+            <th> {string("Opponent")} </th>
             <th> {string("Date")} </th>
           </tr>
         </thead>
