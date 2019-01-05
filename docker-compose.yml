@@ -51,7 +51,8 @@ services:
         ipv4_address: 172.16.11.5
   elo_fe:
     container_name: elo_fe
-    image: "node:10"
+    image: node:10
+    user: "node"
     working_dir: /home/node/app
     volumes:
       - $SOURCE_DIR/fe:/home/node/app
