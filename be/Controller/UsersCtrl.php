@@ -1,4 +1,5 @@
 <?php
+
 namespace Controller;
 
 use \Psr\Http\Message\ServerRequestInterface as Request;
@@ -9,25 +10,32 @@ use Model\Entity\Game;
 use Model\Entity\User;
 use Model\Repository\UserRepository;
 
-class UsersCtrl {
+class UsersCtrl
+{
     /** @var EntityManager */
     private $em;
 
     /** @var UserRepository */
     private $userRepository;
 
-    public function __construct(EntityManager $em, UserRepository $userRepository) {
+    public function __construct(
+        EntityManager $em,
+        UserRepository $userRepository
+    ) {
         $this->em = $em;
         $this->userRepository = $userRepository;
     }
 
-    public function getUsers(Response $response): Response {
-        $usersEntities = $this->userRepository->findBy(['deleted' => 0], ['rating' => 'DESC', 'code' => 'ASC']);
+    public function getUsers(Response $response): Response
+    {
+        $usersEntities = $this->userRepository->findBy(['deleted' => 0],
+            ['rating' => 'DESC', 'code' => 'ASC']);
         $respArray = Helpers::entitiesListToArray($usersEntities);
         return $response->withJson($respArray);
     }
 
-    public function addUser(Request $request, Response $response): Response {
+    public function addUser(Request $request, Response $response): Response
+    {
         $json = $request->getBody();
         $userArray = json_decode($json, true);
 
@@ -45,18 +53,27 @@ class UsersCtrl {
         return $response->withJson([]);
     }
 
-     private function getGame(User $winnerUser, User $looserUser, int $oldWinnerRating, int $oldLooserRating, int $ratingDiff): Game {
+    private function getGame(
+        User $winnerUser,
+        User $looserUser,
+        int $oldWinnerRating,
+        int $oldLooserRating,
+        int $ratingDiff
+    ): Game {
         $game = new Game();
         $game->setWinnerUser($winnerUser);
         $game->setLooserUser($looserUser);
         $game->setWinnerRatingBefore($oldWinnerRating);
         $game->setLooserRatingBefore($oldLooserRating);
         $game->setRatingDiff($ratingDiff);
-     
+
         return $game;
     }
 
-    private function calcNewRatings(int $oldWinnerRating, int $oldLooserRating): array {
+    private function calcNewRatings(
+        int $oldWinnerRating,
+        int $oldLooserRating
+    ): array {
         $kfactor = 32;
 
         $winnerLooserDiff = $oldLooserRating - $oldWinnerRating;
@@ -65,11 +82,14 @@ class UsersCtrl {
         $ratingDiff = round($kfactor * (1 - $pWinner));
         $newWinnerRating = $oldWinnerRating + $ratingDiff;
         $newLooserRating = $oldLooserRating - $ratingDiff;
-        
+
         return [$newWinnerRating, $newLooserRating];
     }
 
-    private function updateRatingsInDb(int $winnerUserNid, int $looserUserNid): int {
+    private function updateRatingsInDb(
+        int $winnerUserNid,
+        int $looserUserNid
+    ): int {
         /** @var User $winnerUser */
         $winnerUser = $this->userRepository->find($winnerUserNid);
         /** @var User $looserUser */
@@ -83,15 +103,19 @@ class UsersCtrl {
             throw new \InvalidArgumentException('Winner and looser nids are the same');
         }
 
-        $oldWinnerRating = $winnerUser->getRating(); 
+        $oldWinnerRating = $winnerUser->getRating();
         $oldLooserRating = $looserUser->getRating();
 
-        [$newWinnerRating, $newLooserRating] = $this->calcNewRatings($oldWinnerRating, $oldLooserRating);
+        [
+            $newWinnerRating,
+            $newLooserRating,
+        ] = $this->calcNewRatings($oldWinnerRating, $oldLooserRating);
         $ratingDiff = $newWinnerRating - $oldWinnerRating;
 
         $winnerUser->setRating($newWinnerRating);
         $looserUser->setRating($newLooserRating);
-        $game = $this->getGame($winnerUser, $looserUser, $oldWinnerRating, $oldLooserRating, $ratingDiff);
+        $game = $this->getGame($winnerUser, $looserUser, $oldWinnerRating,
+            $oldLooserRating, $ratingDiff);
 
         $this->em->persist($game);
         $this->em->flush();
@@ -99,12 +123,15 @@ class UsersCtrl {
         return $ratingDiff;
     }
 
-    public function updateRatings(Request $request, Response $response): Response {
+    public function updateRatings(
+        Request $request,
+        Response $response
+    ): Response {
         $json = $request->getBody();
         $usersCodes = json_decode($json, true);
         $winnerUserNid = $usersCodes['winnerUserNid'];
         $looserUserNid = $usersCodes['looserUserNid'];
-    
+
         $ratingDiff = $this->updateRatingsInDb($winnerUserNid, $looserUserNid);
 
         return $response->withJson(['ratingDiff' => $ratingDiff]);
