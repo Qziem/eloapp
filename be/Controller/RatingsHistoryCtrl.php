@@ -1,4 +1,5 @@
 <?php
+
 namespace Controller;
 
 use \Psr\Http\Message\ServerRequestInterface as Request;
@@ -7,21 +8,27 @@ use \Psr\Http\Message\ResponseInterface as Response;
 use Model\Entity\User;
 use Model\Repository\GameRepository;
 
-class RatingsHistoryCtrl {
-    /** @var GameRepository  */
+class RatingsHistoryCtrl
+{
+    /** @var GameRepository */
     private $gameRepository;
 
-    public function __construct(GameRepository $gameRepository) {
+    public function __construct(GameRepository $gameRepository)
+    {
         $this->gameRepository = $gameRepository;
     }
 
-    private function getOponentName(User $user): string {
+    private function getOponentName(User $user): string
+    {
         return \strtoupper($user->getCode());
     }
 
-    private function entitiesListToOutput(array $gamesEntities, int $userNid): array {
+    private function entitiesListToOutput(
+        array $gamesEntities,
+        int $userNid
+    ): array {
         $output = [];
-        foreach($gamesEntities as $entity) {
+        foreach ($gamesEntities as $entity) {
             $entityWinnerUserNid = $entity->getWinnerUser()->getUserNid();
 
             $userRating = $entityWinnerUserNid === $userNid
@@ -45,13 +52,17 @@ class RatingsHistoryCtrl {
                 'oponentRating' => $opponentRating,
                 'oponentName' => $opponentName,
                 'ratingDiff' => $ratingDiff,
-                'date' => $entity->getCdate()->format('d M H:i')
+                'date' => $entity->getCdate()->format('d M H:i'),
             ];
         }
         return $output;
     }
 
-    public function getRatingsHistory(Request $request, Response $response, $userNid): Response {
+    public function getRatingsHistory(
+        Request $request,
+        Response $response,
+        $userNid
+    ): Response {
         $gamesEntities = $this->gameRepository->findSortedGamesForUser($userNid);
 
         $respArray = $this->entitiesListToOutput($gamesEntities, $userNid);

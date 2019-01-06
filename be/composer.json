@@ -1,16 +1,17 @@
 {
-    "license": "proprietary",
-    "config": {
-        "platform": {
-            "php": "7.2"
-        }
-    },
-    "require": {
-        "php": "7.2.*",
-      "doctrine/orm": "2.6.3",
-        "php-di/slim-bridge": "^2.0"
-    },
-    "require-dev": {
-        "roave/security-advisories": "dev-master"
+  "license": "proprietary",
+  "config": {
+    "platform": {
+      "php": "7.2"
     }
+  },
+  "require": {
+    "php": "7.2.*",
+    "ext-json": "*",
+    "doctrine/orm": "2.6.3",
+    "php-di/slim-bridge": "^2.0"
+  },
+  "require-dev": {
+    "roave/security-advisories": "dev-master"
+  }
 }

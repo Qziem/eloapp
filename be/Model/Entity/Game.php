@@ -1,4 +1,5 @@
 <?php
+
 namespace Model\Entity;
 
 use Doctrine\ORM\Mapping as ORM;
@@ -9,110 +10,124 @@ use Doctrine\ORM\Mapping as ORM;
  */
 class Game
 {
-  /**
-   * @ORM\Column(type="integer", name="game_nid")
-   * @ORM\Id
-   * @ORM\GeneratedValue(strategy="AUTO")
-   */
-  protected $gameNid;
+    /**
+     * @ORM\Column(type="integer", name="game_nid")
+     * @ORM\Id
+     * @ORM\GeneratedValue(strategy="AUTO")
+     */
+    protected $gameNid;
 
-  /**
-   * @ORM\Column(type="integer", name="winner_rating_before")
-   */
-  protected $winnerRatingBefore;
+    /**
+     * @ORM\Column(type="integer", name="winner_rating_before")
+     */
+    protected $winnerRatingBefore;
 
-  /**
-   * @ORM\Column(type="integer", name="looser_rating_before")
-   */
-  protected $looserRatingBefore;
+    /**
+     * @ORM\Column(type="integer", name="looser_rating_before")
+     */
+    protected $looserRatingBefore;
 
-  /**
-   * @ORM\Column(type="integer", name="rating_diff")
-   */
-	protected $ratingDiff;
-	
-	/**
-   * @ORM\Column(type="datetime", name="cdate")
-   */
-  protected $cdate;
+    /**
+     * @ORM\Column(type="integer", name="rating_diff")
+     */
+    protected $ratingDiff;
 
-	/// RELACJE !!! ///
+    /**
+     * @ORM\Column(type="datetime", name="cdate")
+     */
+    protected $cdate;
 
-  /**
-   * @ORM\Column(type="integer", name="winner_user_nid")
-   */
-  protected $winnerUserNid;
+    /// RELACJE !!! ///
 
-  /**
-   * @ORM\Column(type="integer", name="looser_user_nid")
-   */
-  protected $looserUserNid;
+    /**
+     * @ORM\Column(type="integer", name="winner_user_nid")
+     */
+    protected $winnerUserNid;
 
-	/**
-    * @ORM\ManyToOne(targetEntity="Model\Entity\User", inversedBy="games")
-    * @ORM\JoinColumn(name="winner_user_nid", referencedColumnName="user_nid")
-    */
-	protected $winnerUser;
+    /**
+     * @ORM\Column(type="integer", name="looser_user_nid")
+     */
+    protected $looserUserNid;
 
-	/**
-    * @ORM\ManyToOne(targetEntity="Model\Entity\User", inversedBy="games")
-    * @ORM\JoinColumn(name="looser_user_nid", referencedColumnName="user_nid")
-    */
-	protected $looserUser;  
+    /**
+     * @ORM\ManyToOne(targetEntity="Model\Entity\User", inversedBy="games")
+     * @ORM\JoinColumn(name="winner_user_nid", referencedColumnName="user_nid")
+     */
+    protected $winnerUser;
 
-  public function getGameNid(): int {
-		return $this->gameNid;
-	}
+    /**
+     * @ORM\ManyToOne(targetEntity="Model\Entity\User", inversedBy="games")
+     * @ORM\JoinColumn(name="looser_user_nid", referencedColumnName="user_nid")
+     */
+    protected $looserUser;
 
-	public function setGameNid(int $gameNid): void {
-		$this->gameNid = $gameNid;
-	}
+    public function getGameNid(): int
+    {
+        return $this->gameNid;
+    }
 
-	public function getWinnerRatingBefore(): int {
-		return $this->winnerRatingBefore;
-	}
+    public function setGameNid(int $gameNid): void
+    {
+        $this->gameNid = $gameNid;
+    }
 
-	public function setWinnerRatingBefore(int $winnerRatingBefore): void {
-		$this->winnerRatingBefore = $winnerRatingBefore;
-	}
+    public function getWinnerRatingBefore(): int
+    {
+        return $this->winnerRatingBefore;
+    }
 
-	public function getLooserRatingBefore(): int {
-		return $this->looserRatingBefore;
-	}
+    public function setWinnerRatingBefore(int $winnerRatingBefore): void
+    {
+        $this->winnerRatingBefore = $winnerRatingBefore;
+    }
 
-	public function setLooserRatingBefore(int $looserRatingBefore): void {
-		$this->looserRatingBefore = $looserRatingBefore;
-	}
+    public function getLooserRatingBefore(): int
+    {
+        return $this->looserRatingBefore;
+    }
 
-	public function getRatingDiff(): int {
-		return $this->ratingDiff;
-	}
+    public function setLooserRatingBefore(int $looserRatingBefore): void
+    {
+        $this->looserRatingBefore = $looserRatingBefore;
+    }
 
-	public function setRatingDiff(int $ratingDiff): void {
-		$this->ratingDiff = $ratingDiff;
-	}
+    public function getRatingDiff(): int
+    {
+        return $this->ratingDiff;
+    }
 
-	public function getCdate(): \DateTime {
-		return $this->cdate;
-	}
+    public function setRatingDiff(int $ratingDiff): void
+    {
+        $this->ratingDiff = $ratingDiff;
+    }
 
-	public function setCdate(\DateTime $cdate): void {
-		$this->cdate = $cdate;
-	}
+    public function getCdate(): \DateTime
+    {
+        return $this->cdate;
+    }
 
-	public function getWinnerUser(): User {
-		return $this->winnerUser;
-	}
+    public function setCdate(\DateTime $cdate): void
+    {
+        $this->cdate = $cdate;
+    }
 
-	public function setWinnerUser(User $winnerUser){
-		$this->winnerUser = $winnerUser;
-	}
+    public function getWinnerUser(): User
+    {
+        return $this->winnerUser;
+    }
 
-	public function getLooserUser(): User {
-		return $this->looserUser;
-	}
+    public function setWinnerUser(User $winnerUser): void
+    {
+        $this->winnerUser = $winnerUser;
+    }
 
-	public function setLooserUser(User $looserUser) {
-		$this->looserUser = $looserUser;
-	}
+    public function getLooserUser(): User
+    {
+        return $this->looserUser;
+    }
+
+    public function setLooserUser(User $looserUser): void
+    {
+        $this->looserUser = $looserUser;
+    }
 }
