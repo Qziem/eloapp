@@ -1,3 +1,11 @@
-.users {
+$fa-font-path: "../../../node_modules/font-awesome/fonts";
 
+@import "../../../node_modules/font-awesome/scss/font-awesome";
+
+.users {
+  .teamTd .fa-tint { color: #b32323; }
+  .teamTd .fa-shield-alt { color: #b4b33a; }
+  .teamTd .fa-user-secret { color: #3a2578; }
+  .teamTd .fa-thumbs-up { color: #3b842e; }
+  .teamTd .fa-tools { color: #69501d; }
 }
