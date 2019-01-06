@@ -60,7 +60,7 @@ class Game
     */
 	protected $looserUser;  
 
-  public function getGameNid(): int {
+    public function getGameNid(): int {
 		return $this->gameNid;
 	}
 
@@ -104,7 +104,7 @@ class Game
 		return $this->winnerUser;
 	}
 
-	public function setWinnerUser(User $winnerUser){
+	public function setWinnerUser(User $winnerUser): void {
 		$this->winnerUser = $winnerUser;
 	}
 
@@ -112,7 +112,7 @@ class Game
 		return $this->looserUser;
 	}
 
-	public function setLooserUser(User $looserUser) {
+	public function setLooserUser(User $looserUser): void {
 		$this->looserUser = $looserUser;
 	}
 }
