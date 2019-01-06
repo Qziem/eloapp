@@ -2,8 +2,9 @@
 
 Apka służy do wyznaczania rankinków graczy w dowolnej grze. W grze rywalizować ze sobą mogą dwie osoby, a możliwy wynik to wygrana - przegrana.
 Algorytm obliczający punkty w rankingu jest oparty na systemie Elo:
-https://metinmediamath.wordpress.com/2013/11/27/how-to-calculate-the-elo-rating-including-example/
 https://en.wikipedia.org/wiki/Elo_rating_system
+https://www.geeksforgeeks.org/elo-rating-algorithm/
+https://metinmediamath.wordpress.com/2013/11/27/how-to-calculate-the-elo-rating-including-example/
 
 ## Opis jak skonfigurować środowisko lokalnie
 Aplikacja jest dostosowana aby działać na dockerze.
