@@ -1,4 +1,4 @@
-version: '2'
+version: '3'
 services:
   elo_api:
     container_name: elo_api
@@ -60,8 +60,4 @@ services:
 networks:
   elonet:
     driver: bridge
-    ipam:
-      driver: default
-      config:
-      - subnet: 172.16.11.0/28
-        gateway: 172.16.11.1
+    
