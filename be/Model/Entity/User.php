@@ -1,4 +1,5 @@
 <?php
+
 namespace Model\Entity;
 
 use Doctrine\ORM\Mapping as ORM;
@@ -9,79 +10,90 @@ use Doctrine\ORM\Mapping as ORM;
  */
 class User
 {
-  /**
-   * @ORM\Column(type="integer", name="user_nid")
-   * @ORM\Id
-   * @ORM\GeneratedValue(strategy="AUTO")
-   */
-  protected $userNid;
+    /**
+     * @ORM\Column(type="integer", name="user_nid")
+     * @ORM\Id
+     * @ORM\GeneratedValue(strategy="AUTO")
+     * @var int
+     */
+    private $userNid;
 
-  /**
-   * @ORM\Column(type="string")
-   */
-  protected $code;
+    /**
+     * @ORM\Column(type="string")
+     * @var string
+     */
+    private $code;
 
-  /**
-   * @ORM\Column(type="string")
-   */
-  protected $name;
+    /**
+     * @ORM\Column(type="string")
+     * @var string
+     */
+    private $name;
 
-  /**
-   * @ORM\Column(type="integer")
-   */
-  protected $rating;
+    /**
+     * @ORM\Column(type="integer")
+     * @var int
+     */
+    private $rating;
 
-  /**
-   * @ORM\Column(type="integer")
-   */
-  protected $deleted;
+    /**
+     * @ORM\Column(type="integer")
+     * @var int
+     */
+    private $deleted;
 
-  public function toArray(): array {
-    return [
-        'userNid' => $this->userNid,
-        'code' => $this->code,
-        'name' => $this->name,
-        'rating' => $this->rating,
-    ];
-  }
+    public function toArray(): array
+    {
+        return [
+            'userNid' => $this->getUserNid(),
+            'code' => $this->getCode(),
+            'name' => $this->getName(),
+            'rating' => $this->getRating(),
+        ];
+    }
 
-  public function getUserNid(): int {
-    return $this->userNid;
-  }
+    public function getUserNid(): int
+    {
+        return $this->userNid;
+    }
 
-  public function getCode(): string {
-    return $this->code;
-  }
+    public function getCode(): string
+    {
+        return $this->code;
+    }
 
-  public function getName(): string {
-    return $this->name;
-  }
+    public function setCode(string $code): void
+    {
+        $this->code = $code;
+    }
 
-  public function getRating(): int {
-    return $this->rating;
-  }
+    public function getName(): string
+    {
+        return $this->name;
+    }
 
-  public function getDeleted(): bool {
-    return $this->deleted;
-  }
+    public function setName(string $name): void
+    {
+        $this->name = $name;
+    }
 
-  public function setUserNid(int $userNid): void {
-    $this->userNid = $userNid;
-  }
+    public function getRating(): int
+    {
+        return $this->rating;
+    }
 
-  public function setCode(string $code): void {
-    $this->code = $code;
-  }
+    public function setRating(int $rating): void
+    {
+        $this->rating = $rating;
+    }
 
-  public function setName(string $name): void {
-    $this->name = $name;
-  }
+    public function getDeleted(): bool
+    {
+        return $this->deleted;
+    }
 
-  public function setRating(int $rating): void {
-    $this->rating = $rating;
-  }
-
-  public function setDeleted(bool $deleted): void {
-    $this->deleted = $deleted;
-  }
+    public function setDeleted(bool $deleted): void
+    {
+        $this->deleted = $deleted;
+    }
 }
