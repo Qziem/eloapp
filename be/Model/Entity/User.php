@@ -31,6 +31,12 @@ class User
     private $name;
 
     /**
+     * @ORM\Column(type="string")
+     * @var string
+     */
+    private $team = '';
+
+    /**
      * @ORM\Column(type="integer")
      * @var int
      */
@@ -49,6 +55,7 @@ class User
             'code' => $this->getCode(),
             'name' => $this->getName(),
             'rating' => $this->getRating(),
+            'team' => $this->getTeam(),
         ];
     }
 
@@ -95,5 +102,15 @@ class User
     public function setDeleted(bool $deleted): void
     {
         $this->deleted = $deleted;
+    }
+
+    public function getTeam(): string
+    {
+        return $this->team;
+    }
+
+    public function setTeam(string $team): void
+    {
+        $this->team = $team;
     }
 }

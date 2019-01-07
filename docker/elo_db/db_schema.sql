@@ -49,8 +49,9 @@ CREATE TABLE `games` (
 
 CREATE TABLE `users` (
   `user_nid` int(11) NOT NULL,
-  `code` text NOT NULL,
-  `name` text NOT NULL,
+  `code` varchar(3) NOT NULL,
+  `name` varchar(45) NOT NULL,
+  `team` varchar(45) NOT NULL,
   `rating` int(11) NOT NULL,
   `deleted` tinyint(1) NOT NULL DEFAULT '0',
   `cdate` timestamp NULL DEFAULT CURRENT_TIMESTAMP
