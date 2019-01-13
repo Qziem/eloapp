@@ -35,7 +35,8 @@ class UsersCtrl
         $userArrayList = array_map(function (User $user) {
             $userArray = $this->userToArray($user);
             $userArray = $this->sliceGameLists($userArray);
-            return $this->calculateTrendRatingDiff($userArray);
+            $userArray = $this->calculateTrendRatingDiff($userArray);
+            return $this->removeGameListsFromUserArray($userArray);
         }, $userEntityList);
 
         return $response->withJson($userArrayList);
@@ -54,7 +55,7 @@ class UsersCtrl
         ];
     }
 
-    private function sliceGameLists($userArray)
+    private function sliceGameLists(array $userArray): array
     {
         $sliceDays = 3;
         $fromDate = new \DateTime();
@@ -78,7 +79,7 @@ class UsersCtrl
         return $userArray;
     }
 
-    private function calculateTrendRatingDiff($userArray)
+    private function calculateTrendRatingDiff(array $userArray): array
     {
         $winGameList = $userArray['winGameList'];
         $looseGameList = $userArray['looseGameList'];
@@ -86,20 +87,25 @@ class UsersCtrl
         $winGamesSumRating = $this->sumRatingDiffs($winGameList);
         $looseGamesSumRating = $this->sumRatingDiffs($looseGameList);
 
-        $lastSummaryRatingDiff = $winGamesSumRating - $looseGamesSumRating;
-
-        unset($userArray['winGameList']);
-        unset($userArray['looseGameList']);
-        $userArray['trendRatingDiff'] = $lastSummaryRatingDiff;
+        $trendRatingDiff = $winGamesSumRating - $looseGamesSumRating;
+        $userArray['trendRatingDiff'] = $trendRatingDiff;
 
         return $userArray;
     }
 
-    private function sumRatingDiffs($gameList): ?int
+    private function sumRatingDiffs(array $gameList): int
     {
         return array_reduce($gameList, function (int $acc, Game $game) {
             return $acc + $game->getRatingDiff();
         }, 0);
+    }
+
+    private function removeGameListsFromUserArray(array $userArray): array
+    {
+        unset($userArray['winGameList']);
+        unset($userArray['looseGameList']);
+
+        return $userArray;
     }
 
     public function addUser(Request $request, Response $response): Response
