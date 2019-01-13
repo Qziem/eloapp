@@ -3,6 +3,7 @@
 namespace Model\Entity;
 
 use Doctrine\ORM\Mapping as ORM;
+use Model\Entity\User;
 
 /**
  * @ORM\Entity(repositoryClass="Model\Repository\GameRepository")
@@ -14,26 +15,31 @@ class Game
      * @ORM\Column(type="integer", name="game_nid")
      * @ORM\Id
      * @ORM\GeneratedValue(strategy="AUTO")
+     * @var int
      */
     protected $gameNid;
 
     /**
      * @ORM\Column(type="integer", name="winner_rating_before")
+     * @var int
      */
     protected $winnerRatingBefore;
 
     /**
      * @ORM\Column(type="integer", name="looser_rating_before")
+     * @var int
      */
     protected $looserRatingBefore;
 
     /**
      * @ORM\Column(type="integer", name="rating_diff")
+     * @var int
      */
     protected $ratingDiff;
 
     /**
      * @ORM\Column(type="datetime", name="cdate")
+     * @var \DateTime
      */
     protected $cdate;
 
@@ -41,23 +47,27 @@ class Game
 
     /**
      * @ORM\Column(type="integer", name="winner_user_nid")
+     * @var int
      */
     protected $winnerUserNid;
 
     /**
      * @ORM\Column(type="integer", name="looser_user_nid")
+     * @var int
      */
     protected $looserUserNid;
 
     /**
-     * @ORM\ManyToOne(targetEntity="Model\Entity\User", inversedBy="games")
+     * @ORM\ManyToOne(targetEntity="Model\Entity\User", inversedBy="winGameList")
      * @ORM\JoinColumn(name="winner_user_nid", referencedColumnName="user_nid")
+     * @var User
      */
     protected $winnerUser;
 
     /**
-     * @ORM\ManyToOne(targetEntity="Model\Entity\User", inversedBy="games")
+     * @ORM\ManyToOne(targetEntity="Model\Entity\User", inversedBy="looseGameList")
      * @ORM\JoinColumn(name="looser_user_nid", referencedColumnName="user_nid")
+     * @var User
      */
     protected $looserUser;
 

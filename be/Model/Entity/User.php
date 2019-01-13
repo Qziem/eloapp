@@ -2,6 +2,7 @@
 
 namespace Model\Entity;
 
+use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\ORM\Mapping as ORM;
 
 /**
@@ -48,16 +49,17 @@ class User
      */
     private $deleted;
 
-    public function toArray(): array
-    {
-        return [
-            'userNid' => $this->getUserNid(),
-            'code' => $this->getCode(),
-            'name' => $this->getName(),
-            'rating' => $this->getRating(),
-            'team' => $this->getTeam(),
-        ];
-    }
+    /**
+     * @ORM\OneToMany(targetEntity="Model\Entity\Game", mappedBy="winnerUser")
+     * @var ArrayCollection
+     */
+    private $winGameList;
+
+    /**
+     * @ORM\OneToMany(targetEntity="Model\Entity\Game", mappedBy="looserUser")
+     * @var ArrayCollection
+     */
+    private $looseGameList;
 
     public function getUserNid(): int
     {
@@ -112,5 +114,25 @@ class User
     public function setTeam(string $team): void
     {
         $this->team = $team;
+    }
+
+    public function getWinGameList(): array
+    {
+        return $this->winGameList->toArray();
+    }
+
+    public function setWinGameList(array $winGameList): void
+    {
+        $this->winGameList = new ArrayCollection($winGameList);
+    }
+
+    public function getLooseGameList(): array
+    {
+        return $this->looseGameList->toArray();
+    }
+
+    public function setLooseGameList(array $looseGameList): void
+    {
+        $this->looseGameList = new ArrayCollection($looseGameList);
     }
 }

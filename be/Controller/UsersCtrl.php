@@ -2,13 +2,12 @@
 
 namespace Controller;
 
-use \Psr\Http\Message\ServerRequestInterface as Request;
-use Slim\Http\Response;
 use Doctrine\ORM\EntityManager;
-use Util\Helpers;
 use Model\Entity\Game;
 use Model\Entity\User;
 use Model\Repository\UserRepository;
+use Slim\Http\Response;
+use \Psr\Http\Message\ServerRequestInterface as Request;
 
 class UsersCtrl
 {
@@ -28,10 +27,79 @@ class UsersCtrl
 
     public function getUsers(Response $response): Response
     {
-        $usersEntities = $this->userRepository->findBy(['deleted' => 0],
-            ['rating' => 'DESC', 'code' => 'ASC']);
-        $respArray = Helpers::entitiesListToArray($usersEntities);
-        return $response->withJson($respArray);
+        $userEntityList = $this->userRepository->findBy(
+            ['deleted' => 0],
+            ['rating' => 'DESC', 'code' => 'ASC']
+        );
+
+        $userArrayList = array_map(function (User $user) {
+            $userArray = $this->userToArray($user);
+            $userArray = $this->sliceGameLists($userArray);
+            return $this->calculateLastSummaryRatingDiff($userArray);
+        }, $userEntityList);
+
+        return $response->withJson($userArrayList);
+    }
+
+    private function userToArray(User $user): array
+    {
+        return [
+            'userNid' => $user->getUserNid(),
+            'code' => $user->getCode(),
+            'name' => $user->getName(),
+            'rating' => $user->getRating(),
+            'team' => $user->getTeam(),
+            'winGameList' => $user->getWinGameList(),
+            'looseGameList' => $user->getLooseGameList(),
+        ];
+    }
+
+    private function sliceGameLists($userArray)
+    {
+        $sliceDays = 3;
+        $fromDate = new \DateTime();
+        $fromDate->sub(new \DateInterval('P' . $sliceDays . 'D'));
+        $fromDate->setTime(0, 0);
+
+        $winGameList = $userArray['winGameList'];
+        $looseGameList = $userArray['looseGameList'];
+
+        $winGameList = array_filter($winGameList, function (Game $game) use ($fromDate) {
+            return $game->getCdate() > $fromDate;
+        });
+
+        $looseGameList = array_filter($looseGameList, function (Game $game) use ($fromDate) {
+            return $game->getCdate() > $fromDate;
+        });
+
+        $userArray['winGameList'] = $winGameList;
+        $userArray['looseGameList'] = $looseGameList;
+
+        return $userArray;
+    }
+
+    private function calculateLastSummaryRatingDiff($userArray)
+    {
+        $winGameList = $userArray['winGameList'];
+        $looseGameList = $userArray['looseGameList'];
+
+        $winGamesSumRating = $this->sumRatingDiffs($winGameList);
+        $looseGamesSumRating = $this->sumRatingDiffs($looseGameList);
+
+        $lastSummaryRatingDiff = $winGamesSumRating - $looseGamesSumRating;
+
+        unset($userArray['winGameList']);
+        unset($userArray['looseGameList']);
+        $userArray['lastSummaryRatingDiff'] = $lastSummaryRatingDiff;
+
+        return $userArray;
+    }
+
+    private function sumRatingDiffs($gameList): ?int
+    {
+        return array_reduce($gameList, function (int $acc, Game $game) {
+            return $acc + $game->getRatingDiff();
+        }, 0);
     }
 
     public function addUser(Request $request, Response $response): Response
@@ -73,7 +141,7 @@ class UsersCtrl
     private function calcNewRatings(
         int $oldWinnerRating,
         int $oldLooserRating
-    ): array {
+    ): array{
         $kfactor = 32;
 
         $winnerLooserDiff = $oldLooserRating - $oldWinnerRating;
