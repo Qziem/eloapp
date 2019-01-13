@@ -24,9 +24,9 @@ type appContainerActions =
   | SetIsLogged(bool)
   | SetFailure;
 
-type winnerLooserNids = {
-  winnerUserNid: int,
-  looserUserNid: int,
+type winnerLooserCodes = {
+  winnerUserCode: string,
+  looserUserCode: string,
 };
 
 type place =

@@ -56,7 +56,7 @@ let getHistorySvc = (state, users) => {
 
 let getHistoryReducer = (state: stateType, users: list(user)) => {
   let userExist =
-    List.exists(user => compareCodes(user.code, state.inputCode), users);
+    List.exists(user => isCodesEqual(user.code, state.inputCode), users);
 
   userExist ?
     getHistorySvc(state, users) :
