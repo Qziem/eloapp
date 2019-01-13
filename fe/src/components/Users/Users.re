@@ -9,7 +9,7 @@ type userForDisplay = {
   team: string,
   rating: int,
   pos: int,
-  lastSummaryRatingDiff: int,
+  trendRatingDiff: int,
 };
 
 type trend =
@@ -43,8 +43,8 @@ let getTrend = lastSummaryRatingDiff =>
     UP;
   };
 
-let diffColumn = lastSummaryRatingDiff => {
-  let trend = getTrend(lastSummaryRatingDiff);
+let trendColumn = trendRatingDiff => {
+  let trend = getTrend(trendRatingDiff);
   let classNameTd =
     switch (trend) {
     | DOWN => "down"
@@ -59,10 +59,10 @@ let diffColumn = lastSummaryRatingDiff => {
     | UP => "fas fa-arrow-up"
     };
 
-  <td className={"lastSummaryRatingDiffTd " ++ classNameTd}>
+  <td className={"trendRatingDiffTd " ++ classNameTd}>
     <span className=classNameIcon />
     <span className="ratingDiffValue">
-      {string(string_of_int(lastSummaryRatingDiff))}
+      {string(string_of_int(trendRatingDiff))}
     </span>
   </td>;
 };
@@ -76,7 +76,7 @@ let tableRow = (userForDisplay: userForDisplay) =>
     <td className="ratingTd">
       {string(string_of_int(userForDisplay.rating))}
     </td>
-    {diffColumn(userForDisplay.lastSummaryRatingDiff)}
+    {trendColumn(userForDisplay.trendRatingDiff)}
   </tr>;
 
 let prepareStructure = users => {
@@ -99,7 +99,7 @@ let prepareStructure = users => {
         team: user.team,
         rating: user.rating,
         pos: newPos,
-        lastSummaryRatingDiff: user.lastSummaryRatingDiff,
+        trendRatingDiff: user.trendRatingDiff,
       };
 
       prevUserForDisplay := Some(userForDisp);
@@ -121,9 +121,9 @@ let renderContent = users => {
           <th className="nameTh"> {string("Name")} </th>
           <th className="teamTh"> {string("Team")} </th>
           <th className="ratingTh"> {string("Rating")} </th>
-          <th className="lastSummaryRatingDiffTh">
-            <span title="Summary rating diff from last 3 days">
-              {string("Diff")}
+          <th className="trendRatingDiffTh">
+            <span title="Trend calculated from last 3 days">
+              {string("Trend")}
             </span>
           </th>
         </tr>

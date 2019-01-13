@@ -7,7 +7,7 @@ let user = user => {
   name: field("name", string, user),
   team: field("team", string, user),
   rating: field("rating", int, user),
-  lastSummaryRatingDiff: field("lastSummaryRatingDiff", int, user),
+  trendRatingDiff: field("trendRatingDiff", int, user),
 };
 
 let users = json: list(user) => Json.Decode.list(user, json);

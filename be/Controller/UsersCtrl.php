@@ -35,7 +35,7 @@ class UsersCtrl
         $userArrayList = array_map(function (User $user) {
             $userArray = $this->userToArray($user);
             $userArray = $this->sliceGameLists($userArray);
-            return $this->calculateLastSummaryRatingDiff($userArray);
+            return $this->calculateTrendRatingDiff($userArray);
         }, $userEntityList);
 
         return $response->withJson($userArrayList);
@@ -78,7 +78,7 @@ class UsersCtrl
         return $userArray;
     }
 
-    private function calculateLastSummaryRatingDiff($userArray)
+    private function calculateTrendRatingDiff($userArray)
     {
         $winGameList = $userArray['winGameList'];
         $looseGameList = $userArray['looseGameList'];
@@ -90,7 +90,7 @@ class UsersCtrl
 
         unset($userArray['winGameList']);
         unset($userArray['looseGameList']);
-        $userArray['lastSummaryRatingDiff'] = $lastSummaryRatingDiff;
+        $userArray['trendRatingDiff'] = $lastSummaryRatingDiff;
 
         return $userArray;
     }
