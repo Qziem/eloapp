@@ -28,10 +28,14 @@ type action =
   | SetFailure
   | ClearSaveState;
 
-type updateRatingsResult = {
-  ratingDiff: option(int),
-  warning: option(string),
-};
+/* type updateRatingsResult = {
+     ratingDiff: option(int),
+     warning: option(string),
+   }; */
+
+type updateRatingsResult =
+  | UPDATED(int)
+  | WARNING(string);
 
 exception IllegalCombinationInUpdateRatingsResult;
 
@@ -43,20 +47,27 @@ let initialState = () => {
   saveState: NOTHING,
 };
 
-let decodeUpdateRatingsResult = json: updateRatingsResult =>
-  Json.Decode.{
-    ratingDiff: json |> optional(field("ratingDiff", int)),
-    warning: json |> optional(field("warning", string)),
+let decodeUpdateRatingsResult = json: updateRatingsResult => {
+  let status = Json.Decode.(json |> field("status", string));
+  let ratingDiff = Json.Decode.(json |> optional(field("ratingDiff", int)));
+  let warningMsg =
+    Json.Decode.(json |> optional(field("warningMsg", string)));
+
+  switch (status, ratingDiff, warningMsg) {
+  | ("success", Some(ratingDiff), None) => UPDATED(ratingDiff)
+  | ("warning", None, Some(msg)) => WARNING(msg)
+  | _ => raise(IllegalCombinationInUpdateRatingsResult)
   };
+};
+
 let onSuccess = (containterSend, send, json) => {
   let updateRatingsResult = decodeUpdateRatingsResult(json);
 
   switch (updateRatingsResult) {
-  | {ratingDiff: Some(ratingDiff), warning: None} =>
+  | UPDATED(ratingDiff) =>
     send(SetSaveSuccess(ratingDiff));
     containterSend(GetUsersSvc);
-  | {ratingDiff: None, warning: Some(msg)} => send(SetWarning(msg))
-  | _ => raise(IllegalCombinationInUpdateRatingsResult)
+  | WARNING(msg) => send(SetWarning(msg))
   };
 };
 

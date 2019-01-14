@@ -71,11 +71,11 @@ class UsersCtrl
 
         $warningMsg = $this->getUpdateUserWarningMsg($winnerUser, $looserUser);
         if ($warningMsg) {
-            return $response->withJson(['warning' => $warningMsg]);
+            return $response->withJson(['status' => 'warning', 'warningMsg' => $warningMsg]);
         }
 
         $ratingDiff = $this->updateRatingsInDb($winnerUser, $looserUser);
-        return $response->withJson(['ratingDiff' => $ratingDiff]);
+        return $response->withJson(['status' => 'success', 'ratingDiff' => $ratingDiff]);
     }
 
     private function valdateUpdateRatingsCodes(string $winnerUserCode, string $looserUserCode): void
