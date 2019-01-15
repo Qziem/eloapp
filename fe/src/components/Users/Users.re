@@ -34,13 +34,11 @@ let prepareTeamIcons = teamName => {
   <span className=icon />;
 };
 
-let getTrend = lastSummaryRatingDiff =>
-  if (lastSummaryRatingDiff < 0) {
-    DOWN;
-  } else if (lastSummaryRatingDiff == 0) {
-    STAY;
-  } else {
-    UP;
+let getTrend = trendRatingDiff =>
+  switch (trendRatingDiff) {
+  | ratingDiff when ratingDiff < 0 => DOWN
+  | ratingDiff when ratingDiff == 0 => STAY
+  | _ => UP
   };
 
 let trendColumn = trendRatingDiff => {
