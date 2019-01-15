@@ -3,7 +3,6 @@
 namespace Model\Entity;
 
 use Doctrine\ORM\Mapping as ORM;
-use Model\Entity\User;
 
 /**
  * @ORM\Entity(repositoryClass="Model\Repository\GameRepository")
@@ -58,18 +57,23 @@ class Game
     protected $looserUserNid;
 
     /**
-     * @ORM\ManyToOne(targetEntity="Model\Entity\User", inversedBy="winGameList")
+     * @ORM\ManyToOne(targetEntity="User", inversedBy="wonGameList")
      * @ORM\JoinColumn(name="winner_user_nid", referencedColumnName="user_nid")
      * @var User
      */
     protected $winnerUser;
 
     /**
-     * @ORM\ManyToOne(targetEntity="Model\Entity\User", inversedBy="looseGameList")
+     * @ORM\ManyToOne(targetEntity="User", inversedBy="lostGameList")
      * @ORM\JoinColumn(name="looser_user_nid", referencedColumnName="user_nid")
      * @var User
      */
     protected $looserUser;
+
+    public function __constructor()
+    {
+        $this->cdate = new \DateTime();
+    }
 
     public function getGameNid(): int
     {

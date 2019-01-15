@@ -50,8 +50,8 @@ class UsersCtrl
             'name' => $user->getName(),
             'rating' => $user->getRating(),
             'team' => $user->getTeam(),
-            'winGameList' => $user->getWinGameList(),
-            'looseGameList' => $user->getLooseGameList(),
+            'wonGameList' => $user->getWonGameList(),
+            'lostGameList' => $user->getLostGameList(),
         ];
     }
 
@@ -62,30 +62,33 @@ class UsersCtrl
         $fromDate->sub(new \DateInterval('P' . $sliceDays . 'D'));
         $fromDate->setTime(0, 0);
 
-        $winGameList = $userArray['winGameList'];
-        $looseGameList = $userArray['looseGameList'];
+        // $wonGameList = isset($userArray['wonGameList']) ? $userArray['wonGameList']->toArray() : [];
+        // $lostGameList = isset($userArray['lostGameList']) ? $userArray['lostGameList']->toArray() : [];
 
-        $winGameList = array_filter($winGameList, function (Game $game) use ($fromDate) {
+        $wonGameList = $userArray['wonGameList'];
+        $lostGameList = $userArray['lostGameList'];
+
+        $wonGameList = array_filter($wonGameList->toArray(), function (Game $game) use ($fromDate) {
             return $game->getCdate() > $fromDate;
         });
 
-        $looseGameList = array_filter($looseGameList, function (Game $game) use ($fromDate) {
+        $lostGameList = array_filter($lostGameList->toArray(), function (Game $game) use ($fromDate) {
             return $game->getCdate() > $fromDate;
         });
 
-        $userArray['winGameList'] = $winGameList;
-        $userArray['looseGameList'] = $looseGameList;
+        $userArray['wonGameList'] = $wonGameList;
+        $userArray['lostGameList'] = $lostGameList;
 
         return $userArray;
     }
 
     private function calculateTrendRatingDiff(array $userArray): array
     {
-        $winGameList = $userArray['winGameList'];
-        $looseGameList = $userArray['looseGameList'];
+        $wonGameList = $userArray['wonGameList'];
+        $lostGameList = $userArray['lostGameList'];
 
-        $winGamesSumRating = $this->sumRatingDiffs($winGameList);
-        $looseGamesSumRating = $this->sumRatingDiffs($looseGameList);
+        $winGamesSumRating = $this->sumRatingDiffs($wonGameList);
+        $looseGamesSumRating = $this->sumRatingDiffs($lostGameList);
 
         $trendRatingDiff = $winGamesSumRating - $looseGamesSumRating;
         $userArray['trendRatingDiff'] = $trendRatingDiff;
@@ -102,9 +105,7 @@ class UsersCtrl
 
     private function removeGameListsFromUserArray(array $userArray): array
     {
-        unset($userArray['winGameList']);
-        unset($userArray['looseGameList']);
-
+        unset($userArray['wonGameList'], $userArray['lostGameList']);
         return $userArray;
     }
 
@@ -118,6 +119,7 @@ class UsersCtrl
         $user = new User();
         $user->setCode($userArray['code']);
         $user->setName($userArray['name']);
+        $user->setTeam("");
         $user->setRating($initRating);
         $user->setDeleted(false);
 
@@ -147,7 +149,7 @@ class UsersCtrl
     private function calcNewRatings(
         int $oldWinnerRating,
         int $oldLooserRating
-    ): array{
+    ): array {
         $kfactor = 32;
 
         $winnerLooserDiff = $oldLooserRating - $oldWinnerRating;

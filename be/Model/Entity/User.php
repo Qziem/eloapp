@@ -2,6 +2,7 @@
 
 namespace Model\Entity;
 
+use Doctrine\Common\Collections\Collection;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\ORM\Mapping as ORM;
 
@@ -50,16 +51,22 @@ class User
     private $deleted;
 
     /**
-     * @ORM\OneToMany(targetEntity="Model\Entity\Game", mappedBy="winnerUser")
-     * @var ArrayCollection
+     * @ORM\OneToMany(targetEntity="Game", mappedBy="winnerUser")
+     * @var Collection
      */
-    private $winGameList;
+    private $wonGameList;
 
     /**
-     * @ORM\OneToMany(targetEntity="Model\Entity\Game", mappedBy="looserUser")
-     * @var ArrayCollection
+     * @ORM\OneToMany(targetEntity="Game", mappedBy="looserUser")
+     * @var Collection
      */
-    private $looseGameList;
+    private $lostGameList;
+
+    public function __construct()
+    {
+        $this->wonGameList = new ArrayCollection();
+        $this->lostGameList = new ArrayCollection();
+    }
 
     public function getUserNid(): int
     {
@@ -116,23 +123,13 @@ class User
         $this->team = $team;
     }
 
-    public function getWinGameList(): array
+    public function getWonGameList(): Collection
     {
-        return $this->winGameList->toArray();
+        return $this->wonGameList;
     }
 
-    public function setWinGameList(array $winGameList): void
+    public function getLostGameList(): Collection
     {
-        $this->winGameList = new ArrayCollection($winGameList);
-    }
-
-    public function getLooseGameList(): array
-    {
-        return $this->looseGameList->toArray();
-    }
-
-    public function setLooseGameList(array $looseGameList): void
-    {
-        $this->looseGameList = new ArrayCollection($looseGameList);
+        return $this->lostGameList;
     }
 }
