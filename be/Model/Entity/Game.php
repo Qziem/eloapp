@@ -15,51 +15,51 @@ class Game
      * @ORM\Id
      * @ORM\GeneratedValue(strategy="AUTO")
      */
-    protected $gameNid;
+    private $gameNid;
 
     /**
      * @ORM\Column(type="integer", name="winner_rating_before")
      */
-    protected $winnerRatingBefore;
+    private $winnerRatingBefore;
 
     /**
      * @ORM\Column(type="integer", name="looser_rating_before")
      */
-    protected $looserRatingBefore;
+    private $looserRatingBefore;
 
     /**
      * @ORM\Column(type="integer", name="rating_diff")
      */
-    protected $ratingDiff;
+    private $ratingDiff;
 
     /**
      * @ORM\Column(type="datetime", name="cdate")
      */
-    protected $cdate;
+    private $cdate;
 
     /// RELACJE !!! ///
 
     /**
      * @ORM\Column(type="integer", name="winner_user_nid")
      */
-    protected $winnerUserNid;
+    private $winnerUserNid;
 
     /**
      * @ORM\Column(type="integer", name="looser_user_nid")
      */
-    protected $looserUserNid;
+    private $looserUserNid;
 
     /**
      * @ORM\ManyToOne(targetEntity="Model\Entity\User", inversedBy="games")
      * @ORM\JoinColumn(name="winner_user_nid", referencedColumnName="user_nid")
      */
-    protected $winnerUser;
+    private $winnerUser;
 
     /**
      * @ORM\ManyToOne(targetEntity="Model\Entity\User", inversedBy="games")
      * @ORM\JoinColumn(name="looser_user_nid", referencedColumnName="user_nid")
      */
-    protected $looserUser;
+    private $looserUser;
 
     public function getGameNid(): int
     {
