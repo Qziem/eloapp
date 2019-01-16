@@ -3,6 +3,7 @@
 namespace Controller;
 
 use Doctrine\ORM\EntityManager;
+use Doctrine\Common\Collections\Collection;
 use Model\Entity\Game;
 use Model\Entity\User;
 use Model\Repository\UserRepository;
@@ -34,7 +35,6 @@ class UsersCtrl
 
         $userArrayList = array_map(function (User $user) {
             $userArray = $this->userToArray($user);
-            $userArray = $this->sliceGameLists($userArray);
             $userArray = $this->calculateTrendRatingDiff($userArray);
             return $this->removeGameListsFromUserArray($userArray);
         }, $userEntityList);
@@ -50,45 +50,15 @@ class UsersCtrl
             'name' => $user->getName(),
             'rating' => $user->getRating(),
             'team' => $user->getTeam(),
-            'wonGameList' => $user->getWonGameList(),
-            'lostGameList' => $user->getLostGameList(),
+            'wonGameList' => $user->getLastWonGameList(),
+            'lostGameList' => $user->getLastLostGameList(),
         ];
-    }
-
-    private function sliceGameLists(array $userArray): array
-    {
-        $sliceDays = 3;
-        $fromDate = new \DateTime();
-        $fromDate->sub(new \DateInterval('P' . $sliceDays . 'D'));
-        $fromDate->setTime(0, 0);
-
-        // $wonGameList = isset($userArray['wonGameList']) ? $userArray['wonGameList']->toArray() : [];
-        // $lostGameList = isset($userArray['lostGameList']) ? $userArray['lostGameList']->toArray() : [];
-
-        $wonGameList = $userArray['wonGameList'];
-        $lostGameList = $userArray['lostGameList'];
-
-        $wonGameList = array_filter($wonGameList->toArray(), function (Game $game) use ($fromDate) {
-            return $game->getCdate() > $fromDate;
-        });
-
-        $lostGameList = array_filter($lostGameList->toArray(), function (Game $game) use ($fromDate) {
-            return $game->getCdate() > $fromDate;
-        });
-
-        $userArray['wonGameList'] = $wonGameList;
-        $userArray['lostGameList'] = $lostGameList;
-
-        return $userArray;
     }
 
     private function calculateTrendRatingDiff(array $userArray): array
     {
-        $wonGameList = $userArray['wonGameList'];
-        $lostGameList = $userArray['lostGameList'];
-
-        $winGamesSumRating = $this->sumRatingDiffs($wonGameList);
-        $looseGamesSumRating = $this->sumRatingDiffs($lostGameList);
+        $winGamesSumRating = $this->sumRatingDiffs($userArray['wonGameList']);
+        $looseGamesSumRating = $this->sumRatingDiffs($userArray['lostGameList']);
 
         $trendRatingDiff = $winGamesSumRating - $looseGamesSumRating;
         $userArray['trendRatingDiff'] = $trendRatingDiff;
@@ -96,9 +66,9 @@ class UsersCtrl
         return $userArray;
     }
 
-    private function sumRatingDiffs(array $gameList): int
+    private function sumRatingDiffs(Collection $gameList): int
     {
-        return array_reduce($gameList, function (int $acc, Game $game) {
+        return array_reduce($gameList->toArray(), function (int $acc, Game $game) {
             return $acc + $game->getRatingDiff();
         }, 0);
     }

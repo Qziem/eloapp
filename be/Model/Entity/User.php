@@ -4,6 +4,8 @@ namespace Model\Entity;
 
 use Doctrine\Common\Collections\Collection;
 use Doctrine\Common\Collections\ArrayCollection;
+use Doctrine\Common\Collections\Expr\Comparison;
+use Doctrine\Common\Collections\Criteria;
 use Doctrine\ORM\Mapping as ORM;
 
 /**
@@ -131,5 +133,29 @@ class User
     public function getLostGameList(): Collection
     {
         return $this->lostGameList;
+    }
+
+    public function getLastWonGameList(): Collection
+    {
+        return $this->filterLastGameList($this->wonGameList);
+    }
+
+    public function getLastLostGameList(): Collection
+    {
+        return $this->filterLastGameList($this->lostGameList);
+    }
+
+    private function filterLastGameList(Collection $gameList): Collection
+    {
+        $sliceDays = 3;
+        $fromDate = new \DateTime();
+        $fromDate->sub(new \DateInterval('P' . $sliceDays . 'D'));
+        $fromDate->setTime(0, 0);
+
+        $criteria = new Criteria();
+        $expr = new Comparison('cdate', '>', $fromDate);
+        $criteria->where(new Comparison('cdate', '>', $fromDate));
+
+        return $gameList->matching($criteria); 
     }
 }
