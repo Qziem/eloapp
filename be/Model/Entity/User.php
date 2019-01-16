@@ -47,8 +47,8 @@ class User
     private $rating;
 
     /**
-     * @ORM\Column(type="integer")
-     * @var int
+     * @ORM\Column(type="boolean")
+     * @var bool
      */
     private $deleted;
 
