@@ -1,7 +1,7 @@
 <?php
 use Doctrine\ORM\EntityManager;
 use Doctrine\ORM\Tools\Console\ConsoleRunner;
-use api\EloApp;
+use Api\EloApp;
 
 require_once 'api/autoload.php';
 
