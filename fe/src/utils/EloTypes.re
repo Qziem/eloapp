@@ -4,6 +4,7 @@ type user = {
   name: string,
   team: string,
   rating: int,
+  trendRatingDiff: int,
 };
 
 type ratingHistory = {

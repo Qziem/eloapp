@@ -2,13 +2,13 @@
 
 namespace Controller;
 
-use \Psr\Http\Message\ServerRequestInterface as Request;
-use Slim\Http\Response;
 use Doctrine\ORM\EntityManager;
-use Util\Helpers;
+use Doctrine\Common\Collections\Collection;
 use Model\Entity\Game;
 use Model\Entity\User;
 use Model\Repository\UserRepository;
+use Slim\Http\Response;
+use \Psr\Http\Message\ServerRequestInterface as Request;
 
 class UsersCtrl
 {
@@ -28,10 +28,55 @@ class UsersCtrl
 
     public function getUsers(Response $response): Response
     {
-        $usersEntities = $this->userRepository->findBy(['deleted' => 0],
-            ['rating' => 'DESC', 'code' => 'ASC']);
-        $respArray = Helpers::entitiesListToArray($usersEntities);
-        return $response->withJson($respArray);
+        $userEntityList = $this->userRepository->findBy(
+            ['deleted' => 0],
+            ['rating' => 'DESC', 'code' => 'ASC']
+        );
+
+        $userArrayList = array_map(function (User $user) {
+            $userArray = $this->userToArray($user);
+            $userArray = $this->calculateTrendRatingDiff($userArray);
+            return $this->removeGameListsFromUserArray($userArray);
+        }, $userEntityList);
+
+        return $response->withJson($userArrayList);
+    }
+
+    private function userToArray(User $user): array
+    {
+        return [
+            'userNid' => $user->getUserNid(),
+            'code' => $user->getCode(),
+            'name' => $user->getName(),
+            'rating' => $user->getRating(),
+            'team' => $user->getTeam(),
+            'wonGameList' => $user->getLastWonGameList(),
+            'lostGameList' => $user->getLastLostGameList(),
+        ];
+    }
+
+    private function calculateTrendRatingDiff(array $userArray): array
+    {
+        $winGamesSumRating = $this->sumRatingDiffs($userArray['wonGameList']);
+        $looseGamesSumRating = $this->sumRatingDiffs($userArray['lostGameList']);
+
+        $trendRatingDiff = $winGamesSumRating - $looseGamesSumRating;
+        $userArray['trendRatingDiff'] = $trendRatingDiff;
+
+        return $userArray;
+    }
+
+    private function sumRatingDiffs(Collection $gameList): int
+    {
+        return array_reduce($gameList->toArray(), function (int $acc, Game $game) {
+            return $acc + $game->getRatingDiff();
+        }, 0);
+    }
+
+    private function removeGameListsFromUserArray(array $userArray): array
+    {
+        unset($userArray['wonGameList'], $userArray['lostGameList']);
+        return $userArray;
     }
 
     public function addUser(Request $request, Response $response): Response
@@ -44,6 +89,7 @@ class UsersCtrl
         $user = new User();
         $user->setCode($userArray['code']);
         $user->setName($userArray['name']);
+        $user->setTeam("");
         $user->setRating($initRating);
         $user->setDeleted(false);
 

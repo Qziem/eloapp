@@ -14,26 +14,31 @@ class Game
      * @ORM\Column(type="integer", name="game_nid")
      * @ORM\Id
      * @ORM\GeneratedValue(strategy="AUTO")
+     * @var int
      */
     private $gameNid;
 
     /**
      * @ORM\Column(type="integer", name="winner_rating_before")
+     * @var int
      */
     private $winnerRatingBefore;
 
     /**
      * @ORM\Column(type="integer", name="looser_rating_before")
+     * @var int
      */
     private $looserRatingBefore;
 
     /**
      * @ORM\Column(type="integer", name="rating_diff")
+     * @var int
      */
     private $ratingDiff;
 
     /**
      * @ORM\Column(type="datetime", name="cdate")
+     * @var \DateTime
      */
     private $cdate;
 
@@ -41,25 +46,34 @@ class Game
 
     /**
      * @ORM\Column(type="integer", name="winner_user_nid")
+     * @var int
      */
     private $winnerUserNid;
 
     /**
      * @ORM\Column(type="integer", name="looser_user_nid")
+     * @var int
      */
     private $looserUserNid;
 
     /**
-     * @ORM\ManyToOne(targetEntity="Model\Entity\User", inversedBy="games")
+     * @ORM\ManyToOne(targetEntity="User", inversedBy="wonGameList")
      * @ORM\JoinColumn(name="winner_user_nid", referencedColumnName="user_nid")
+     * @var User
      */
     private $winnerUser;
 
     /**
-     * @ORM\ManyToOne(targetEntity="Model\Entity\User", inversedBy="games")
+     * @ORM\ManyToOne(targetEntity="User", inversedBy="lostGameList")
      * @ORM\JoinColumn(name="looser_user_nid", referencedColumnName="user_nid")
+     * @var User
      */
     private $looserUser;
+
+    public function __constructor()
+    {
+        $this->cdate = new \DateTime();
+    }
 
     public function getGameNid(): int
     {
