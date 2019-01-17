@@ -4,13 +4,30 @@ open EloTypes;
 
 let component = statelessComponent("RatingsHistoryChart");
 
+let sumRatingWithDiff = (rating: ratingHistory): int => {
+  rating.userRating + rating.ratingDiff;
+};
+
+let calculateActualRating = (ratingsHistory: list(ratingHistory)): int => {
+  ratingsHistory |> List.hd |> sumRatingWithDiff;
+};
+
+let addRating = (name: string, rating: int, historyList) => {
+  let actualRatingObj = {"name": name, "rating": rating};
+
+  [actualRatingObj, ...historyList];
+};
+
 let make = (~ratingsHistory, _children) => {
   ...component,
   render: _self => {
+    let actualRating = ratingsHistory |> calculateActualRating;
+
     let data =
       ratingsHistory
-      |> List.rev
       |> List.map(item => {"name": item.date, "rating": item.userRating})
+      |> addRating("actual", actualRating)
+      |> List.rev
       |> Array.of_list;
 
     <ResponsiveContainer height={Px(200.0)} width={Prc(100.0)}>

@@ -14,52 +14,66 @@ class Game
      * @ORM\Column(type="integer", name="game_nid")
      * @ORM\Id
      * @ORM\GeneratedValue(strategy="AUTO")
+     * @var int
      */
-    protected $gameNid;
+    private $gameNid;
 
     /**
      * @ORM\Column(type="integer", name="winner_rating_before")
+     * @var int
      */
-    protected $winnerRatingBefore;
+    private $winnerRatingBefore;
 
     /**
      * @ORM\Column(type="integer", name="looser_rating_before")
+     * @var int
      */
-    protected $looserRatingBefore;
+    private $looserRatingBefore;
 
     /**
      * @ORM\Column(type="integer", name="rating_diff")
+     * @var int
      */
-    protected $ratingDiff;
+    private $ratingDiff;
 
     /**
      * @ORM\Column(type="datetime", name="cdate")
+     * @var \DateTime
      */
-    protected $cdate;
+    private $cdate;
 
     /// RELACJE !!! ///
 
     /**
      * @ORM\Column(type="integer", name="winner_user_nid")
+     * @var int
      */
-    protected $winnerUserNid;
+    private $winnerUserNid;
 
     /**
      * @ORM\Column(type="integer", name="looser_user_nid")
+     * @var int
      */
-    protected $looserUserNid;
+    private $looserUserNid;
 
     /**
-     * @ORM\ManyToOne(targetEntity="Model\Entity\User", inversedBy="games")
+     * @ORM\ManyToOne(targetEntity="User", inversedBy="wonGameList")
      * @ORM\JoinColumn(name="winner_user_nid", referencedColumnName="user_nid")
+     * @var User
      */
-    protected $winnerUser;
+    private $winnerUser;
 
     /**
-     * @ORM\ManyToOne(targetEntity="Model\Entity\User", inversedBy="games")
+     * @ORM\ManyToOne(targetEntity="User", inversedBy="lostGameList")
      * @ORM\JoinColumn(name="looser_user_nid", referencedColumnName="user_nid")
+     * @var User
      */
-    protected $looserUser;
+    private $looserUser;
+
+    public function __constructor()
+    {
+        $this->cdate = new \DateTime();
+    }
 
     public function getGameNid(): int
     {

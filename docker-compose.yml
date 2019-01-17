@@ -12,7 +12,7 @@ services:
     - 127.0.0.1:$ELO_API_PORT:80
     working_dir: /usr/src/myapp
     entrypoint: php
-    command: "-S 0.0.0.0:80 api/index.php"
+    command: "-S 0.0.0.0:80 Api/index.php"
     networks:
       elonet:
         ipv4_address: 172.16.11.2

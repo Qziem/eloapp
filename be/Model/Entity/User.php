@@ -2,6 +2,10 @@
 
 namespace Model\Entity;
 
+use Doctrine\Common\Collections\Collection;
+use Doctrine\Common\Collections\ArrayCollection;
+use Doctrine\Common\Collections\Expr\Comparison;
+use Doctrine\Common\Collections\Criteria;
 use Doctrine\ORM\Mapping as ORM;
 
 /**
@@ -43,20 +47,27 @@ class User
     private $rating;
 
     /**
-     * @ORM\Column(type="integer")
-     * @var int
+     * @ORM\Column(type="boolean")
+     * @var bool
      */
     private $deleted;
 
-    public function toArray(): array
+    /**
+     * @ORM\OneToMany(targetEntity="Game", mappedBy="winnerUser")
+     * @var Collection
+     */
+    private $wonGameList;
+
+    /**
+     * @ORM\OneToMany(targetEntity="Game", mappedBy="looserUser")
+     * @var Collection
+     */
+    private $lostGameList;
+
+    public function __construct()
     {
-        return [
-            'userNid' => $this->getUserNid(),
-            'code' => $this->getCode(),
-            'name' => $this->getName(),
-            'rating' => $this->getRating(),
-            'team' => $this->getTeam(),
-        ];
+        $this->wonGameList = new ArrayCollection();
+        $this->lostGameList = new ArrayCollection();
     }
 
     public function getUserNid(): int
@@ -112,5 +123,39 @@ class User
     public function setTeam(string $team): void
     {
         $this->team = $team;
+    }
+
+    public function getWonGameList(): Collection
+    {
+        return $this->wonGameList;
+    }
+
+    public function getLostGameList(): Collection
+    {
+        return $this->lostGameList;
+    }
+
+    public function getLastWonGameList(): Collection
+    {
+        return $this->filterLastGameList($this->wonGameList);
+    }
+
+    public function getLastLostGameList(): Collection
+    {
+        return $this->filterLastGameList($this->lostGameList);
+    }
+
+    private function filterLastGameList(Collection $gameList): Collection
+    {
+        $sliceDays = 3;
+        $fromDate = new \DateTime();
+        $fromDate->sub(new \DateInterval('P' . $sliceDays . 'D'));
+        $fromDate->setTime(0, 0);
+
+        $criteria = new Criteria();
+        $expr = new Comparison('cdate', '>', $fromDate);
+        $criteria->where(new Comparison('cdate', '>', $fromDate));
+
+        return $gameList->matching($criteria); 
     }
 }

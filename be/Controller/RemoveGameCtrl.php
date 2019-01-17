@@ -2,14 +2,13 @@
 
 namespace Controller;
 
-use Doctrine\ORM\NoResultException;
-use Slim\Http\Response;
-
 use Doctrine\ORM\EntityManager;
+use Doctrine\ORM\NoResultException;
 use Model\Entity\Game;
 use Model\Entity\User;
 use Model\Repository\GameRepository;
 use Model\Repository\UserRepository;
+use Slim\Http\Response;
 
 class RemoveGameCtrl
 {
@@ -62,7 +61,14 @@ class RemoveGameCtrl
 
     private function removeLastGameIfPossibleInDb(string $code): array
     {
-        $user = $this->userRepository->requireUserByCode($code);
+        try {
+            $user = $this->userRepository->requireUserByCode($code);
+        } catch (NoResultException $e) {
+            return [
+                'removed' => false,
+                'warning' => 'Player does not exist',
+            ];
+        }
 
         $userNid = $user->getUserNid();
 
@@ -76,15 +82,7 @@ class RemoveGameCtrl
         }
 
         $opponentUser = $this->getOpponentFromGame($lastGame, $userNid);
-
-        try {
-            $opponentLastGame = $this->gameRepository->requireLastGame($opponentUser->getUserNid());
-        } catch (NoResultException $e) {
-            return [
-                'removed' => false,
-                'warning' => 'Opponent game was removed earlier.',
-            ];
-        }
+        $opponentLastGame = $this->gameRepository->requireLastGame($opponentUser->getUserNid());
 
         if ($lastGame->getGameNid() !== $opponentLastGame->getGameNid()) {
             return [
@@ -94,7 +92,6 @@ class RemoveGameCtrl
         }
 
         $this->removeLastGame($lastGame, $user, $opponentUser);
-
         return ['removed' => true];
     }
 
