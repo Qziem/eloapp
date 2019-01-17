@@ -7,23 +7,51 @@ use \Psr\Http\Message\ResponseInterface as Response;
 
 use Model\Entity\User;
 use Model\Repository\GameRepository;
+use Model\Repository\UserRepository;
 
 class RatingsHistoryCtrl
 {
     /** @var GameRepository */
     private $gameRepository;
 
-    public function __construct(GameRepository $gameRepository)
+    /** @var UserRepository */
+    private $userRepository;
+
+    public function __construct(GameRepository $gameRepository, UserRepository $userRepository)
     {
         $this->gameRepository = $gameRepository;
+        $this->userRepository = $userRepository;
     }
 
-    private function getOponentName(User $user): string
-    {
-        return \strtoupper($user->getCode());
+    public function getRatingsHistory(
+        Request $request,
+        Response $response,
+        $code
+    ): Response {
+        /** @var User $user */
+        $user = $this->userRepository->findOneBy(['code' => $code]);
+
+        $warningMsg = $this->getRatingsHistoryWarningMsg($user);
+        if ($warningMsg) {
+            return $response->withJson(['status' => 'warning', 'warningMsg' => $warningMsg]);
+        }
+
+        $userNid = $user->getUserNid();
+        $gamesEntities = $this->gameRepository->findSortedGamesForUser($userNid);
+        $ratingsHistoryArray = $this->entitiesListToArray($gamesEntities, $userNid);
+ 
+        return $response->withJson(['status' => 'success', 'ratingsHistory' => $ratingsHistoryArray]);
     }
 
-    private function entitiesListToOutput(
+    private function getRatingsHistoryWarningMsg(?User $user): ?string {
+        if (!isset($user)) {
+            return "User does not exist";
+        }
+
+        return null;
+    }
+
+    private function entitiesListToArray(
         array $gamesEntities,
         int $userNid
     ): array {
@@ -58,14 +86,8 @@ class RatingsHistoryCtrl
         return $output;
     }
 
-    public function getRatingsHistory(
-        Request $request,
-        Response $response,
-        $userNid
-    ): Response {
-        $gamesEntities = $this->gameRepository->findSortedGamesForUser($userNid);
-
-        $respArray = $this->entitiesListToOutput($gamesEntities, $userNid);
-        return $response->withJson($respArray);
+    private function getOponentName(User $user): string
+    {
+        return \strtoupper($user->getCode());
     }
 }

@@ -28,13 +28,8 @@ type action =
   | SetFailure
   | ClearSaveState;
 
-/* type updateRatingsResult = {
-     ratingDiff: option(int),
-     warning: option(string),
-   }; */
-
 type updateRatingsResult =
-  | UPDATED(int)
+  | SUCCESS(int)
   | WARNING(string);
 
 exception IllegalCombinationInUpdateRatingsResult;
@@ -54,7 +49,7 @@ let decodeUpdateRatingsResult = json: updateRatingsResult => {
     Json.Decode.(json |> optional(field("warningMsg", string)));
 
   switch (status, ratingDiff, warningMsg) {
-  | ("success", Some(ratingDiff), None) => UPDATED(ratingDiff)
+  | ("success", Some(ratingDiff), None) => SUCCESS(ratingDiff)
   | ("warning", None, Some(msg)) => WARNING(msg)
   | _ => raise(IllegalCombinationInUpdateRatingsResult)
   };
@@ -64,7 +59,7 @@ let onSuccess = (containterSend, send, json) => {
   let updateRatingsResult = decodeUpdateRatingsResult(json);
 
   switch (updateRatingsResult) {
-  | UPDATED(ratingDiff) =>
+  | SUCCESS(ratingDiff) =>
     send(SetSaveSuccess(ratingDiff));
     containterSend(GetUsersSvc);
   | WARNING(msg) => send(SetWarning(msg))
@@ -97,23 +92,13 @@ let updateRatingsSvc = (state, containterSend) => {
 let sendWarning = (msg: string) =>
   ReasonReact.SideEffects(({send}) => send(SetWarning(msg)));
 
-let handleUpdateClickReducer = (state, containterSend) =>
-  switch (state.userWinnerCode, state.userLooserCode) {
-  | ("", "") => sendWarning("Codes can not be empty")
-  | (_wCode, "") => sendWarning("Looser code can not be empty")
-  | ("", _lCode) => sendWarning("Winner code can not be empty")
-  | (wCode, lCode) when isCodesEqual(wCode, lCode) =>
-    sendWarning("Codes can not be the same")
-  | (_wCode, _lCode) => updateRatingsSvc(state, containterSend)
-  };
-
 let reducer = (containterSend, action, state) =>
   switch (action) {
   | ChangeWinUser(value) =>
     ReasonReact.Update({...state, userWinnerCode: value})
   | ChangeLooseUser(value) =>
     ReasonReact.Update({...state, userLooserCode: value})
-  | UpdateClick => handleUpdateClickReducer(state, containterSend)
+  | UpdateClick => updateRatingsSvc(state, containterSend)
   | SetSaveSuccess(ratingDiff) =>
     ReasonReact.Update({
       userWinnerCode: "",
