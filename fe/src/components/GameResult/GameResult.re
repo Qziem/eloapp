@@ -1,5 +1,4 @@
 open EloTypes;
-open Helpers;
 open Svc;
 open Js.Promise;
 open BsReactstrap;

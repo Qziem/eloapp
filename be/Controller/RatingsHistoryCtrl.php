@@ -3,7 +3,7 @@
 namespace Controller;
 
 use \Psr\Http\Message\ServerRequestInterface as Request;
-use \Psr\Http\Message\ResponseInterface as Response;
+use Slim\Http\Response;
 
 use Model\Entity\User;
 use Model\Repository\GameRepository;
@@ -24,15 +24,14 @@ class RatingsHistoryCtrl
     }
 
     public function getRatingsHistory(
-        Request $request,
         Response $response,
         $code
     ): Response {
         /** @var User $user */
-        $user = $this->userRepository->findOneBy(['code' => $code]);
+        $user = $this->userRepository->findOneByCode($code);
 
-        $warningMsg = $this->getRatingsHistoryWarningMsg($user);
-        if ($warningMsg) {
+        if ($user === null) {
+            $warningMsg = "User does not exist";
             return $response->withJson(['status' => 'warning', 'warningMsg' => $warningMsg]);
         }
 
@@ -41,14 +40,6 @@ class RatingsHistoryCtrl
         $ratingsHistoryArray = $this->entitiesListToArray($gamesEntities, $userNid);
  
         return $response->withJson(['status' => 'success', 'ratingsHistory' => $ratingsHistoryArray]);
-    }
-
-    private function getRatingsHistoryWarningMsg(?User $user): ?string {
-        if (!isset($user)) {
-            return "User does not exist";
-        }
-
-        return null;
     }
 
     private function entitiesListToArray(
