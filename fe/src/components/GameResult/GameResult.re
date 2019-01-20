@@ -48,7 +48,7 @@ let initialState = () => {
   saveState: NOTHING,
 };
 
-let decodeUpdateRatingsResult = json: updateRatingsResult => {
+let decodeUpdateRatingsResult = json => {
   let status = json |> field("status", string);
   let ratingDiff = json |> optional(field("ratingDiff", int));
   let warningMsg = json |> optional(field("warningMsg", string));
