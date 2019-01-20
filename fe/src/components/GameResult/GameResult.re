@@ -3,6 +3,7 @@ open Helpers;
 open Svc;
 open Js.Promise;
 open BsReactstrap;
+open Json.Decode;
 
 [%bs.raw {|require('./GameResult.scss')|}];
 
@@ -48,10 +49,9 @@ let initialState = () => {
 };
 
 let decodeUpdateRatingsResult = json: updateRatingsResult => {
-  let status = Json.Decode.(json |> field("status", string));
-  let ratingDiff = Json.Decode.(json |> optional(field("ratingDiff", int)));
-  let warningMsg =
-    Json.Decode.(json |> optional(field("warningMsg", string)));
+  let status = json |> field("status", string);
+  let ratingDiff = json |> optional(field("ratingDiff", int));
+  let warningMsg = json |> optional(field("warningMsg", string));
 
   switch (status, ratingDiff, warningMsg) {
   | ("success", Some(ratingDiff), None) => UPDATED(ratingDiff)
