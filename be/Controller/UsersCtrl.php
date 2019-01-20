@@ -108,10 +108,8 @@ class UsersCtrl
         $winnerUserCode = $usersCodes['winnerUserCode'];
         $looserUserCode = $usersCodes['looserUserCode'];
 
-        /** @var User $winnerUser */
-        $winnerUser = $this->userRepository->findOneBy(['code' => $winnerUserCode]);
-        /** @var User $looserUser */
-        $looserUser = $this->userRepository->findOneBy(['code' => $looserUserCode]);
+        $winnerUser = $this->userRepository->findOneByCode($winnerUserCode);
+        $looserUser = $this->userRepository->findOneByCode($looserUserCode);
 
         $warningMsg = $this->getUpdateUserWarningMsg($winnerUser, $looserUser);
         if ($warningMsg) {
@@ -124,11 +122,15 @@ class UsersCtrl
 
     private function getUpdateUserWarningMsg(?User $winnerUser, ?User $looserUser): ?string
     {
-        if (!isset($winnerUser) && !isset($looserUser)) {
+        if ($winnerUser === null && $looserUser === null) {
             return "Winner and looser does not exist";
-        } else if (!isset($winnerUser)) {
+        } 
+        
+        if ($winnerUser === null) {
             return "Winner does not exist";
-        } else if (!isset($looserUser)) {
+        }
+        
+        if ($looserUser === null) {
             return "Looser does not exist";
         } else if ($winnerUser->getUserNid() === $looserUser->getUserNid()) {
             return "Winner is same as looser";
@@ -144,16 +146,15 @@ class UsersCtrl
         $oldWinnerRating = $winnerUser->getRating();
         $oldLooserRating = $looserUser->getRating();
 
-        [
-            $newWinnerRating,
-            $newLooserRating,
-        ] = $this->calcNewRatings($oldWinnerRating, $oldLooserRating);
-        $ratingDiff = $newWinnerRating - $oldWinnerRating;
+        $ratingDiff = $this->calcNewRatingDiff($oldWinnerRating, $oldLooserRating);
+        $newWinnerRating = $oldWinnerRating + $ratingDiff;
+        $newLooserRating = $oldLooserRating - $ratingDiff;
 
         $winnerUser->setRating($newWinnerRating);
         $looserUser->setRating($newLooserRating);
-        $game = $this->createGame($winnerUser, $looserUser, $oldWinnerRating,
-            $oldLooserRating, $ratingDiff);
+
+        $game = $this->createGameEntity(
+            $winnerUser, $looserUser, $oldWinnerRating, $oldLooserRating, $ratingDiff);
 
         $this->em->persist($game);
         $this->em->flush();
@@ -161,23 +162,19 @@ class UsersCtrl
         return $ratingDiff;
     }
 
-    private function calcNewRatings(
+    private function calcNewRatingDiff(
         int $oldWinnerRating,
         int $oldLooserRating
-    ): array{
+    ): int {
         $kfactor = 32;
 
         $winnerLooserDiff = $oldLooserRating - $oldWinnerRating;
-        $pWinner = 1 / (1 + (10 ** ($winnerLooserDiff / 400))); // propability of winning winner user
+        $pWinner = 1 / (1 + (10 ** ($winnerLooserDiff / 400))); // probability of winning winner user
 
-        $ratingDiff = round($kfactor * (1 - $pWinner));
-        $newWinnerRating = $oldWinnerRating + $ratingDiff;
-        $newLooserRating = $oldLooserRating - $ratingDiff;
-
-        return [$newWinnerRating, $newLooserRating];
+        return round($kfactor * (1 - $pWinner));
     }
 
-    private function createGame(
+    private function createGameEntity(
         User $winnerUser,
         User $looserUser,
         int $oldWinnerRating,
