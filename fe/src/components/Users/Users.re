@@ -120,7 +120,7 @@ let renderContent = users => {
           <th className="teamTh"> {string("Team")} </th>
           <th className="ratingTh"> {string("Rating")} </th>
           <th className="trendRatingDiffTh">
-            <span title="Trend calculated from last 3 days">
+            <span title="Trend calculated from last 7 days">
               {string("Trend")}
             </span>
           </th>

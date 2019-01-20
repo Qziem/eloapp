@@ -147,7 +147,7 @@ class User
 
     private function filterLastGameList(Collection $gameList): Collection
     {
-        $sliceDays = 3;
+        $sliceDays = 7;
         $fromDate = new \DateTime();
         $fromDate->sub(new \DateInterval('P' . $sliceDays . 'D'));
         $fromDate->setTime(0, 0);
