@@ -72,8 +72,8 @@ let onError = (send, err) => {
 
 let updateRatingsSvc = (state, containterSend) => {
   let winnerLooserCodes = {
-    winnerUserCode: state.userWinnerCode,
-    looserUserCode: state.userLooserCode,
+    winnerUserCode: String.trim(state.userWinnerCode),
+    looserUserCode: String.trim(state.userLooserCode),
   };
 
   ReasonReact.UpdateWithSideEffects(

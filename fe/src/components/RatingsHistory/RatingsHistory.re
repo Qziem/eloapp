@@ -42,11 +42,11 @@ let onError = (send, err) => {
   Js.Console.error(err);
 };
 
-let getHistorySvc = state =>
+let getHistorySvc = (state, code) =>
   ReasonReact.UpdateWithSideEffects(
     {...state, dataState: LOADING},
     ({send}) => {
-      let url = "ratings_history/" ++ state.inputCode;
+      let url = "ratings_history/" ++ code;
       svcGet(url)
       |> then_(json => onSuccess(send, json) |> resolve)
       |> catch(err => onError(send, err) |> resolve)
@@ -55,12 +55,12 @@ let getHistorySvc = state =>
   );
 
 let getHistoryReducer = state =>
-  switch (state.inputCode) {
+  switch (String.trim(state.inputCode)) {
   | "" =>
     ReasonReact.SideEffects(
       (({send}) => send(SetWarning("Code can not be empty"))),
     )
-  | _code => getHistorySvc(state)
+  | code => getHistorySvc(state, code)
   };
 
 let reducer = (action, state: stateType) =>

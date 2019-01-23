@@ -23,10 +23,9 @@ type action =
   | SetFailure
   | ClearSaveState;
 
-type removeGameResult = {
-  removed: bool,
-  warning: option(string),
-};
+type removeGameResult =
+  | SUCCESS
+  | WARNING(string);
 
 exception IllegalCombinationInRemoveGameResult;
 
@@ -34,36 +33,39 @@ let component = ReasonReact.reducerComponent("RemoveGame");
 
 let initialState = () => {code: "", saveState: NOTHING};
 
-let decodeRemoveGameResult = json =>
-  Json.Decode.{
-    removed: json |> field("removed", bool),
-    warning: json |> optional(field("warning", string)),
-  };
+let decodeRemoveGameResult = json => {
+  let status = Json.Decode.(json |> field("status", string));
+  let warningMsg =
+    Json.Decode.(json |> optional(field("warningMsg", string)));
 
-let onSuccess = (send, json) =>
-  json
-  |> decodeRemoveGameResult
-  |> (
-    removeGameResult =>
-      switch (removeGameResult) {
-      | {removed: true, warning: None} => send(SetSuccess)
-      | {removed: false, warning: Some(msg)} => send(SetWarning(msg))
-      | _ => raise(IllegalCombinationInRemoveGameResult)
-      }
-  );
+  switch (status, warningMsg) {
+  | ("success", None) => SUCCESS
+  | ("warning", Some(msg)) => WARNING(msg)
+  | _ => raise(IllegalCombinationInRemoveGameResult)
+  };
+};
+
+let onSuccess = (send, json) => {
+  let removeGameResult = decodeRemoveGameResult(json);
+
+  switch (removeGameResult) {
+  | SUCCESS => send(SetSuccess)
+  | WARNING(msg) => send(SetWarning(msg))
+  };
+};
 
 let onError = (send, err) => {
   send(SetFailure);
   Js.Console.error(err);
 };
 
-let removeGameSvc = state => {
+let removeGameSvc = (state, code) => {
   let payload = {| {} |} |> Json.parseOrRaise;
 
   ReasonReact.UpdateWithSideEffects(
     {...state, saveState: SAVING},
     ({send}) => {
-      let url = "remove_game/" ++ state.code;
+      let url = "remove_game/" ++ code;
       svcDelete(url, payload)
       |> then_(json => onSuccess(send, json) |> resolve)
       |> catch(err => onError(send, err) |> resolve)
@@ -72,15 +74,19 @@ let removeGameSvc = state => {
   );
 };
 
+let removeGameReducer = state =>
+  switch (String.trim(state.code)) {
+  | "" =>
+    ReasonReact.SideEffects(
+      (({send}) => send(SetWarning("Code can not be empty"))),
+    )
+  | code => removeGameSvc(state, code)
+  };
+
 let reducer = (action, state) =>
   switch (action) {
   | ChangeCode(code) => ReasonReact.Update({...state, code})
-  | RemoveGame =>
-    String.trim(state.code) === "" ?
-      ReasonReact.SideEffects(
-        (({send}) => send(SetWarning("Code can not be empty"))),
-      ) :
-      removeGameSvc(state)
+  | RemoveGame => removeGameReducer(state)
   | SetSuccess => ReasonReact.Update({code: "", saveState: SUCCESS})
   | SetWarning(msg) =>
     ReasonReact.Update({...state, saveState: WARNING(msg)})
