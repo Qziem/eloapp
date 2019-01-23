@@ -29,7 +29,7 @@ $app->post('/users', [UsersCtrl::class, 'addUser'])
 $app->put('/users/update_ratings', [UsersCtrl::class, 'updateRatings'])
     ->add(PrivilegesIsLogged::class);
 
-$app->get('/ratings_history/{userNid}', [RatingsHistoryCtrl::class, 'getRatingsHistory'])
+$app->get('/ratings_history/{code}', [RatingsHistoryCtrl::class, 'getRatingsHistory'])
     ->add(PrivilegesIsLogged::class);
 
 $app->delete('/remove_game/{code}', [RemoveGameCtrl::class, 'removeLastGameIfPossible'])

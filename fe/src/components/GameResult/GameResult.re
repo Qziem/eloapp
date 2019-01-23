@@ -1,8 +1,8 @@
 open EloTypes;
-open Helpers;
 open Svc;
 open Js.Promise;
 open BsReactstrap;
+open Json.Decode;
 
 [%bs.raw {|require('./GameResult.scss')|}];
 
@@ -24,8 +24,15 @@ type action =
   | ChangeLooseUser(string)
   | UpdateClick
   | SetSaveSuccess(int)
+  | SetWarning(string)
   | SetFailure
   | ClearSaveState;
+
+type updateRatingsResult =
+  | SUCCESS(int)
+  | WARNING(string);
+
+exception IllegalCombinationInUpdateRatingsResult;
 
 let component = ReasonReact.reducerComponent("GameResult");
 
@@ -35,10 +42,27 @@ let initialState = () => {
   saveState: NOTHING,
 };
 
+let decodeUpdateRatingsResult = json => {
+  let status = json |> field("status", string);
+  let ratingDiff = json |> optional(field("ratingDiff", int));
+  let warningMsg = json |> optional(field("warningMsg", string));
+
+  switch (status, ratingDiff, warningMsg) {
+  | ("success", Some(ratingDiff), None) => SUCCESS(ratingDiff)
+  | ("warning", None, Some(msg)) => WARNING(msg)
+  | _ => raise(IllegalCombinationInUpdateRatingsResult)
+  };
+};
+
 let onSuccess = (containterSend, send, json) => {
-  let ratingDiff = Json.Decode.field("ratingDiff", Json.Decode.int, json);
-  send(SetSaveSuccess(ratingDiff));
-  containterSend(GetUsersSvc);
+  let updateRatingsResult = decodeUpdateRatingsResult(json);
+
+  switch (updateRatingsResult) {
+  | SUCCESS(ratingDiff) =>
+    send(SetSaveSuccess(ratingDiff));
+    containterSend(GetUsersSvc);
+  | WARNING(msg) => send(SetWarning(msg))
+  };
 };
 
 let onError = (send, err) => {
@@ -46,16 +70,16 @@ let onError = (send, err) => {
   Js.Console.error(err);
 };
 
-let updateRatingsSvc = (state, users, containterSend) => {
-  let winnerLooserNids = {
-    winnerUserNid: getUserNidFromCode(state.userWinnerCode, users),
-    looserUserNid: getUserNidFromCode(state.userLooserCode, users),
+let updateRatingsSvc = (state, containterSend) => {
+  let winnerLooserCodes = {
+    winnerUserCode: String.trim(state.userWinnerCode),
+    looserUserCode: String.trim(state.userLooserCode),
   };
 
   ReasonReact.UpdateWithSideEffects(
     {...state, saveState: SAVING},
     ({send}) => {
-      let payload = EncodeUpdateRatings.encode(winnerLooserNids);
+      let payload = EncodeUpdateRatings.encode(winnerLooserCodes);
       svcPut("users/update_ratings", payload)
       |> then_(json => onSuccess(containterSend, send, json) |> resolve)
       |> catch(err => onError(send, err) |> resolve)
@@ -64,42 +88,24 @@ let updateRatingsSvc = (state, users, containterSend) => {
   );
 };
 
-let updateStateWarningMsg = (state, msg: string) =>
-  ReasonReact.Update({...state, saveState: WARNING(msg)});
+let sendWarning = (msg: string) =>
+  ReasonReact.SideEffects(({send}) => send(SetWarning(msg)));
 
-let handleUpdateClickReducer = (state, users, containterSend) => {
-  let winCode = state.userWinnerCode;
-  let looseCode = state.userLooserCode;
-  let winUserExist =
-    List.exists(user => compareCodes(user.code, winCode), users);
-  let looseUserExist =
-    List.exists(user => compareCodes(user.code, looseCode), users);
-
-  switch (winUserExist, looseUserExist) {
-  | (true, true) =>
-    !compareCodes(winCode, looseCode) ?
-      updateRatingsSvc(state, users, containterSend) :
-      updateStateWarningMsg(state, "Codes are the same")
-
-  | (true, false) => updateStateWarningMsg(state, "Looser doesen't exist")
-  | (false, true) => updateStateWarningMsg(state, "Winner doesen't exist")
-  | (false, false) => updateStateWarningMsg(state, "Players doesen't exist")
-  };
-};
-
-let reducer = (users, containterSend, action, state) =>
+let reducer = (containterSend, action, state) =>
   switch (action) {
   | ChangeWinUser(value) =>
     ReasonReact.Update({...state, userWinnerCode: value})
   | ChangeLooseUser(value) =>
     ReasonReact.Update({...state, userLooserCode: value})
-  | UpdateClick => handleUpdateClickReducer(state, users, containterSend)
+  | UpdateClick => updateRatingsSvc(state, containterSend)
   | SetSaveSuccess(ratingDiff) =>
     ReasonReact.Update({
       userWinnerCode: "",
       userLooserCode: "",
       saveState: SUCCESS(ratingDiff),
     })
+  | SetWarning(msg) =>
+    ReasonReact.Update({...state, saveState: WARNING(msg)})
   | SetFailure => ReasonReact.Update({...state, saveState: FAILURE})
   | ClearSaveState => ReasonReact.Update({...state, saveState: NOTHING})
   };
@@ -108,10 +114,10 @@ let valueFromEvent = event => ReactEvent.Form.target(event)##value;
 
 let hanldeDismissAlert = (send, ()) => send(ClearSaveState);
 
-let make = (~users, ~containterSend, ~disable, _children) => {
+let make = (~containterSend, ~disable, _children) => {
   ...component,
   initialState,
-  reducer: reducer(users, containterSend),
+  reducer: reducer(containterSend),
   render: ({state, send}) =>
     <div className="gameResult">
       <div className="messageContainer">
