@@ -115,8 +115,6 @@ class UsersCtrl
         $winnerUserCode = $usersCodes['winnerUserCode'];
         $looserUserCode = $usersCodes['looserUserCode'];
 
-        $this->valdateUpdateRatingsCodes($winnerUserCode, $looserUserCode);
-
         $winnerUser = $this->userRepository->findOneByCode($winnerUserCode);
         $looserUser = $this->userRepository->findOneByCode($looserUserCode);
 
@@ -127,19 +125,6 @@ class UsersCtrl
 
         $ratingDiff = $this->updateRatingsInDb($winnerUser, $looserUser);
         return $response->withJson(['status' => 'success', 'ratingDiff' => $ratingDiff]);
-    }
-
-    private function valdateUpdateRatingsCodes(string $winnerUserCode, string $looserUserCode): void
-    {
-        if (!$winnerUserCode) {
-            throw new \InvalidArgumentException('Winner code is empty');
-        }
-        if (!$looserUserCode) {
-            throw new \InvalidArgumentException('Looser code is empty');
-        }
-        if ($winnerUserCode === $looserUserCode) {
-            throw new \InvalidArgumentException('Winner and looser are the same');
-        }
     }
 
     private function getUpdateUserWarningMsg(?User $winnerUser, ?User $looserUser): ?string
@@ -154,6 +139,8 @@ class UsersCtrl
         
         if ($looserUser === null) {
             return "Looser does not exist";
+        } else if ($winnerUser->getUserNid() === $looserUser->getUserNid()) {
+            return "Winner is same as looser";
         }
 
         return null;

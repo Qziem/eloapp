@@ -37,8 +37,8 @@ let onError = (send, err) => {
 let addPlayerSvc = state => {
   let payload =
     Json.Encode.object_([
-      ("code", Json.Encode.string(state.code)),
-      ("name", Json.Encode.string(state.name)),
+      ("code", state.code |> String.trim |> Json.Encode.string),
+      ("name", state.name |> String.trim |> Json.Encode.string),
     ]);
   ReasonReact.UpdateWithSideEffects(
     {...state, savingState: SAVING},

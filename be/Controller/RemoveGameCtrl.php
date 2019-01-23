@@ -65,8 +65,8 @@ class RemoveGameCtrl
             $user = $this->userRepository->requireUserByCode($code);
         } catch (NoResultException $e) {
             return [
-                'removed' => false,
-                'warning' => 'Player does not exist',
+                'status' => 'warning',
+                'warningMsg' => 'Player does not exist',
             ];
         }
 
@@ -76,8 +76,8 @@ class RemoveGameCtrl
             $lastGame = $this->gameRepository->requireLastGame($userNid);
         } catch (NoResultException $e) {
             return [
-                'removed' => false,
-                'warning' => 'Player has no games',
+                'status' => 'warning',
+                'warningMsg' => 'Player has no games',
             ];
         }
 
@@ -86,13 +86,13 @@ class RemoveGameCtrl
 
         if ($lastGame->getGameNid() !== $opponentLastGame->getGameNid()) {
             return [
-                'removed' => false,
-                'warning' => 'Opponent has later games',
+                'status' => 'warning',
+                'warningMsg' => 'Opponent has later games',
             ];
         }
 
         $this->removeLastGame($lastGame, $user, $opponentUser);
-        return ['removed' => true];
+        return ['status' => 'success'];
     }
 
     public function removeLastGameIfPossible(

@@ -1,6 +1,5 @@
 open Svc;
 open EloTypes;
-open Helpers;
 open Js.Promise;
 open BsReactstrap;
 
@@ -19,66 +18,66 @@ type stateType = {
 };
 
 type action =
-  | GetHistory(list(user))
+  | GetHistory
   | SetHistory(list(ratingHistory))
   | ChangeCode(string)
   | SetFailure
+  | SetWarning(string)
   | ClearDataState;
 
 let component = ReasonReact.reducerComponent("Stats");
 
 let initialState = (): stateType => {inputCode: "", dataState: INITIAL};
 
-let onSuccess = (send, json) =>
-  json
-  |> DecodeRatingsHistory.ratingsHistoryDec
-  |> (ratingsHistory => send(SetHistory(ratingsHistory)));
+let onSuccess = (send, json) => {
+  let ratingsHistoryResult = DecodeRatingsHistory.response(json);
+  switch (ratingsHistoryResult) {
+  | SUCCESS(ratingsHistoryResult) => send(SetHistory(ratingsHistoryResult))
+  | WARNING(msg) => send(SetWarning(msg))
+  };
+};
 
 let onError = (send, err) => {
   send(SetFailure);
   Js.Console.error(err);
 };
 
-let getHistorySvc = (state, users) => {
-  let userNid = getUserNidFromCode(state.inputCode, users);
-
+let getHistorySvc = (state, code) =>
   ReasonReact.UpdateWithSideEffects(
     {...state, dataState: LOADING},
     ({send}) => {
-      let url = "ratings_history/" ++ string_of_int(userNid);
+      let url = "ratings_history/" ++ code;
       svcGet(url)
       |> then_(json => onSuccess(send, json) |> resolve)
       |> catch(err => onError(send, err) |> resolve)
       |> ignore;
     },
   );
-};
 
-let getHistoryReducer = (state: stateType, users: list(user)) => {
-  let userExist =
-    List.exists(user => isCodesEqual(user.code, state.inputCode), users);
-
-  userExist ?
-    getHistorySvc(state, users) :
-    ReasonReact.Update({
-      ...state,
-      dataState: WARNING("Player doesn't exist"),
-    });
-};
+let getHistoryReducer = state =>
+  switch (String.trim(state.inputCode)) {
+  | "" =>
+    ReasonReact.SideEffects(
+      (({send}) => send(SetWarning("Code can not be empty"))),
+    )
+  | code => getHistorySvc(state, code)
+  };
 
 let reducer = (action, state: stateType) =>
   switch (action) {
   | ChangeCode(code) => ReasonReact.Update({...state, inputCode: code})
-  | GetHistory(users) => getHistoryReducer(state, users)
+  | GetHistory => getHistoryReducer(state)
   | SetHistory(ratingsHistory) =>
     ReasonReact.Update({...state, dataState: LOADED(ratingsHistory)})
   | SetFailure => ReasonReact.Update({...state, dataState: FAILURE})
+  | SetWarning(msg) =>
+    ReasonReact.Update({...state, dataState: WARNING(msg)})
   | ClearDataState => ReasonReact.Update({...state, dataState: INITIAL})
   };
 
 let hanldeDismissAlert = (send, ()) => send(ClearDataState);
 
-let make = (~users, ~disable, _children) => {
+let make = (~disable, _children) => {
   ...component,
   initialState,
   reducer,
@@ -88,7 +87,7 @@ let make = (~users, ~disable, _children) => {
         onSubmit={
           event => {
             event |> ReactEvent.Form.preventDefault;
-            send(GetHistory(users));
+            send(GetHistory);
           }
         }>
         <Container>
