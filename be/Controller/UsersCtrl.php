@@ -7,6 +7,8 @@ use Doctrine\Common\Collections\Collection;
 use Model\Entity\Game;
 use Model\Entity\User;
 use Model\Repository\UserRepository;
+use Model\Factory\GameFactory;
+use Service\RatingCalculator;
 use Slim\Http\Response;
 use \Psr\Http\Message\ServerRequestInterface as Request;
 
@@ -18,12 +20,17 @@ class UsersCtrl
     /** @var UserRepository */
     private $userRepository;
 
+    /** @var GameFactory */
+    private $gameFactory;
+
     public function __construct(
         EntityManager $em,
-        UserRepository $userRepository
+        UserRepository $userRepository,
+        GameFactory $gameFactory
     ) {
         $this->em = $em;
         $this->userRepository = $userRepository;
+        $this->gameFactory = $gameFactory;
     }
 
     public function getUsers(Response $response): Response
@@ -156,51 +163,17 @@ class UsersCtrl
         User $winnerUser,
         User $looserUser
     ): int {
-        $oldWinnerRating = $winnerUser->getRating();
-        $oldLooserRating = $looserUser->getRating();
-
-        $ratingDiff = $this->calcNewRatingDiff($oldWinnerRating, $oldLooserRating);
-        $newWinnerRating = $oldWinnerRating + $ratingDiff;
-        $newLooserRating = $oldLooserRating - $ratingDiff;
-
+        $game = $this->gameFactory->createGameEntity($winnerUser, $looserUser);
+        $this->em->persist($game);
+        
+        $ratingDiff = $game->getRatingDiff();
+        $newWinnerRating = $winnerUser->getRating() + $ratingDiff;
+        $newLooserRating = $looserUser->getRating() - $ratingDiff;
         $winnerUser->setRating($newWinnerRating);
         $looserUser->setRating($newLooserRating);
 
-        $game = $this->createGameEntity(
-            $winnerUser, $looserUser, $oldWinnerRating, $oldLooserRating, $ratingDiff);
-
-        $this->em->persist($game);
         $this->em->flush();
 
         return $ratingDiff;
-    }
-
-    private function calcNewRatingDiff(
-        int $oldWinnerRating,
-        int $oldLooserRating
-    ): int {
-        $kfactor = 32;
-
-        $winnerLooserDiff = $oldLooserRating - $oldWinnerRating;
-        $pWinner = 1 / (1 + (10 ** ($winnerLooserDiff / 400))); // probability of winning winner user
-
-        return round($kfactor * (1 - $pWinner));
-    }
-
-    private function createGameEntity(
-        User $winnerUser,
-        User $looserUser,
-        int $oldWinnerRating,
-        int $oldLooserRating,
-        int $ratingDiff
-    ): Game {
-        $game = new Game();
-        $game->setWinnerUser($winnerUser);
-        $game->setLooserUser($looserUser);
-        $game->setWinnerRatingBefore($oldWinnerRating);
-        $game->setLooserRatingBefore($oldLooserRating);
-        $game->setRatingDiff($ratingDiff);
-
-        return $game;
     }
 }
