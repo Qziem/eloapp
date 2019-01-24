@@ -2,10 +2,9 @@
 
 namespace Model\Repository;
 
-use Doctrine\ORM\NonUniqueResultException;
+use Doctrine\ORM\EntityRepository;
 use Doctrine\ORM\NoResultException;
 use Doctrine\ORM\Query;
-use Doctrine\ORM\EntityRepository;
 use Model\Entity\Game;
 
 class GameRepository extends EntityRepository
@@ -31,17 +30,22 @@ class GameRepository extends EntityRepository
      * @return Game
      * @throws NoResultException
      */
+    public function findLastGame(int $userNid): ?Game
+    {
+        $result = $this->querySortedGamesForUser($userNid)
+            ->setMaxResults(1)
+            ->getResult();
+
+        return $result !== null ? $result[0] : null;
+    }
+
     public function requireLastGame(int $userNid): Game
     {
-        try {
-            return $this->querySortedGamesForUser($userNid)
-                ->setMaxResults(1)
-                ->getSingleResult();
-        } catch (NonUniqueResultException $e) {
-            throw new \Error(''
-                . 'Particular single game could not be found because to small '
-                . 'amount of conditions'
-            );
+        $lastGame = $this->findLastGame($userNid);
+        if ($lastGame === null) {
+            throw new \Error('Particular single game could not be found');
         }
+
+        return $lastGame;
     }
 }

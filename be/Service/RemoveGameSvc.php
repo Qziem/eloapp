@@ -33,9 +33,8 @@ class RemoveGameSvc
 
     public function removeLastGameIfPossible(string $code): array
     {
-        try {
-            $user = $this->userRepository->requireUserByCode($code);
-        } catch (NoResultException $e) {
+        $user = $this->userRepository->findOneByCode($code);
+        if ($user === null) {
             return [
                 'status' => 'warning',
                 'warningMsg' => 'Player does not exist',
@@ -44,9 +43,8 @@ class RemoveGameSvc
 
         $userNid = $user->getUserNid();
 
-        try {
-            $lastGame = $this->gameRepository->requireLastGame($userNid);
-        } catch (NoResultException $e) {
+        $lastGame = $this->gameRepository->findLastGame($userNid);
+        if ($lastGame === null) {
             return [
                 'status' => 'warning',
                 'warningMsg' => 'Player has no games',
