@@ -31,7 +31,7 @@ let prepareTeamIcons = teamName => {
     | _ => "far fa-smile"
     };
 
-  <span className=icon />;
+  <span title=teamName className=icon />;
 };
 
 let getTrend = trendRatingDiff =>
