@@ -29,8 +29,11 @@ let component = ReasonReact.reducerComponent("Stats");
 
 let initialState = (): stateType => {inputCode: "", dataState: INITIAL};
 
+module DecoderRatingsHistory =
+  DecoderWithWarnings.MakeDecoderWithWarningsOrContent(DecodeRatingsHistory);
+
 let onSuccess = (send, json) => {
-  let ratingsHistoryResult = DecodeRatingsHistory.response(json);
+  let ratingsHistoryResult = DecoderRatingsHistory.decode(json);
   switch (ratingsHistoryResult) {
   | SUCCESS(ratingsHistoryResult) => send(SetHistory(ratingsHistoryResult))
   | WARNING(msg) => send(SetWarning(msg))

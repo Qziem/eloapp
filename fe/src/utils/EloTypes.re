@@ -35,6 +35,10 @@ type place =
   | OPERATIONS
   | NOT_FOUND;
 
-type resultWithWarning('a) =
+type resultWarningOrContent('a) =
   | SUCCESS('a)
+  | WARNING(string);
+
+type resultWarningOrEmpty =
+  | SUCCESS
   | WARNING(string);
