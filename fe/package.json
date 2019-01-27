@@ -25,7 +25,7 @@
   },
   "devDependencies": {
     "@fortawesome/fontawesome-free": "^5.6.3",
-    "bs-platform": "^4.0.7",
+    "bs-platform": "^4.0.18",
     "css-loader": "^1.0.1",
     "file-loader": "^2.0.0",
     "node-sass": "^4.10.0",
