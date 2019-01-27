@@ -2,7 +2,6 @@
 open Svc;
 open Js.Promise;
 open BsReactstrap;
-open DecoderWithWarnings;
 
 type saveStateType =
   | NOTHING
@@ -34,7 +33,8 @@ let component = ReasonReact.reducerComponent("RemoveGame");
 
 let initialState = () => {code: "", saveState: NOTHING};
 
-let decodeRemoveGameResult = json => DecoderWithWarningsOrEmpty.decode(json);
+module ResultDecoder = DecoderWithWarnings.DecoderWithWarningsOrEmpty;
+let decodeRemoveGameResult = json => ResultDecoder.decode(json);
 
 let onSuccess = (send, json) => {
   let removeGameResult = decodeRemoveGameResult(json);

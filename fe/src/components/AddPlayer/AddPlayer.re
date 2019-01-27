@@ -27,7 +27,15 @@ let component = ReasonReact.reducerComponent("AddPlayer");
 
 let initialState = () => {code: "", name: "", savingState: NOTHING};
 
-let onSuccess = send => send(SetSavingState(SUCCESS));
+module ResultDecoder = DecoderWithWarnings.DecoderWithWarningsOrEmpty;
+
+let onSuccess = (json, send) => {
+  let result = ResultDecoder.decode(json);
+  switch (result) {
+  | SUCCESS => send(SetSavingState(SUCCESS))
+  | WARNING(msg) => send(SetSavingState(WARNING(msg)))
+  };
+};
 
 let onError = (send, err) => {
   send(SetSavingState(FAILURE));
@@ -44,7 +52,7 @@ let addPlayerSvc = state => {
     {...state, savingState: SAVING},
     ({send}) =>
       svcPost("users", payload)
-      |> then_(_json => onSuccess(send) |> resolve)
+      |> then_(json => onSuccess(json, send) |> resolve)
       |> catch(err => onError(send, err) |> resolve)
       |> ignore,
   );
