@@ -32,8 +32,8 @@ class UsersCtrl
     {
         $json = $request->getBody();
         $userArray = json_decode($json, true);
-        $this->usersSvc->addUser($userArray);
-        return $response->withJson([]);
+        $responseArray = $this->usersSvc->addUser($userArray);
+        return $response->withJson($responseArray);
     }
 
     public function updateRatings(
