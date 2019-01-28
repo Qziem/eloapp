@@ -2,7 +2,6 @@
 
 namespace Controller;
 
-use \Psr\Http\Message\ServerRequestInterface as Request;
 use Slim\Http\Response;
 
 use Service\RatingsHistorySvc;
