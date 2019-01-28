@@ -2,9 +2,6 @@
 
 namespace Service;
 
-use \Psr\Http\Message\ServerRequestInterface as Request;
-use Slim\Http\Response;
-
 use Model\Entity\User;
 use Model\Repository\GameRepository;
 use Model\Repository\UserRepository;

@@ -2,14 +2,7 @@
 
 namespace Controller;
 
-use Doctrine\ORM\EntityManager;
-use Doctrine\Common\Collections\Collection;
-use Model\Entity\Game;
-use Model\Entity\User;
-use Model\Repository\UserRepository;
-use Model\Factory\GameFactory;
 use Service\UsersSvc;
-use Service\RatingCalculator;
 use Slim\Http\Response;
 use \Psr\Http\Message\ServerRequestInterface as Request;
 

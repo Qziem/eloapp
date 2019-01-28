@@ -8,7 +8,6 @@ use Model\Entity\Game;
 use Model\Entity\User;
 use Model\Repository\GameRepository;
 use Model\Repository\UserRepository;
-use Slim\Http\Response;
 
 class RemoveGameSvc
 {

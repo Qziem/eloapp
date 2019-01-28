@@ -8,9 +8,6 @@ use Model\Entity\Game;
 use Model\Entity\User;
 use Model\Repository\UserRepository;
 use Model\Factory\GameFactory;
-use Service\RatingCalculator;
-use Slim\Http\Response;
-use \Psr\Http\Message\ServerRequestInterface as Request;
 
 class UsersSvc
 {
