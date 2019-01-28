@@ -3,7 +3,6 @@
 namespace Model\Repository;
 
 use Doctrine\ORM\EntityRepository;
-use Doctrine\ORM\NoResultException;
 use Doctrine\ORM\Query;
 use Model\Entity\Game;
 
@@ -28,7 +27,6 @@ class GameRepository extends EntityRepository
     /**
      * @param int $userNid
      * @return Game
-     * @throws NoResultException
      */
     public function findLastGame(int $userNid): ?Game
     {

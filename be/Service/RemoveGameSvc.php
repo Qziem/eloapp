@@ -3,7 +3,6 @@
 namespace Service;
 
 use Doctrine\ORM\EntityManager;
-use Doctrine\ORM\NoResultException;
 use Model\Entity\Game;
 use Model\Entity\User;
 use Model\Repository\GameRepository;
