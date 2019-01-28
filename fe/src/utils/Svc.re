@@ -2,34 +2,35 @@ open Js.Promise;
 
 let svcUrl = "api/";
 
-/* TODO: Troche slabo ze w dwoch miejscach jest powtorzone to samo (Fetch.RequestInit.make)
- ** Mozna pomyslec zeby to uwspolnic
- */
-let svcGeneric = (method, resource, payload) =>
+exception InvalidArgumentException;
+
+let svcGeneric = (method, resource, payloadOption) => {
+  let body =
+    switch (method, payloadOption) {
+    | (Fetch.Get, None) => None
+    | (_, Some(payload)) =>
+      Some(Fetch.BodyInit.make(Js.Json.stringify(payload)))
+    | _ => raise(InvalidArgumentException)
+    };
+
   Fetch.fetchWithInit(
     svcUrl ++ resource,
     Fetch.RequestInit.make(
       ~method_=method,
       ~credentials=SameOrigin,
       ~headers=Fetch.HeadersInit.make({"Content-Type": "application/json"}),
-      ~body=Fetch.BodyInit.make(Js.Json.stringify(payload)),
+      ~body?,
       (),
     ),
   )
   |> then_(Fetch.Response.json);
+};
 
-let svcGet = resource =>
-  Fetch.fetchWithInit(
-    svcUrl ++ resource,
-    Fetch.RequestInit.make(
-      ~method_=Get,
-      ~credentials=SameOrigin,
-      ~headers=Fetch.HeadersInit.make({"Content-Type": "application/json"}),
-      (),
-    ),
-  )
-  |> then_(Fetch.Response.json);
+let svcGet = resource => svcGeneric(Fetch.Get, resource, None);
 
-let svcPost = svcGeneric(Post);
-let svcPut = svcGeneric(Put);
-let svcDelete = svcGeneric(Delete);
+let svcPost = (resource, payload) =>
+  svcGeneric(Fetch.Post, resource, Some(payload));
+let svcPut = (resource, payload) =>
+  svcGeneric(Fetch.Put, resource, Some(payload));
+let svcDelete = (resource, payload) =>
+  svcGeneric(Fetch.Delete, resource, Some(payload));

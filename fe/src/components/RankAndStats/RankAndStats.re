@@ -42,13 +42,11 @@ let renderContent = (send, users, isUsersLoading) =>
   <div>
     <div className="section">
       <Users users isUsersLoading />
-      <GameResult users disable=isUsersLoading containterSend=send />
+      <GameResult disable=isUsersLoading containterSend=send />
     </div>
     <hr />
     <h4> {ReasonReact.string("Statistics for player")} </h4>
-    <div className="section">
-      <RatingsHistory users disable=isUsersLoading />
-    </div>
+    <div className="section"> <RatingsHistory disable=isUsersLoading /> </div>
   </div>;
 
 let make = _children => {

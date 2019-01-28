@@ -2,7 +2,9 @@ type user = {
   userNid: int,
   code: string,
   name: string,
+  team: string,
   rating: int,
+  trendRatingDiff: int,
 };
 
 type ratingHistory = {
@@ -23,9 +25,9 @@ type appContainerActions =
   | SetIsLogged(bool)
   | SetFailure;
 
-type winnerLooserNids = {
-  winnerUserNid: int,
-  looserUserNid: int,
+type winnerLooserCodes = {
+  winnerUserCode: string,
+  looserUserCode: string,
 };
 
 type place =

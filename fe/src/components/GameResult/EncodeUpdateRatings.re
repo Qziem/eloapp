@@ -1,9 +1,9 @@
 open EloTypes;
 
-let encode = (winnerLooserNids: winnerLooserNids) =>
+let encode = (winnerLooserCodes: winnerLooserCodes) =>
   Json.Encode.(
     object_([
-      ("winnerUserNid", int(winnerLooserNids.winnerUserNid)),
-      ("looserUserNid", int(winnerLooserNids.looserUserNid)),
+      ("winnerUserCode", string(winnerLooserCodes.winnerUserCode)),
+      ("looserUserCode", string(winnerLooserCodes.looserUserCode)),
     ])
   );

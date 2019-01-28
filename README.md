@@ -2,8 +2,9 @@
 
 Apka służy do wyznaczania rankinków graczy w dowolnej grze. W grze rywalizować ze sobą mogą dwie osoby, a możliwy wynik to wygrana - przegrana.
 Algorytm obliczający punkty w rankingu jest oparty na systemie Elo:
-https://metinmediamath.wordpress.com/2013/11/27/how-to-calculate-the-elo-rating-including-example/
-https://en.wikipedia.org/wiki/Elo_rating_system
+https://en.wikipedia.org/wiki/Elo_rating_system  
+https://www.geeksforgeeks.org/elo-rating-algorithm  
+https://metinmediamath.wordpress.com/2013/11/27/how-to-calculate-the-elo-rating-including-example  
 
 ## Opis jak skonfigurować środowisko lokalnie
 Aplikacja jest dostosowana aby działać na dockerze.
@@ -27,17 +28,5 @@ Zarówno yarn start jak i yarn webpack działają w trybie watch, więc modyfiku
 
 Odpalamy przeglądarkę i w adres wpisujemy: http://localhost:8000
 Jeśli wszystko jest poprawnie skonfigurowane to powinna pojawić się aplikacja - jeśli nie i coś spierdzieliłem w powyższym opisie to dawajta znać.
-
-## TODO list
-Dobrze by było, że jeśli znadzie się jakiś chętny do zrobinia, to aby skonsultował to z innymi zainteresowanymi, po to aby po pierwsze być może zgroomować rozwiązanie, po drugie aby uniknąć konfiliktów gdy ktoś będzie robił jakąś inną funkcjonalność, po trzecie aby nagle się nie okazało że dwie osoby robią równolegle to samo.
-
-### Zagadnienia czysto techniczne
-- [FE BE] - Otestować
-
-### Zagadnienia funkcjonalne
-- Dorobić możliwość logowania się każdego użytkownia, aby każdy mógł mieć swoje hasło
-- Gdy powyższe już będzie, można w jakiś sposób blokować, aby nie można było wpisać wyniku bez swojego udziału i być może jakieś inne restrykcje/możliwości (np. może kasowanie gry, jeśli ktoś by się pomylił ??)
-- [Do uzgodnienia] Pokazywanie par które najmniej z sobą grały aby można było parować userów którzy powinni z sobą zagrać
-- [Do uzgodnienia] Możliwość wpisania potencjalnego wyniku gry aby sprawdzić jak zmieniłby się ranking
 
 Qziem

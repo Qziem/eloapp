@@ -1,28 +1,93 @@
 <?php
+
 namespace Controller;
 
-use \Psr\Http\Message\ServerRequestInterface as Request;
-use \Psr\Http\Message\ResponseInterface as Response;
-
 use Doctrine\ORM\EntityManager;
-use Util\Helpers;
+use Doctrine\Common\Collections\Collection;
 use Model\Entity\Game;
 use Model\Entity\User;
 use Model\Repository\UserRepository;
+use Model\Factory\GameFactory;
+use Service\RatingCalculator;
+use Slim\Http\Response;
+use \Psr\Http\Message\ServerRequestInterface as Request;
 
-class UsersCtrl {
-    function __construct(EntityManager $em, UserRepository $userRepository) {
+class UsersCtrl
+{
+    /** @var EntityManager */
+    private $em;
+
+    /** @var UserRepository */
+    private $userRepository;
+
+    /** @var GameFactory */
+    private $gameFactory;
+
+    public function __construct(
+        EntityManager $em,
+        UserRepository $userRepository,
+        GameFactory $gameFactory
+    ) {
         $this->em = $em;
         $this->userRepository = $userRepository;
+        $this->gameFactory = $gameFactory;
     }
 
-    public function getUsers(Request $request, Response $response): Response {
-        $usersEntities = $this->userRepository->findBy(['deleted' => 0], ['rating' => 'DESC', 'code' => 'ASC']);
-        $respArray = Helpers::entitiesListToArray($usersEntities);
-        return $response->withJson($respArray);
+    public function getUsers(Response $response): Response
+    {
+        $userEntityList = $this->userRepository->findBy(
+            ['deleted' => 0],
+            ['rating' => 'DESC', 'code' => 'ASC']
+        );
+
+        $userArrayList = array_map(function (User $user) {
+            $userArray = $this->userToArray($user);
+            $userArray = $this->calculateTrendRatingDiff($userArray);
+            return $this->removeGameListsFromUserArray($userArray);
+        }, $userEntityList);
+
+        return $response->withJson($userArrayList);
     }
 
-    public function addUser(Request $request, Response $response): Response {
+    private function userToArray(User $user): array
+    {
+        return [
+            'userNid' => $user->getUserNid(),
+            'code' => $user->getCode(),
+            'name' => $user->getName(),
+            'rating' => $user->getRating(),
+            'team' => $user->getTeam(),
+            'wonGameList' => $user->getLastWonGameList(),
+            'lostGameList' => $user->getLastLostGameList(),
+        ];
+    }
+
+    private function calculateTrendRatingDiff(array $userArray): array
+    {
+        $winGamesSumRating = $this->sumRatingDiffs($userArray['wonGameList']);
+        $looseGamesSumRating = $this->sumRatingDiffs($userArray['lostGameList']);
+
+        $trendRatingDiff = $winGamesSumRating - $looseGamesSumRating;
+        $userArray['trendRatingDiff'] = $trendRatingDiff;
+
+        return $userArray;
+    }
+
+    private function sumRatingDiffs(Collection $gameList): int
+    {
+        return array_reduce($gameList->toArray(), function (int $acc, Game $game) {
+            return $acc + $game->getRatingDiff();
+        }, 0);
+    }
+
+    private function removeGameListsFromUserArray(array $userArray): array
+    {
+        unset($userArray['wonGameList'], $userArray['lostGameList']);
+        return $userArray;
+    }
+
+    public function addUser(Request $request, Response $response): Response
+    {
         $json = $request->getBody();
         $userArray = json_decode($json, true);
 
@@ -31,6 +96,7 @@ class UsersCtrl {
         $user = new User();
         $user->setCode($userArray['code']);
         $user->setName($userArray['name']);
+        $user->setTeam("");
         $user->setRating($initRating);
         $user->setDeleted(false);
 
@@ -40,59 +106,61 @@ class UsersCtrl {
         return $response->withJson([]);
     }
 
-     private function getGame(User $winnerUser, User $looserUser, int $oldWinnerRating, int $oldLooserRating, int $ratingDiff): Game {
-        $game = new Game();
-        $game->setWinnerUser($winnerUser);
-        $game->setLooserUser($looserUser);
-        $game->setWinnerRatingBefore($oldWinnerRating);
-        $game->setLooserRatingBefore($oldLooserRating);
-        $game->setRatingDiff($ratingDiff);
-     
-        return $game;
+    public function updateRatings(
+        Request $request,
+        Response $response
+    ): Response {
+        $json = $request->getBody();
+        $usersCodes = json_decode($json, true);
+        $winnerUserCode = $usersCodes['winnerUserCode'];
+        $looserUserCode = $usersCodes['looserUserCode'];
+
+        $winnerUser = $this->userRepository->findOneByCode($winnerUserCode);
+        $looserUser = $this->userRepository->findOneByCode($looserUserCode);
+
+        $warningMsg = $this->getUpdateUserWarningMsg($winnerUser, $looserUser);
+        if ($warningMsg) {
+            return $response->withJson(['status' => 'warning', 'warningMsg' => $warningMsg]);
+        }
+
+        $ratingDiff = $this->updateRatingsInDb($winnerUser, $looserUser);
+        return $response->withJson(['status' => 'success', 'ratingDiff' => $ratingDiff]);
     }
 
-    private function calcNewRatings(int $oldWinnerRating, int $oldLooserRating): array {
-        $kfactor = 32;
-
-        $winnerLooserDiff = $oldLooserRating - $oldWinnerRating;
-        $pWinner = 1 / (1 + pow(10, ($winnerLooserDiff / 400))); // propability of winning winner user
-
-        $ratingDiff = round($kfactor * (1 - $pWinner));
-        $newWinnerRating = $oldWinnerRating + $ratingDiff;
-        $newLooserRating = $oldLooserRating - $ratingDiff;
+    private function getUpdateUserWarningMsg(?User $winnerUser, ?User $looserUser): ?string
+    {
+        if ($winnerUser === null && $looserUser === null) {
+            return "Winner and looser does not exist";
+        } 
         
-        return [$newWinnerRating, $newLooserRating];
+        if ($winnerUser === null) {
+            return "Winner does not exist";
+        }
+        
+        if ($looserUser === null) {
+            return "Looser does not exist";
+        } else if ($winnerUser->getUserNid() === $looserUser->getUserNid()) {
+            return "Winner is same as looser";
+        }
+
+        return null;
     }
 
-    private function updateRatingsInDb(int $winnerUserNid, int $looserUserNid): int {
-        $winnerUser = $this->userRepository->find($winnerUserNid);
-        $looserUser = $this->userRepository->find($looserUserNid);
-        if (!isset($winnerUser) || !isset($looserUser)) throw new \Exception('Winner or looser does not exist');
-        if ($winnerUserNid === $looserUserNid) throw new \Exception("Winner and looser nids are the same");
-
-        $oldWinnerRating = $winnerUser->getRating(); 
-        $oldLooserRating = $looserUser->getRating();
-
-        list($newWinnerRating, $newLooserRating) = $this->calcNewRatings($oldWinnerRating, $oldLooserRating);
-        $ratingDiff = $newWinnerRating - $oldWinnerRating;
-
+    private function updateRatingsInDb(
+        User $winnerUser,
+        User $looserUser
+    ): int {
+        $game = $this->gameFactory->createGameEntity($winnerUser, $looserUser);
+        $this->em->persist($game);
+        
+        $ratingDiff = $game->getRatingDiff();
+        $newWinnerRating = $winnerUser->getRating() + $ratingDiff;
+        $newLooserRating = $looserUser->getRating() - $ratingDiff;
         $winnerUser->setRating($newWinnerRating);
         $looserUser->setRating($newLooserRating);
-        $game = $this->getGame($winnerUser, $looserUser, $oldWinnerRating, $oldLooserRating, $ratingDiff);
 
-        $this->em->persist($game);
         $this->em->flush();
 
         return $ratingDiff;
-    }
-
-    public function updateRatings(Request $request, Response $response): Response {
-        $json = $request->getBody();
-        $usersCodes = json_decode($json, true);
-        $winnerUserNid = $usersCodes['winnerUserNid'];
-        $looserUserNid = $usersCodes['looserUserNid'];
-    
-        $ratingDiff = $this->updateRatingsInDb($winnerUserNid, $looserUserNid);
-        return $response->withJson(['ratingDiff' => $ratingDiff]);
     }
 }

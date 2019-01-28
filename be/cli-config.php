@@ -1,11 +1,15 @@
 <?php
 use Doctrine\ORM\EntityManager;
 use Doctrine\ORM\Tools\Console\ConsoleRunner;
-use Slim\Container;
+use Api\EloApp;
 
-require_once 'index.php';
+require_once 'api/autoload.php';
 
-// return ConsoleRunner::createHelperSet($container['em']);
+$app = new EloApp;
+
+$container = $app->getContainer();
+$em = $container->get(EntityManager::class);
+
 ConsoleRunner::run(
-    ConsoleRunner::createHelperSet($container['em'])
+    ConsoleRunner::createHelperSet($em)
 );

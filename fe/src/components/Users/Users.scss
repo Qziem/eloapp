@@ -1,3 +1,24 @@
 .users {
+  .teamTd .fa-tint { color: #b32323; }
+  .teamTd .fa-shield-alt { color: #b4b33a; }
+  .teamTd .fa-user-secret { color: #3a2578; }
+  .teamTd .fa-thumbs-up { color: #3b842e; }
+  .teamTd .fa-tools { color: #69501d; }
 
+  .trendRatingDiffTd {
+    &.down {
+      color: #dc3545;
+    }
+    &.stay {
+      color: grey;
+    }
+    &.up {
+      color: #28a745;
+    }
+
+    .ratingDiffValue {
+      margin-left: 5px;
+      font-size: 12px;
+    }
+  }
 }

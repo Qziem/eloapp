@@ -1,5 +1,7 @@
 <?php
-namespace api;
+
+namespace Api;
+
 use \DI\ContainerBuilder;
 
 class EloApp extends \DI\Bridge\Slim\App
