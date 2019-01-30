@@ -1,13 +1,6 @@
 #!/bin/bash
 
-
-FILE_PATH=`dirname $0`
-if [[ "$FILE_PATH" = /* ]]
-then
-    ENV_PATH=$FILE_PATH/../../
-else
-    ENV_PATH=`pwd`"/"$FILE_PATH/../../
-fi
+ENV_PATH=`dirname $0`/../../
 source $ENV_PATH.env
 FE_PATH=$SOURCE_DIR/fe
 cd $FE_PATH
