@@ -32,8 +32,9 @@ let initialState = (): stateType => {inputCode: "", dataState: INITIAL};
 let onSuccess = (send, json) => {
   let ratingsHistoryResult = DecodeRatingsHistory.response(json);
   switch (ratingsHistoryResult) {
-  | SUCCESS(ratingsHistoryResult) => send(SetHistory(ratingsHistoryResult))
   | WARNING(msg) => send(SetWarning(msg))
+  | SUCCESS([]) => send(SetWarning("Player has no games"))
+  | SUCCESS(ratingsHistoryResult) => send(SetHistory(ratingsHistoryResult))
   };
 };
 

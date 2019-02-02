@@ -14,6 +14,7 @@ type warningType =
 type state = {
   password: string,
   warning: warningType,
+  passwordRef: ref(option(ReasonReact.reactRef)),
 };
 
 type parentSend = appContainerActions => unit;
@@ -26,7 +27,11 @@ type action =
 
 let component = ReasonReact.reducerComponent("LoginPage");
 
-let initialState = () => {password: "", warning: NOTHING};
+let initialState = () => {
+  password: "",
+  warning: NOTHING,
+  passwordRef: ref(None),
+};
 
 let onLoginSuccess = parentSend => {
   parentSend(SetIsLogged(true));
@@ -79,9 +84,16 @@ let warningWrongPass = () =>
     </div>
   </div>;
 
+let setPasswordRef = (theRef, {ReasonReact.state}) =>
+  state.passwordRef := Js.Nullable.toOption(theRef);
+
 let make = (~parentSend, _children) => {
   ...component,
   initialState,
+  didMount: ({state}) => switch(state.passwordRef^) {
+  | Some(passwordRef) => ReasonReact.refToJsObj(passwordRef)##focus()
+  | None => ()
+  },
   reducer,
   render: self =>
     <div className="loginPage">
@@ -107,6 +119,7 @@ let make = (~parentSend, _children) => {
           <Row>
             <Col>
               <Input
+                innerRef={self.handle(setPasswordRef)}
                 placeholder="password"
                 type_="password"
                 onChange={
