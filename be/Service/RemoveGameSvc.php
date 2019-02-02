@@ -30,15 +30,11 @@ class RemoveGameSvc
         $this->userRepository = $userRepository;
     }
 
-    public function removeLastGameIfPossible(string $code): array
-    {
+    public function validateRemoveLastGame(string $code): ?string {
         try {
             $user = $this->userRepository->requireUserByCode($code);
         } catch (NoResultException $e) {
-            return [
-                'status' => 'warning',
-                'warningMsg' => 'Player does not exist',
-            ];
+            return 'Player does not exist';
         }
 
         $userNid = $user->getUserNid();
@@ -46,24 +42,17 @@ class RemoveGameSvc
         try {
             $lastGame = $this->gameRepository->requireLastGame($userNid);
         } catch (NoResultException $e) {
-            return [
-                'status' => 'warning',
-                'warningMsg' => 'Player has no games',
-            ];
+            return 'Player has no games';
         }
 
         $opponentUser = $this->getOpponentFromGame($lastGame, $userNid);
         $opponentLastGame = $this->gameRepository->requireLastGame($opponentUser->getUserNid());
 
         if ($lastGame->getGameNid() !== $opponentLastGame->getGameNid()) {
-            return [
-                'status' => 'warning',
-                'warningMsg' => 'Opponent has later games',
-            ];
+            return 'Opponent has later games';
         }
-
-        $this->removeLastGame($lastGame, $user, $opponentUser);
-        return ['status' => 'success'];
+        
+        return null;
     }
 
     private function getOpponentFromGame(Game $lastGame, int $userNid): User
@@ -76,11 +65,16 @@ class RemoveGameSvc
         return $isWinner ? $looserUser : $winnerUser;
     }
 
-    private function removeLastGame(
-        Game $lastGame,
-        User $user,
-        User $opponentUser
-    ): void {
+    public function removeLastGame(string $code): void {
+        if ($this->validateRemoveLastGame($code)) {
+            throw new InvalidArgumentException();
+        }
+
+        $user = $this->userRepository->requireUserByCode($code);
+        $userNid = $user->getUserNid();
+        $lastGame = $this->gameRepository->requireLastGame($userNid);
+        $opponentUser = $this->getOpponentFromGame($lastGame, $userNid);
+
         $isWinner = $lastGame->getWinnerUser()->getUserNid() === $user->getUserNid();
 
         $ratingDiff = $lastGame->getRatingDiff();

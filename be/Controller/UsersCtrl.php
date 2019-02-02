@@ -37,8 +37,13 @@ class UsersCtrl
         $usersCodes = json_decode($json, true);
         $winnerUserCode = $usersCodes['winnerUserCode'];
         $looserUserCode = $usersCodes['looserUserCode'];
+        
+        $warningMsg = $this->usersSvc->validateUpdateRatings($winnerUserCode, $looserUserCode);
+        if ($warningMsg) {
+            return $response->withJson(['status' => 'warning', 'warningMsg' => $warningMsg]);
+        }
 
-        $responseArray = $this->usersSvc->updateRatings($winnerUserCode, $looserUserCode);
-        return $response->withJson($responseArray);
+        $ratingDiff = $this->usersSvc->updateRatings($winnerUserCode, $looserUserCode);
+        return $response->withJson(['status' => 'success', 'ratingDiff' => $ratingDiff]);
     }
 }
