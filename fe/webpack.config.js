@@ -14,7 +14,7 @@ module.exports = {
   },
   plugins: [
     new HtmlWebpackPlugin({
-      template: '../index.html',
+      template: 'index.html',
       inject: true
     })
   ],
@@ -28,8 +28,8 @@ module.exports = {
     port: process.env.PORT || 8080,
     historyApiFallback: true,
     proxy: {
-      '/api': 'http://localhost:8000',
-      '/fe/build/': 'http://localhost:8000',
+      '/api': 'http://172.16.11.3:81',
+      '/fe/build/': 'http://172.16.11.3:81',
     }
   },
   module: {

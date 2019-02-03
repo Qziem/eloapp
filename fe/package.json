@@ -7,7 +7,7 @@
     "clean": "bsb -clean-world",
     "webpack": "webpack -w",
     "webpack:production": "NODE_ENV=production webpack",
-    "server": "webpack-dev-server"
+    "server": "webpack-dev-server --host 0.0.0.0"
   },
   "keywords": [
     "BuckleScript"

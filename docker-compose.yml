@@ -49,6 +49,21 @@ services:
     networks:
       elonet:
         ipv4_address: 172.16.11.5
+  elo_fe:
+    container_name: elo_fe
+    image: node:10
+    user: "node"
+    working_dir: /home/node/app
+    volumes:
+      - $SOURCE_DIR/fe:/home/node/app
+    expose:
+    - 8080
+    ports:
+    - 127.0.0.1:8080:8080
+    tty: true
+    networks:
+      elonet:
+        ipv4_address: 172.16.11.6      
 networks:
   elonet:
     driver: bridge
