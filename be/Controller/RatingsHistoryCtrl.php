@@ -2,9 +2,7 @@
 
 namespace Controller;
 
-use \Psr\Http\Message\ServerRequestInterface as Request;
 use Slim\Http\Response;
-
 use Service\RatingsHistorySvc;
 
 class RatingsHistoryCtrl
@@ -21,7 +19,12 @@ class RatingsHistoryCtrl
         Response $response,
         $code
     ): Response {
-        $responseArray = $this->ratingsHistorySvc->getRatingsHistory($code);
-        return $response->withJson($responseArray);
+        $warningMsg = $this->ratingsHistorySvc->validateUserExist($code);
+        if ($warningMsg) {
+            return $response->withJson(['status' => 'warning', 'warningMsg' => $warningMsg]);
+        }
+
+        $ratingsHistoryArray = $this->ratingsHistorySvc->getRatingsHistory($code);
+        return $response->withJson(['status' => 'success', 'ratingsHistory' => $ratingsHistoryArray]);
     }
 }

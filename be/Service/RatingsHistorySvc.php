@@ -2,9 +2,6 @@
 
 namespace Service;
 
-use \Psr\Http\Message\ServerRequestInterface as Request;
-use Slim\Http\Response;
-
 use Model\Entity\User;
 use Model\Repository\GameRepository;
 use Model\Repository\UserRepository;
@@ -23,19 +20,16 @@ class RatingsHistorySvc
         $this->userRepository = $userRepository;
     }
 
-    public function getRatingsHistory(string $code): array {
+    public function validateUserExist(string $code): ?string {
         $user = $this->userRepository->findOneByCode($code);
-
-        if ($user === null) {
-            $warningMsg = "User does not exist";
-            return ['status' => 'warning', 'warningMsg' => $warningMsg];
-        }
-
+        return $user === null ? "User does not exist" : null;
+    }
+    
+    public function getRatingsHistory(string $code): array {
+        $user = $this->userRepository->requireUserByCode($code);
         $userNid = $user->getUserNid();
         $gamesEntities = $this->gameRepository->findSortedGamesForUser($userNid);
-        $ratingsHistoryArray = $this->entitiesListToArray($gamesEntities, $userNid);
- 
-        return ['status' => 'success', 'ratingsHistory' => $ratingsHistoryArray];
+        return $this->entitiesListToArray($gamesEntities, $userNid);
     }
 
     private function entitiesListToArray(

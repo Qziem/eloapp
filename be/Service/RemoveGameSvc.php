@@ -3,12 +3,10 @@
 namespace Service;
 
 use Doctrine\ORM\EntityManager;
-use Doctrine\ORM\NoResultException;
 use Model\Entity\Game;
 use Model\Entity\User;
 use Model\Repository\GameRepository;
 use Model\Repository\UserRepository;
-use Slim\Http\Response;
 
 class RemoveGameSvc
 {
@@ -31,55 +29,16 @@ class RemoveGameSvc
         $this->userRepository = $userRepository;
     }
 
-    public function removeLastGameIfPossible(string $code): array
-    {
-        $user = $this->userRepository->findOneByCode($code);
-        if ($user === null) {
-            return [
-                'status' => 'warning',
-                'warningMsg' => 'Player does not exist',
-            ];
+    public function removeLastGame(string $code): void {
+        if ($this->validateRemoveLastGame($code)) {
+            throw new \InvalidArgumentException('Invalid code: ' . $code);
         }
 
+        $user = $this->userRepository->requireUserByCode($code);
         $userNid = $user->getUserNid();
-
-        $lastGame = $this->gameRepository->findLastGame($userNid);
-        if ($lastGame === null) {
-            return [
-                'status' => 'warning',
-                'warningMsg' => 'Player has no games',
-            ];
-        }
-
+        $lastGame = $this->gameRepository->requireLastGame($userNid);
         $opponentUser = $this->getOpponentFromGame($lastGame, $userNid);
-        $opponentLastGame = $this->gameRepository->requireLastGame($opponentUser->getUserNid());
 
-        if ($lastGame->getGameNid() !== $opponentLastGame->getGameNid()) {
-            return [
-                'status' => 'warning',
-                'warningMsg' => 'Opponent has later games',
-            ];
-        }
-
-        $this->removeLastGame($lastGame, $user, $opponentUser);
-        return ['status' => 'success'];
-    }
-
-    private function getOpponentFromGame(Game $lastGame, int $userNid): User
-    {
-        $winnerUser = $lastGame->getWinnerUser();
-        $looserUser = $lastGame->getLooserUser();
-
-        $isWinner = $winnerUser->getUserNid() === $userNid;
-
-        return $isWinner ? $looserUser : $winnerUser;
-    }
-
-    private function removeLastGame(
-        Game $lastGame,
-        User $user,
-        User $opponentUser
-    ): void {
         $isWinner = $lastGame->getWinnerUser()->getUserNid() === $user->getUserNid();
 
         $ratingDiff = $lastGame->getRatingDiff();
@@ -91,5 +50,38 @@ class RemoveGameSvc
 
         $this->em->remove($lastGame);
         $this->em->flush();
+    }
+
+    public function validateRemoveLastGame(string $code): ?string {
+        $user = $this->userRepository->findOneByCode($code);
+        if ($user === null) {
+            return 'Player does not exist';
+        }
+
+        $userNid = $user->getUserNid();
+
+        $lastGame = $this->gameRepository->findLastGame($userNid);
+        if ($lastGame === null) {
+            return 'Player has no games';
+        }
+
+        $opponentUser = $this->getOpponentFromGame($lastGame, $userNid);
+        $opponentLastGame = $this->gameRepository->requireLastGame($opponentUser->getUserNid());
+
+        if ($lastGame->getGameNid() !== $opponentLastGame->getGameNid()) {
+            return 'Opponent has later games';
+        }
+        
+        return null;
+    }
+
+    private function getOpponentFromGame(Game $lastGame, int $userNid): User
+    {
+        $winnerUser = $lastGame->getWinnerUser();
+        $looserUser = $lastGame->getLooserUser();
+
+        $isWinner = $winnerUser->getUserNid() === $userNid;
+
+        return $isWinner ? $looserUser : $winnerUser;
     }
 }

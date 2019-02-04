@@ -3,7 +3,6 @@
 namespace Model\Repository;
 
 use Doctrine\ORM\EntityRepository;
-use Doctrine\ORM\NonUniqueResultException;
 use Model\Entity\User;
 
 class UserRepository extends EntityRepository
@@ -18,4 +17,14 @@ class UserRepository extends EntityRepository
 
         return $result !== null ? $result[0] : null;
     }
+    
+    public function requireUserByCode(string $code): User {
+        $user = $this->findOneByCode($code);
+        if ($user === null) {
+            throw new \Error('User with code ' . $code . ' - does not exist in database');
+        }
+
+        return $user;
+    }
+
 }

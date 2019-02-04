@@ -35,8 +35,9 @@ module ResultDecoder =
 let onSuccess = (send, json) => {
   let ratingsHistoryResult = ResultDecoder.decode(json);
   switch (ratingsHistoryResult) {
-  | SUCCESS(ratingsHistoryResult) => send(SetHistory(ratingsHistoryResult))
   | WARNING(msg) => send(SetWarning(msg))
+  | SUCCESS([]) => send(SetWarning("Player has no games"))
+  | SUCCESS(ratingsHistoryResult) => send(SetHistory(ratingsHistoryResult))
   };
 };
 

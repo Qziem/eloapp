@@ -2,14 +2,7 @@
 
 namespace Controller;
 
-use Doctrine\ORM\EntityManager;
-use Doctrine\Common\Collections\Collection;
-use Model\Entity\Game;
-use Model\Entity\User;
-use Model\Repository\UserRepository;
-use Model\Factory\GameFactory;
 use Service\UsersSvc;
-use Service\RatingCalculator;
 use Slim\Http\Response;
 use \Psr\Http\Message\ServerRequestInterface as Request;
 
@@ -44,8 +37,13 @@ class UsersCtrl
         $usersCodes = json_decode($json, true);
         $winnerUserCode = $usersCodes['winnerUserCode'];
         $looserUserCode = $usersCodes['looserUserCode'];
+        
+        $warningMsg = $this->usersSvc->validateUpdateRatings($winnerUserCode, $looserUserCode);
+        if ($warningMsg) {
+            return $response->withJson(['status' => 'warning', 'warningMsg' => $warningMsg]);
+        }
 
-        $responseArray = $this->usersSvc->updateRatings($winnerUserCode, $looserUserCode);
-        return $response->withJson($responseArray);
+        $ratingDiff = $this->usersSvc->updateRatings($winnerUserCode, $looserUserCode);
+        return $response->withJson(['status' => 'success', 'ratingDiff' => $ratingDiff]);
     }
 }
