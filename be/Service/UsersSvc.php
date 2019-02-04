@@ -81,13 +81,12 @@ class UsersSvc
         return $userArray;
     }
 
-    public function addUser(array $userArray): array
+    public function addUser(array $userArray): void
     {
-        $warningMsg = $this->getAddUserWarningMsg($userArray['code']);
-        if ($warningMsg) {
-            return ['status' => 'warning', 'warningMsg' => $warningMsg];
+        if ($this->validateAddUser($userArray['code'])) {
+            throw new \InvalidArgumentException('Invalid code: ' . $userArray['code']);
         }
-
+        
         $initRating = 1500;
 
         $user = new User();
@@ -99,11 +98,9 @@ class UsersSvc
 
         $this->em->persist($user);
         $this->em->flush();
-
-        return ['status' => 'success'];
     }
 
-    private function getAddUserWarningMsg(string $code): ?string
+    public function validateAddUser(string $code): ?string
     {
         if (strlen($code) > 3) {
             return "Code can not be longer than 3 letters";
