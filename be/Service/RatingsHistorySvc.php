@@ -1,0 +1,74 @@
+<?php
+
+namespace Service;
+
+use Model\Entity\User;
+use Model\Repository\GameRepository;
+use Model\Repository\UserRepository;
+
+class RatingsHistorySvc
+{
+    /** @var GameRepository */
+    private $gameRepository;
+
+    /** @var UserRepository */
+    private $userRepository;
+
+    public function __construct(GameRepository $gameRepository, UserRepository $userRepository)
+    {
+        $this->gameRepository = $gameRepository;
+        $this->userRepository = $userRepository;
+    }
+
+    public function validateUserExist(string $code): ?string {
+        $user = $this->userRepository->findOneByCode($code);
+        return $user === null ? "User does not exist" : null;
+    }
+    
+    public function getRatingsHistory(string $code): array {
+        $user = $this->userRepository->requireUserByCode($code);
+        $userNid = $user->getUserNid();
+        $gamesEntities = $this->gameRepository->findSortedGamesForUser($userNid);
+        return $this->entitiesListToArray($gamesEntities, $userNid);
+    }
+
+    private function entitiesListToArray(
+        array $gamesEntities,
+        int $userNid
+    ): array {
+        $output = [];
+        foreach ($gamesEntities as $entity) {
+            $entityWinnerUserNid = $entity->getWinnerUser()->getUserNid();
+
+            $userRating = $entityWinnerUserNid === $userNid
+                ? $entity->getWinnerRatingBefore()
+                : $entity->getLooserRatingBefore();
+
+            $opponentRating = $entityWinnerUserNid === $userNid
+                ? $entity->getLooserRatingBefore()
+                : $entity->getWinnerRatingBefore();
+
+            $ratingDiff = $entityWinnerUserNid === $userNid
+                ? $entity->getRatingDiff()
+                : -$entity->getRatingDiff();
+
+            $opponentName = $entityWinnerUserNid === $userNid
+                ? $this->getOponentName($entity->getLooserUser())
+                : $this->getOponentName($entity->getWinnerUser());
+
+            $output[] = [
+                'userRating' => $userRating,
+                'oponentRating' => $opponentRating,
+                'oponentName' => $opponentName,
+                'ratingDiff' => $ratingDiff,
+                'date' => $entity->getCdate()->format('d M H:i'),
+            ];
+        }
+        return $output;
+    }
+
+    private function getOponentName(User $user): string
+    {
+        return \strtoupper($user->getCode());
+    }
+}
