@@ -67,7 +67,7 @@ class RemoveGameSvc
 
     public function removeLastGame(string $code): void {
         if ($this->validateRemoveLastGame($code)) {
-            throw new \InvalidArgumentException();
+            throw new \InvalidArgumentException('Invalid code: ' . $code);
         }
 
         $user = $this->userRepository->requireUserByCode($code);
