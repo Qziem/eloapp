@@ -27,10 +27,10 @@ let component = ReasonReact.reducerComponent("AddPlayer");
 
 let initialState = () => {code: "", name: "", savingState: NOTHING};
 
-module ResultDecoder = DecoderWithWarnings.DecoderWithWarningsOrEmpty;
+module AddPlayerResponseDecoder = ResponseDecoder.WithWarningsOrEmpty;
 
 let onSuccess = (json, send) => {
-  let result = ResultDecoder.decode(json);
+  let result = AddPlayerResponseDecoder.decode(json);
   switch (result) {
   | SUCCESS => send(SetSavingState(SUCCESS))
   | WARNING(msg) => send(SetSavingState(WARNING(msg)))

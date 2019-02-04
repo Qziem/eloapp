@@ -9,7 +9,7 @@ module type ContentDecoder = {
   let decode: Js.Json.t => content;
 };
 
-module MakeDecoderWithWarningsOrContent = (ContentDecoder: ContentDecoder) => {
+module MakeWithWarningsOrContent = (ContentDecoder: ContentDecoder) => {
   let decode =
       (json: Js.Json.t): resultWarningOrContent(ContentDecoder.content) => {
     let status = json |> field("status", string);
@@ -26,7 +26,7 @@ module MakeDecoderWithWarningsOrContent = (ContentDecoder: ContentDecoder) => {
   };
 };
 
-module DecoderWithWarningsOrEmpty = {
+module WithWarningsOrEmpty = {
   let decode = json: resultWarningOrEmpty => {
     let status = json |> field("status", string);
     let warningMsg = json |> optional(field("warningMsg", string));

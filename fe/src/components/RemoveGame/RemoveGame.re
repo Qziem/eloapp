@@ -33,8 +33,9 @@ let component = ReasonReact.reducerComponent("RemoveGame");
 
 let initialState = () => {code: "", saveState: NOTHING};
 
-module ResultDecoder = DecoderWithWarnings.DecoderWithWarningsOrEmpty;
-let decodeRemoveGameResult = json => ResultDecoder.decode(json);
+module RemoveGameResponseDecoder = ResponseDecoder.WithWarningsOrEmpty;
+
+let decodeRemoveGameResult = json => RemoveGameResponseDecoder.decode(json);
 
 let onSuccess = (send, json) => {
   let removeGameResult = decodeRemoveGameResult(json);

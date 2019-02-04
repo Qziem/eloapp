@@ -41,18 +41,18 @@ let initialState = () => {
   saveState: NOTHING,
 };
 
-module GameResultDecoder = {
+module GameResponseContentDecoder = {
   type content = int;
   let contentKey = "ratingDiff";
 
   let decode = Json.Decode.int;
 };
 
-module ResultDecoder =
-  DecoderWithWarnings.MakeDecoderWithWarningsOrContent(GameResultDecoder);
+module GameResponseDecoder =
+  ResponseDecoder.MakeWithWarningsOrContent(GameResponseContentDecoder);
 
 let onSuccess = (containterSend, send, json) => {
-  let updateRatingsResult = ResultDecoder.decode(json);
+  let updateRatingsResult = GameResponseDecoder.decode(json);
 
   switch (updateRatingsResult) {
   | SUCCESS(ratingDiff) =>
