@@ -20,7 +20,12 @@ class RemoveGameCtrl
         Response $response,
         string $code
     ): Response {
-        $responseArray = $this->removeGameSvc->removeLastGameIfPossible($code);
-        return $response->withJson($responseArray);
+        $warningMsg = $this->removeGameSvc->validateRemoveLastGame($code);
+        if ($warningMsg) {
+            return $response->withJson(['status' => 'warning', 'warningMsg' => $warningMsg]);
+        }
+        
+        $this->removeGameSvc->removeLastGame($code);
+        return $response->withJson(['status' => 'success']);
     }
 }

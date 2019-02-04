@@ -95,25 +95,29 @@ class UsersSvc
         $this->em->persist($user);
         $this->em->flush();
     }
-
+    
     public function updateRatings(
         string $winnerUserCode,
         string $looserUserCode
-    ): array {
-        $winnerUser = $this->userRepository->findOneByCode($winnerUserCode);
-        $looserUser = $this->userRepository->findOneByCode($looserUserCode);
-
-        $warningMsg = $this->getUpdateUserWarningMsg($winnerUser, $looserUser);
-        if ($warningMsg) {
-            return ['status' => 'warning', 'warningMsg' => $warningMsg];
+    ): int {
+        if ($this->validateUpdateRatings($winnerUserCode, $looserUserCode)) {
+            throw new \InvalidArgumentException('Invalid winnerUserCode: ' . $winnerUserCode
+                . ', or $looserUserCode: ' . $looserUserCode);
         }
 
-        $ratingDiff = $this->updateRatingsInDb($winnerUser, $looserUser);
-        return ['status' => 'success', 'ratingDiff' => $ratingDiff];
+        $winnerUser = $this->userRepository->requireUserByCode($winnerUserCode);
+        $looserUser = $this->userRepository->requireUserByCode($looserUserCode);
+
+        return $this->updateRatingsInDb($winnerUser, $looserUser);
     }
 
-    private function getUpdateUserWarningMsg(?User $winnerUser, ?User $looserUser): ?string
-    {
+    public function validateUpdateRatings(
+        string $winnerUserCode,
+        string $looserUserCode
+    ): ?string {
+        $winnerUser = $this->userRepository->findOneByCode($winnerUserCode);
+        $looserUser = $this->userRepository->findOneByCode($looserUserCode);
+        
         if ($winnerUser === null && $looserUser === null) {
             return "Winner and looser does not exist";
         }

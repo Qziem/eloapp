@@ -1,15 +1,11 @@
 <?php
 session_start();
 
-use \Psr\Http\Message\ServerRequestInterface as Request;
-use \Psr\Http\Message\ResponseInterface as Response;
-
 use Api\EloApp;
 use Controller\UsersCtrl;
 use Controller\AuthCtrl;
 use Controller\RatingsHistoryCtrl;
 use Controller\RemoveGameCtrl;
-
 use Middleware\PrivilegesIsLogged;
 
 require 'autoload.php';
