@@ -101,7 +101,7 @@ class UsersSvc
         string $looserUserCode
     ): int {
         if ($this->validateUpdateRatings($winnerUserCode, $looserUserCode)) {
-            throw new InvalidArgumentException();
+            throw new \InvalidArgumentException();
         }
 
         $winnerUser = $this->userRepository->requireUserByCode($winnerUserCode);
