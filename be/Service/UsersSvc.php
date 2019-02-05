@@ -83,6 +83,10 @@ class UsersSvc
 
     public function addUser(array $userArray): void
     {
+        if ($this->validateAddUser($userArray['code'])) {
+            throw new \InvalidArgumentException('Invalid code: ' . $userArray['code']);
+        }
+        
         $initRating = 1500;
 
         $user = new User();
@@ -94,6 +98,20 @@ class UsersSvc
 
         $this->em->persist($user);
         $this->em->flush();
+    }
+
+    public function validateAddUser(string $code): ?string
+    {
+        if (strlen($code) > 3) {
+            return "Code can not be longer than 3 letters";
+        }
+
+        $user = $this->userRepository->findOneByCode($code);
+        if ($user !== null) {
+            return "User with given code already exists";
+        }
+
+        return null;
     }
     
     public function updateRatings(

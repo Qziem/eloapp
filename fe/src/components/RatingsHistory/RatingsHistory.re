@@ -29,8 +29,13 @@ let component = ReasonReact.reducerComponent("Stats");
 
 let initialState = (): stateType => {inputCode: "", dataState: INITIAL};
 
+module RatingsHistoryDecoder =
+  ResponseDecoder.MakeWithWarningsOrContent(
+    RatingsHistoryResponseContentDecoder,
+  );
+
 let onSuccess = (send, json) => {
-  let ratingsHistoryResult = DecodeRatingsHistory.response(json);
+  let ratingsHistoryResult = RatingsHistoryDecoder.decode(json);
   switch (ratingsHistoryResult) {
   | WARNING(msg) => send(SetWarning(msg))
   | SUCCESS([]) => send(SetWarning("Player has no games"))

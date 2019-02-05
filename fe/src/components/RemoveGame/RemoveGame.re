@@ -33,17 +33,9 @@ let component = ReasonReact.reducerComponent("RemoveGame");
 
 let initialState = () => {code: "", saveState: NOTHING};
 
-let decodeRemoveGameResult = json => {
-  let status = Json.Decode.(json |> field("status", string));
-  let warningMsg =
-    Json.Decode.(json |> optional(field("warningMsg", string)));
+module RemoveGameResponseDecoder = ResponseDecoder.WithWarningsOrEmpty;
 
-  switch (status, warningMsg) {
-  | ("success", None) => SUCCESS
-  | ("warning", Some(msg)) => WARNING(msg)
-  | _ => raise(IllegalCombinationInRemoveGameResult)
-  };
-};
+let decodeRemoveGameResult = json => RemoveGameResponseDecoder.decode(json);
 
 let onSuccess = (send, json) => {
   let removeGameResult = decodeRemoveGameResult(json);

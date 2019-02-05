@@ -2,7 +2,6 @@ open EloTypes;
 open Svc;
 open Js.Promise;
 open BsReactstrap;
-open Json.Decode;
 
 [%bs.raw {|require('./GameResult.scss')|}];
 
@@ -42,20 +41,18 @@ let initialState = () => {
   saveState: NOTHING,
 };
 
-let decodeUpdateRatingsResult = json => {
-  let status = json |> field("status", string);
-  let ratingDiff = json |> optional(field("ratingDiff", int));
-  let warningMsg = json |> optional(field("warningMsg", string));
+module GameResponseContentDecoder = {
+  type content = int;
+  let contentKey = "ratingDiff";
 
-  switch (status, ratingDiff, warningMsg) {
-  | ("success", Some(ratingDiff), None) => SUCCESS(ratingDiff)
-  | ("warning", None, Some(msg)) => WARNING(msg)
-  | _ => raise(IllegalCombinationInUpdateRatingsResult)
-  };
+  let decode = Json.Decode.int;
 };
 
+module GameResponseDecoder =
+  ResponseDecoder.MakeWithWarningsOrContent(GameResponseContentDecoder);
+
 let onSuccess = (containterSend, send, json) => {
-  let updateRatingsResult = decodeUpdateRatingsResult(json);
+  let updateRatingsResult = GameResponseDecoder.decode(json);
 
   switch (updateRatingsResult) {
   | SUCCESS(ratingDiff) =>

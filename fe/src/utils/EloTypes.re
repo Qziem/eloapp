@@ -34,3 +34,11 @@ type place =
   | RANK_AND_STATS
   | OPERATIONS
   | NOT_FOUND;
+
+type resultWarningOrContent('a) =
+  | SUCCESS('a)
+  | WARNING(string);
+
+type resultWarningOrEmpty =
+  | SUCCESS
+  | WARNING(string);
