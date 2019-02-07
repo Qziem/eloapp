@@ -17,13 +17,8 @@ class RatingsHistoryCtrl
 
     public function getRatingsHistory(
         Response $response,
-        $code
+        string $code
     ): Response {
-        $warningMsg = $this->ratingsHistorySvc->validateUserExist($code);
-        if ($warningMsg) {
-            return $response->withJson(['status' => 'warning', 'warningMsg' => $warningMsg]);
-        }
-
         $ratingsHistoryArray = $this->ratingsHistorySvc->getRatingsHistory($code);
         return $response->withJson(['status' => 'success', 'ratingsHistory' => $ratingsHistoryArray]);
     }
