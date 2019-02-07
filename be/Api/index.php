@@ -10,6 +10,7 @@ use Middleware\PrivilegesIsLogged;
 use Middleware\Validation\ValidationAddUser;
 use Middleware\Validation\ValidationUpdateRatings;
 use Middleware\Validation\ValidationGetRatingsHistory;
+use Middleware\Validation\ValidationRemoveGame;
 
 require 'autoload.php';
 
@@ -35,6 +36,7 @@ $app->get('/ratings_history/{code}', [RatingsHistoryCtrl::class, 'getRatingsHist
     ->add(PrivilegesIsLogged::class);
 
 $app->delete('/remove_game/{code}', [RemoveGameCtrl::class, 'removeLastGameIfPossible'])
+    ->add(ValidationRemoveGame::class)
     ->add(PrivilegesIsLogged::class);
 
 $app->run();

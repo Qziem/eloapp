@@ -29,11 +29,8 @@ class RemoveGameSvc
         $this->userRepository = $userRepository;
     }
 
-    public function removeLastGame(string $code): void {
-        if ($this->validateRemoveLastGame($code)) {
-            throw new \InvalidArgumentException('Invalid code: ' . $code);
-        }
-
+    public function removeLastGame(string $code): void
+    {
         $user = $this->userRepository->requireUserByCode($code);
         $userNid = $user->getUserNid();
         $lastGame = $this->gameRepository->requireLastGame($userNid);
@@ -52,30 +49,7 @@ class RemoveGameSvc
         $this->em->flush();
     }
 
-    public function validateRemoveLastGame(string $code): ?string {
-        $user = $this->userRepository->findOneByCode($code);
-        if ($user === null) {
-            return 'Player does not exist';
-        }
-
-        $userNid = $user->getUserNid();
-
-        $lastGame = $this->gameRepository->findLastGame($userNid);
-        if ($lastGame === null) {
-            return 'Player has no games';
-        }
-
-        $opponentUser = $this->getOpponentFromGame($lastGame, $userNid);
-        $opponentLastGame = $this->gameRepository->requireLastGame($opponentUser->getUserNid());
-
-        if ($lastGame->getGameNid() !== $opponentLastGame->getGameNid()) {
-            return 'Opponent has later games';
-        }
-        
-        return null;
-    }
-
-    private function getOpponentFromGame(Game $lastGame, int $userNid): User
+    public function getOpponentFromGame(Game $lastGame, int $userNid): User
     {
         $winnerUser = $lastGame->getWinnerUser();
         $looserUser = $lastGame->getLooserUser();
