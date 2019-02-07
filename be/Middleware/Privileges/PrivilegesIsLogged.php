@@ -1,6 +1,6 @@
 <?php
 
-namespace Middleware;
+namespace Middleware\Privileges;
 
 use Controller\AuthCtrl;
 use \Psr\Http\Message\ServerRequestInterface as Request;

@@ -6,7 +6,7 @@ use Controller\UsersCtrl;
 use Controller\AuthCtrl;
 use Controller\RatingsHistoryCtrl;
 use Controller\RemoveGameCtrl;
-use Middleware\PrivilegesIsLogged;
+use Middleware\Privileges\PrivilegesIsLogged;
 use Middleware\Validation\ValidationAddUser;
 use Middleware\Validation\ValidationUpdateRatings;
 use Middleware\Validation\ValidationGetRatingsHistory;
