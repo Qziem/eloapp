@@ -7,6 +7,7 @@ use Controller\AuthCtrl;
 use Controller\RatingsHistoryCtrl;
 use Controller\RemoveGameCtrl;
 use Middleware\PrivilegesIsLogged;
+use Middleware\Validation\ValidationAddUser;
 
 require 'autoload.php';
 
@@ -20,6 +21,7 @@ $app->get('/users', [UsersCtrl::class, 'getUsers'])
     ->add(PrivilegesIsLogged::class);
 
 $app->post('/users', [UsersCtrl::class, 'addUser'])
+    ->add(ValidationAddUser::class)
     ->add(PrivilegesIsLogged::class);
 
 $app->put('/users/update_ratings', [UsersCtrl::class, 'updateRatings'])

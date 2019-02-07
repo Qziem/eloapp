@@ -26,11 +26,6 @@ class UsersCtrl
         $json = $request->getBody();
         $userArray = json_decode($json, true);
         
-        $warningMsg = $this->usersSvc->validateAddUser($userArray['code']);
-        if ($warningMsg) {
-            return $response->withJson(['status' => 'warning', 'warningMsg' => $warningMsg]);
-        }
-
         $this->usersSvc->addUser($userArray);
         return $response->withJson(['status' => 'success']);
     }
