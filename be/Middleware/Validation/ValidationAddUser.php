@@ -10,11 +10,13 @@ class ValidationAddUser extends ValidationAbstract
     /** @var UserRepository */
     private $userRepository;
     
-    function __construct(UserRepository $userRepository) {
+    function __construct(UserRepository $userRepository)
+    {
         $this->userRepository = $userRepository;
     }
 
-    protected function validate(Request $request): ?string {
+    protected function validate(Request $request): ?string
+    {
         $json = $request->getBody();
         $userArray = json_decode($json, true);
         $code = $userArray['code'];
