@@ -9,15 +9,18 @@ class AuthSvc
     /** @var PasswordRepository */
     private $passwordRepository;
 
-    public function __construct(PasswordRepository $passwordRepository) {
+    public function __construct(PasswordRepository $passwordRepository)
+    {
         $this->passwordRepository = $passwordRepository;
     }
 
-    public function checkIsLogged(): bool {
+    public function checkIsLogged(): bool
+    {
         return isset($_SESSION['isLogged']);
     }
 
-    public function doLogin(string $password): bool {
+    public function doLogin(string $password): bool
+    {
         $accessPassword = $this->passwordRepository->findPassword();
 
         $isSuccess = sha1($password) === $accessPassword;
