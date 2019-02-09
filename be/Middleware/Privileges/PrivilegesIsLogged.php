@@ -2,15 +2,18 @@
 
 namespace Middleware\Privileges;
 
-use Controller\AuthCtrl;
+use Service\AuthSvc;
 use \Psr\Http\Message\ServerRequestInterface as Request;
 use \Psr\Http\Message\ResponseInterface as Response;
 
 class PrivilegesIsLogged
 {
-    function __construct(AuthCtrl $authCtrl)
+    /** @var AuthSvc */
+    private $authSvc;
+
+    function __construct(AuthSvc $authSvc)
     {
-        $this->authCtrl = $authCtrl;
+        $this->authSvc = $authSvc;
     }
 
     public function __invoke(
@@ -18,11 +21,10 @@ class PrivilegesIsLogged
         Response $response,
         callable $next
     ) {
-        if ($this->authCtrl->checkIsLogged()) {
+        if ($this->authSvc->checkIsLogged()) {
             return $next($request, $response);
         }
 
         throw new \Exception('Not Logged');
-        return $response;
     }
 }
