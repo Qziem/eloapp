@@ -24,7 +24,8 @@ Aplikacja jest dostosowana aby działać na dockerze. Docker jest dostosowany do
 
 Zarówno yarn start jak i yarn webpack działają w trybie watch, więc modyfikując coś w kodzie wszystko odrazu samo będzie się przebudowywać (niestety nie ma hmr więc w przeglądarce trzeba odświeżać ręcznie)
 
-Odpalamy przeglądarkę i w adres wpisujemy: http://localhost:8000
-Jeśli wszystko jest poprawnie skonfigurowane to powinna pojawić się aplikacja - jeśli nie i coś spierdzieliłem w powyższym opisie to dawajta znać.
+Odpalamy przeglądarkę i w adres wpisujemy: http://localhost:8000 
+Jeśli wszystko jest poprawnie skonfigurowane to powinna pojawić się aplikacja. Jako hasło wpisujemy: `elo`.
+Jeśli nie działa i coś spierdzieliłem w powyższym opisie to dawajta znać.
 
 Qziem
