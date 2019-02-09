@@ -17,10 +17,6 @@ class Password
      */
     private $password;
 
-    public function __constructor() {
-        $this->cdate = new \DateTime();
-    }
-
     public function getPassword(): string {
         return $this->password;
     }
