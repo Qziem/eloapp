@@ -29,11 +29,7 @@ let make = (~title: string, children) => {
   didMount: _self => setTitle(title),
   didUpdate: ({oldSelf, newSelf}) =>
     oldSelf.retainedProps.title !== newSelf.retainedProps.title ?
-      {
-        Js.log(title);
-        setTitle(title);
-      } :
-      (),
+      setTitle(title) : (),
   willUnmount: _self => unsetTitle(),
   render: _self => <Fragment> ...children </Fragment>,
 };
