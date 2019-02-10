@@ -21,8 +21,10 @@ let getSubtitle = place =>
   | NOT_FOUND => "Not found"
   };
 
-let initialState = () =>
+let initialState = () => {
+  DefaultPlace.setIfUrlEmpty();
   ReasonReact.Router.dangerouslyGetInitialUrl() |> getPlaceFromUrl;
+};
 
 let reducer = (action, _state) =>
   switch (action) {
