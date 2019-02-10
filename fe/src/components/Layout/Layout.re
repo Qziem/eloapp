@@ -14,6 +14,13 @@ let getPlaceFromUrl = (url: ReasonReact.Router.url) =>
   | _ => NOT_FOUND
   };
 
+let getSubtitle = place =>
+  switch (place) {
+  | RANK_AND_STATS => "Ranking"
+  | OPERATIONS => "Operations"
+  | NOT_FOUND => "Not found"
+  };
+
 let initialState = () =>
   ReasonReact.Router.dangerouslyGetInitialUrl() |> getPlaceFromUrl;
 
@@ -34,6 +41,7 @@ let make = _children => {
     |> ignore,
   render: ({state}) =>
     <div className="layout">
+      <DocumentTitle title=state->getSubtitle->Helpers.createTitle />
       <Menu activePlace=state />
       <div className="eloContent">
         {
