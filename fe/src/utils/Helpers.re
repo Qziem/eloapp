@@ -16,3 +16,5 @@ let withPrevValue = fn => {
     result;
   };
 };
+
+let createTitle = subtitle => {j|Elo app - $subtitle|j};
