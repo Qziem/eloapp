@@ -4,7 +4,6 @@
 *.bs.js
 node_modules/
 /db_data
-/fe/yarn.lock
 /fe/.DS_Store
 /fe/.merlin
 /fe/.bsb.lock
