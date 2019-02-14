@@ -10,7 +10,7 @@ class ValidationGetRatingsHistory extends ValidationAbstract {
     /** @var UserRepository */
     private $userRepository;
 
-    function __construct(UserRepository $userRepository)
+    public function __construct(UserRepository $userRepository)
     {
         $this->userRepository = $userRepository;
     }
@@ -21,6 +21,6 @@ class ValidationGetRatingsHistory extends ValidationAbstract {
         $code = $route->getArgument('code');
 
         $user = $this->userRepository->findOneByCode($code);
-        return $user === null ? "User does not exist" : null;
+        return $user === null ? 'User does not exist' : null;
     }
 }

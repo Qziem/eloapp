@@ -10,7 +10,7 @@ class ValidationUpdateRatings extends ValidationAbstract {
     /** @var UserRepository */
     private $userRepository;
 
-    function __construct(UserRepository $userRepository)
+    public function __construct(UserRepository $userRepository)
     {
         $this->userRepository = $userRepository;
     }
@@ -26,16 +26,16 @@ class ValidationUpdateRatings extends ValidationAbstract {
         $looserUser = $this->userRepository->findOneByCode($looserUserCode);
 
         if ($winnerUser === null && $looserUser === null) {
-            return "Winner and looser does not exist";
+            return 'Winner and looser does not exist';
         }
         if ($winnerUser === null) {
-            return "Winner does not exist";
+            return 'Winner does not exist';
         }
         if ($looserUser === null) {
-            return "Looser does not exist";
+            return 'Looser does not exist';
         }
         if ($winnerUser->getUserNid() === $looserUser->getUserNid()) {
-            return "Winner is same as looser";
+            return 'Winner is same as looser';
         }
 
         return null;
