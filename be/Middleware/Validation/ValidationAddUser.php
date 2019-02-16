@@ -10,7 +10,7 @@ class ValidationAddUser extends ValidationAbstract
     /** @var UserRepository */
     private $userRepository;
     
-    function __construct(UserRepository $userRepository)
+    public function __construct(UserRepository $userRepository)
     {
         $this->userRepository = $userRepository;
     }
@@ -22,12 +22,12 @@ class ValidationAddUser extends ValidationAbstract
         $code = $userArray['code'];
 
         if (strlen($code) > 3) {
-            return "Code can not be longer than 3 letters";
+            return 'Code can not be longer than 3 letters';
         }
 
         $user = $this->userRepository->findOneByCode($code);
         if ($user !== null) {
-            return "User with given code already exists";
+            return 'User with given code already exists';
         }
 
         return null;

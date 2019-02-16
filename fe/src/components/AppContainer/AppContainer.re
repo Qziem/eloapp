@@ -18,12 +18,7 @@ let initialState = () => LOADING;
 let onSuccess = (send, json) =>
   json
   |> Json.Decode.field("isLogged", Json.Decode.bool)
-  |> (
-    isLogged => {
-      send(SetIsLogged(isLogged));
-      isLogged ? DefaultPlace.setIfUrlEmpty() : ();
-    }
-  );
+  |> (isLogged => send(SetIsLogged(isLogged)));
 
 let onError = (send, err) => {
   send(SetFailure);

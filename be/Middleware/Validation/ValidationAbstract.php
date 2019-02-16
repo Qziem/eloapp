@@ -3,15 +3,15 @@
 namespace Middleware\Validation;
 
 use \Psr\Http\Message\ServerRequestInterface as Request;
-use \Psr\Http\Message\ResponseInterface as Response;
+use Slim\Http\Response;
 
 abstract class ValidationAbstract {
     abstract protected function validate(Request $request): ?string;
     
     public function __invoke(
-            Request $request,
-            Response $response,
-            callable $next
+        Request $request,
+        Response $response,
+        callable $next
     ) {
         $warningMsg = $this->validate($request);
         if ($warningMsg) {

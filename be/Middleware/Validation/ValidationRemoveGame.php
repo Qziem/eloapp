@@ -18,7 +18,7 @@ class ValidationRemoveGame extends ValidationAbstract {
     /** @var RemoveGameSvc */
     private $removeGameSvc;
 
-    function __construct(
+    public function __construct(
         GameRepository $gameRepository,
         UserRepository $userRepository,
         RemoveGameSvc $removeGameSvc
