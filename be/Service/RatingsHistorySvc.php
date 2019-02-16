@@ -19,11 +19,6 @@ class RatingsHistorySvc
         $this->gameRepository = $gameRepository;
         $this->userRepository = $userRepository;
     }
-
-    public function validateUserExist(string $code): ?string {
-        $user = $this->userRepository->findOneByCode($code);
-        return $user === null ? "User does not exist" : null;
-    }
     
     public function getRatingsHistory(string $code): array {
         $user = $this->userRepository->requireUserByCode($code);

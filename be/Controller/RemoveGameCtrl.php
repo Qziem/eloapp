@@ -19,12 +19,7 @@ class RemoveGameCtrl
     public function removeLastGameIfPossible(
         Response $response,
         string $code
-    ): Response {
-        $warningMsg = $this->removeGameSvc->validateRemoveLastGame($code);
-        if ($warningMsg) {
-            return $response->withJson(['status' => 'warning', 'warningMsg' => $warningMsg]);
-        }
-        
+    ): Response {      
         $this->removeGameSvc->removeLastGame($code);
         return $response->withJson(['status' => 'success']);
     }

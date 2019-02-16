@@ -82,11 +82,7 @@ class UsersSvc
     }
 
     public function addUser(array $userArray): void
-    {
-        if ($this->validateAddUser($userArray['code'])) {
-            throw new \InvalidArgumentException('Invalid code: ' . $userArray['code']);
-        }
-        
+    {      
         $initRating = 1500;
 
         $user = new User();
@@ -100,62 +96,13 @@ class UsersSvc
         $this->em->flush();
     }
 
-    public function validateAddUser(string $code): ?string
-    {
-        if (strlen($code) > 3) {
-            return "Code can not be longer than 3 letters";
-        }
-
-        $user = $this->userRepository->findOneByCode($code);
-        if ($user !== null) {
-            return "User with given code already exists";
-        }
-
-        return null;
-    }
-    
     public function updateRatings(
         string $winnerUserCode,
         string $looserUserCode
     ): int {
-        if ($this->validateUpdateRatings($winnerUserCode, $looserUserCode)) {
-            throw new \InvalidArgumentException('Invalid winnerUserCode: ' . $winnerUserCode
-                . ', or $looserUserCode: ' . $looserUserCode);
-        }
-
         $winnerUser = $this->userRepository->requireUserByCode($winnerUserCode);
         $looserUser = $this->userRepository->requireUserByCode($looserUserCode);
 
-        return $this->updateRatingsInDb($winnerUser, $looserUser);
-    }
-
-    public function validateUpdateRatings(
-        string $winnerUserCode,
-        string $looserUserCode
-    ): ?string {
-        $winnerUser = $this->userRepository->findOneByCode($winnerUserCode);
-        $looserUser = $this->userRepository->findOneByCode($looserUserCode);
-        
-        if ($winnerUser === null && $looserUser === null) {
-            return "Winner and looser does not exist";
-        }
-        if ($winnerUser === null) {
-            return "Winner does not exist";
-        }
-        if ($looserUser === null) {
-            return "Looser does not exist";
-        }
-        if ($winnerUser->getUserNid() === $looserUser->getUserNid()) {
-            return "Winner is same as looser";
-        }
-
-        return null;
-    }
-
-    private function updateRatingsInDb(
-        User $winnerUser,
-        User $looserUser
-    ): int {
         $game = $this->gameFactory->createGameEntity($winnerUser, $looserUser);
         $this->em->persist($game);
         

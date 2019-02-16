@@ -11,7 +11,8 @@ class UsersCtrl
     /** @var UsersSvc */
     private $usersSvc;
 
-    public function __construct(UsersSvc $usersSvc) {
+    public function __construct(UsersSvc $usersSvc)
+    {
         $this->usersSvc = $usersSvc;
     }
 
@@ -26,11 +27,6 @@ class UsersCtrl
         $json = $request->getBody();
         $userArray = json_decode($json, true);
         
-        $warningMsg = $this->usersSvc->validateAddUser($userArray['code']);
-        if ($warningMsg) {
-            return $response->withJson(['status' => 'warning', 'warningMsg' => $warningMsg]);
-        }
-
         $this->usersSvc->addUser($userArray);
         return $response->withJson(['status' => 'success']);
     }
@@ -43,11 +39,6 @@ class UsersCtrl
         $usersCodes = json_decode($json, true);
         $winnerUserCode = $usersCodes['winnerUserCode'];
         $looserUserCode = $usersCodes['looserUserCode'];
-        
-        $warningMsg = $this->usersSvc->validateUpdateRatings($winnerUserCode, $looserUserCode);
-        if ($warningMsg) {
-            return $response->withJson(['status' => 'warning', 'warningMsg' => $warningMsg]);
-        }
 
         $ratingDiff = $this->usersSvc->updateRatings($winnerUserCode, $looserUserCode);
         return $response->withJson(['status' => 'success', 'ratingDiff' => $ratingDiff]);
