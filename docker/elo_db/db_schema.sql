@@ -32,12 +32,12 @@ USE elo_app;
 --
 
 CREATE TABLE `games` (
-  `game_nid` int(11) NOT NULL,
-  `winner_user_nid` int(11) NOT NULL,
-  `looser_user_nid` int(11) NOT NULL,
-  `winner_rating_before` int(11) NOT NULL,
-  `looser_rating_before` int(11) NOT NULL,
-  `rating_diff` int(11) NOT NULL,
+  `game_nid` int NOT NULL,
+  `winner_user_nid` int NOT NULL,
+  `looser_user_nid` int NOT NULL,
+  `winner_rating_before` int NOT NULL,
+  `looser_rating_before` int NOT NULL,
+  `rating_diff` int NOT NULL,
   `cdate` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
 
@@ -48,11 +48,11 @@ CREATE TABLE `games` (
 --
 
 CREATE TABLE `users` (
-  `user_nid` int(11) NOT NULL,
+  `user_nid` int NOT NULL,
   `code` varchar(3) NOT NULL,
   `name` varchar(45) NOT NULL,
   `team` varchar(45) NOT NULL,
-  `rating` int(11) NOT NULL,
+  `rating` int NOT NULL,
   `deleted` tinyint(1) NOT NULL DEFAULT '0',
   `cdate` timestamp NULL DEFAULT CURRENT_TIMESTAMP
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
@@ -75,7 +75,7 @@ ALTER TABLE `games`
 --
 ALTER TABLE `users`
   ADD PRIMARY KEY (`user_nid`),
-  ADD UNIQUE KEY `code` (`code`(10));
+  ADD UNIQUE KEY `code` (`code`);
 
 --
 -- AUTO_INCREMENT for dumped tables
@@ -85,13 +85,13 @@ ALTER TABLE `users`
 -- AUTO_INCREMENT dla tabeli `games`
 --
 ALTER TABLE `games`
-  MODIFY `game_nid` int(11) NOT NULL AUTO_INCREMENT;
+  MODIFY `game_nid` int NOT NULL AUTO_INCREMENT;
 
 --
 -- AUTO_INCREMENT dla tabeli `users`
 --
 ALTER TABLE `users`
-  MODIFY `user_nid` int(11) NOT NULL AUTO_INCREMENT;
+  MODIFY `user_nid` int NOT NULL AUTO_INCREMENT;
 
 --
 -- Ograniczenia dla zrzutów tabel
