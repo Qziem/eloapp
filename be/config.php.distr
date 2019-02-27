@@ -16,7 +16,7 @@ $config = [
 
         'connection' => [
             'driver' => 'pdo_mysql',
-            'host' => '172.16.11.4',
+            'host' => 'elo_db',
             'port' => 3306,
             'dbname' => 'elo_app',
             'user' => 'root',

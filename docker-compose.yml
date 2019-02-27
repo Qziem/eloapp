@@ -1,4 +1,4 @@
-version: '2'
+version: '3'
 services:
   elo_api:
     container_name: elo_api
@@ -14,8 +14,7 @@ services:
     entrypoint: php
     command: "-S 0.0.0.0:80 Api/index.php"
     networks:
-      elonet:
-        ipv4_address: 172.16.11.2
+      - elonet
   elo_www:
     container_name: elo_www
     image: nginx
@@ -27,20 +26,16 @@ services:
     ports:
     - 0.0.0.0:$ELO_WWW_PORT:81
     networks:
-      elonet:
-        ipv4_address: 172.16.11.3
+      - elonet
   elo_db:
     container_name: elo_db
     image: mysql:5.7
-    ports:
-    - 127.0.0.1:$DB_PORT:3306
     environment:
       MYSQL_ROOT_PASSWORD: $DB_PASSWORD
     volumes:
       - $SOURCE_DIR/docker/elo_db:/docker-entrypoint-initdb.d
     networks:
-      elonet:
-        ipv4_address: 172.16.11.4
+      - elonet
   elo_phpmyadmin:
     container_name: elo_phpmyadmin
     image: phpmyadmin/phpmyadmin
@@ -53,14 +48,7 @@ services:
       PMA_USER: root
       PMA_PASSWORD: $DB_PASSWORD
     networks:
-      elonet:
-        ipv4_address: 172.16.11.5
+      - elonet
 networks:
   elonet:
     driver: bridge
-    ipam:
-      driver: default
-      config:
-      - subnet: 172.16.11.0/28
-        gateway: 172.16.11.1 
-    
