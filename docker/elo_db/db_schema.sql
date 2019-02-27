@@ -75,7 +75,7 @@ ALTER TABLE `games`
 --
 ALTER TABLE `users`
   ADD PRIMARY KEY (`user_nid`),
-  ADD UNIQUE KEY `code` (`code`(10));
+  ADD UNIQUE KEY `code` (`code`);
 
 --
 -- AUTO_INCREMENT for dumped tables
