@@ -3,7 +3,7 @@ use Doctrine\ORM\EntityManager;
 use Doctrine\ORM\Tools\Console\ConsoleRunner;
 use Api\EloApp;
 
-require_once 'api/autoload.php';
+require_once 'Api/autoload.php';
 
 $app = new EloApp;
 
