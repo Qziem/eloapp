@@ -12,6 +12,7 @@
     "php-di/slim-bridge": "^2.0"
   },
   "require-dev": {
-    "roave/security-advisories": "dev-master"
+    "roave/security-advisories": "dev-master",
+    "symfony/var-dumper": "^4.2"
   }
 }
