@@ -46,4 +46,18 @@ class GameRepository extends EntityRepository
 
         return $lastGame;
     }
+
+    /**
+     * @param int[] $userNids
+     * @return Game[]
+     */
+    public function findByUsers(array $userNids): array
+    {
+        return $this->createQueryBuilder('g')
+            ->where('g.winnerUserNid IN (:nids)')
+            ->orWhere('g.looserUserNid IN (:nids)')
+            ->setParameter('nids', $userNids)
+            ->getQuery()
+            ->execute();
+    }
 }
