@@ -1,0 +1,13 @@
+.statistics_chart_users {
+  display: grid;
+  grid-template-columns: repeat(5, 20%);
+  margin: 20px 0;
+
+  &__user {
+    cursor: pointer;
+  }
+
+  &__input {
+    margin-right: 5px;
+  }
+}
