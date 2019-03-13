@@ -39,7 +39,7 @@ class StatisticsChartDataSvc
     public function loadData(array $userNidList): array
     {
         $this->loadUsers($userNidList);
-        $this->loadDataFromDb($userNidList);
+        $this->loadDataFromDb();
 
         return $this->normalizeData();
     }
@@ -71,17 +71,10 @@ class StatisticsChartDataSvc
         }
     }
 
-    /**
-     * @param int[] $userNidList
-     * @return void
-     */
-    private function loadDataFromDb(array $userNidList): void
+    private function loadDataFromDb(): void
     {
-        if ($userNidList === [] && \count($this->users) > 0) {
-            $userNidList = \array_keys($this->users);
-        }
-
-        $games = $this->gameRepository->findByUsers($userNidList);
+        $userNids = \array_keys($this->users);
+        $games = $this->gameRepository->findByUsers($userNids);
 
         foreach ($games as $game) {
             $this->setDataForSingleGame($game);
