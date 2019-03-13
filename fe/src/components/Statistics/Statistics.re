@@ -22,7 +22,7 @@ type actions =
   | SetUsersInState(list(user))
   | SetDataToState(array(Js.Json.t))
   | ToggleCheckbox(int)
-  | ThrowError;
+  | SetFailure;
 
 let component = ReasonReact.reducerComponent("Statistics");
 
@@ -36,7 +36,7 @@ let onUserLoadSuccess = (send, json) => {
 };
 
 let onUserLoadError = (send, err) => {
-  send(ThrowError);
+  send(SetFailure);
   Js.Console.error(err);
 };
 
@@ -54,13 +54,13 @@ let onChartDataLoadingSuccess = (send, json) => {
   let result = ChartDataDecoder.decode(json);
 
   switch (result) {
-  | WARNING(_msg) => send(ThrowError)
+  | WARNING(_msg) => send(SetFailure)
   | SUCCESS(result) => send(SetDataToState(result))
   };
 };
 
 let onChartDataLoadingError = (send, err) => {
-  send(ThrowError);
+  send(SetFailure);
   Js.Console.error(err);
 };
 
@@ -115,7 +115,7 @@ let reducer = (action: actions, state) =>
       {...state, checkedUsersNids},
       ({send}) => send(LoadData),
     );
-  | ThrowError => ReasonReact.Update({...state, status: FAILURE})
+  | SetFailure => ReasonReact.Update({...state, status: FAILURE})
   };
 
 let toggleCheckedUser = (state, userNid) => {
