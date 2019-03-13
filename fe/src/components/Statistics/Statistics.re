@@ -13,7 +13,7 @@ type state = {
   status,
   users: list(user),
   chartData: array(Js.Json.t),
-  checkedUsers: list(int),
+  checkedUsersNids: list(int),
 };
 
 type actions =
@@ -65,7 +65,8 @@ let onChartDataLoadingError = (send, err) => {
 };
 
 let getChartDataSvc = state => {
-  let users = state.checkedUsers |> Array.of_list |> Js.Array.joinWith(",");
+  let users =
+    state.checkedUsersNids |> Array.of_list |> Js.Array.joinWith(",");
 
   ReasonReact.UpdateWithSideEffects(
     {...state, status: LOADING},
@@ -82,7 +83,7 @@ let reducer = (action: actions, state) =>
   | LoadUsers => getUsersSvc(state)
   | LoadData => getChartDataSvc(state)
   | SetUsersInState(users) =>
-    let checkedUsers =
+    let checkedUsersNids =
       Array.sub(Array.of_list(users), 0, 5)
       |> Array.map(user => user.userNid)
       |> Array.to_list;
@@ -90,7 +91,7 @@ let reducer = (action: actions, state) =>
     ReasonReact.Update({
       ...state,
       users,
-      checkedUsers,
+      checkedUsersNids,
       status: LOADED(users, state.chartData),
     });
   | SetDataToState(chartData) =>
@@ -100,24 +101,25 @@ let reducer = (action: actions, state) =>
       status: LOADED(state.users, chartData),
     })
   | ToggleCheckbox(userNid) =>
-    let isChecked = List.exists(nid => nid === userNid, state.checkedUsers);
+    let isChecked =
+      List.exists(nid => nid === userNid, state.checkedUsersNids);
 
-    let checkedUsers =
+    let checkedUsersNids =
       if (isChecked) {
-        state.checkedUsers |> List.filter(nid => nid !== userNid);
+        state.checkedUsersNids |> List.filter(nid => nid !== userNid);
       } else {
-        state.checkedUsers |> List.append([userNid]);
+        state.checkedUsersNids |> List.append([userNid]);
       };
 
     ReasonReact.UpdateWithSideEffects(
-      {...state, checkedUsers},
+      {...state, checkedUsersNids},
       ({send}) => send(LoadData),
     );
   | ThrowError => ReasonReact.Update({...state, status: FAILURE})
   };
 
 let toggleCheckedUser = (state, userNid) => {
-  List.exists(item => item === userNid, state.checkedUsers) === false;
+  List.exists(item => item === userNid, state.checkedUsersNids) === false;
 };
 
 let renderCheckbox = (state, send, user) => {
@@ -126,23 +128,25 @@ let renderCheckbox = (state, send, user) => {
       className="statistics_chart_users__input"
       type_="checkbox"
       value={user.userNid |> string_of_int}
-      checked={state.checkedUsers |> List.exists(nid => nid === user.userNid)}
+      checked={
+        state.checkedUsersNids |> List.exists(nid => nid === user.userNid)
+      }
       onChange={_event => send(ToggleCheckbox(user.userNid))}
     />
     <span> {user.code |> ReasonReact.string} </span>
   </label>;
 };
 
-let filterOutCheckedUsers = (checkedUsers, user) => {
-  checkedUsers |> List.exists(nid => nid === user.userNid);
+let filterOutcheckedUsersNids = (checkedUsersNids, user) => {
+  checkedUsersNids |> List.exists(nid => nid === user.userNid);
 };
 
 let renderStatistics = (users, data, state, send) => {
   let usersToshow =
-    if (List.length(state.checkedUsers) === 0) {
+    if (List.length(state.checkedUsersNids) === 0) {
       Array.sub(users |> Array.of_list, 0, 5);
     } else {
-      List.filter(filterOutCheckedUsers(state.checkedUsers), users)
+      List.filter(filterOutcheckedUsersNids(state.checkedUsersNids), users)
       |> Array.of_list;
     };
 
@@ -164,7 +168,7 @@ let make = _children => {
     status: LOADING,
     users: [],
     chartData: [||],
-    checkedUsers: [],
+    checkedUsersNids: [],
   },
   reducer,
   didMount: ({send}) => send(LoadUsers),
