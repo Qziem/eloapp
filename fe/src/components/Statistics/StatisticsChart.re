@@ -11,7 +11,7 @@ type status =
 type state = {status};
 
 type actions =
-  | LoadData
+  | LoadData(list(int))
   | SetFailure
   | SetDataToState(array(Js.Json.t));
 
@@ -91,10 +91,15 @@ let renderChart = (users, checkedUsersNids, data) => {
 let make = (~users, ~checkedUsersNids, _children) => {
   ...component,
   initialState: () => {status: LOADING},
-  didMount: ({send}) => send(LoadData),
+  didMount: ({send}) => send(LoadData(checkedUsersNids)),
+  willReceiveProps: ({send, state}) => {
+    send(LoadData(checkedUsersNids));
+
+    state;
+  },
   reducer: (action, _state) =>
     switch (action) {
-    | LoadData => getChartDataSvc(checkedUsersNids)
+    | LoadData(nids) => getChartDataSvc(nids)
     | SetFailure => ReasonReact.Update({status: FAILURE})
     | SetDataToState(chartData) =>
       ReasonReact.Update({status: LOADED(chartData)})
