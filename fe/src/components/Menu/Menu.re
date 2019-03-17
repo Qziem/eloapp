@@ -23,7 +23,7 @@ let make = (~activePlace, _children) => {
         </NavItem>
         <NavItem>
           <NavLink active={activePlace == STATISTICS} href="#statistics">
-            {"Statistics" |> ReasonReact.string}
+            {"Stats" |> ReasonReact.string}
           </NavLink>
         </NavItem>
       </Nav>
