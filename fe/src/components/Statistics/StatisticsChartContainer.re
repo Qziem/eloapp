@@ -12,7 +12,6 @@ type status =
 type state = {
   status,
   checkedUsersNids: list(int),
-  users: list(user),
 };
 
 type actions =
@@ -49,7 +48,7 @@ let toggleUser = (send, userNid) => {
 
 let make = _children => {
   ...component,
-  initialState: () => {status: LOADING, checkedUsersNids: [], users: []},
+  initialState: () => {status: LOADING, checkedUsersNids: []},
   didMount: ({send}) => send(LoadUsers),
   reducer: (action, state) =>
     switch (action) {
@@ -63,7 +62,7 @@ let make = _children => {
         |> Array.map(user => user.userNid)
         |> Array.to_list;
 
-      ReasonReact.Update({status: LOADED(users), users, checkedUsersNids});
+      ReasonReact.Update({status: LOADED(users), checkedUsersNids});
     | ToggleCheckbox(userNid) =>
       let isChecked =
         List.exists(nid => nid === userNid, state.checkedUsersNids);
