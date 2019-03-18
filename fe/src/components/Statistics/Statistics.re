@@ -1,4 +1,4 @@
-let component = ReasonReact.statelessComponent("Statistics");
+let component = ReasonReact.statelessComponent(__FILE__);
 
 let make = _children => {
   ...component,
