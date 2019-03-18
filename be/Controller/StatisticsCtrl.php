@@ -1,4 +1,4 @@
-<?php declare(strict_types = 1);
+<?php declare(strict_types=1);
 
 namespace Controller;
 
@@ -20,11 +20,13 @@ class StatisticsCtrl
     public function getChartData(Request $request, Response $response): Response
     {
         $queryParams = $request->getQueryParams();
-        $users = isset($queryParams['users']) && is_string($queryParams['users'])
+        $usersNids = isset($queryParams['users'])
+        && is_string($queryParams['users'])
+        && $queryParams['users'] !== ''
             ? explode(',', $queryParams['users'])
             : [];
 
-        $output = $this->chartDataSvc->loadData($users);
+        $output = $this->chartDataSvc->loadData($usersNids);
 
         return $response->withJson(['status' => 'success', 'data' => $output]);
     }
