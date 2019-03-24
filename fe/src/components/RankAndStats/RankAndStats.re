@@ -1,7 +1,6 @@
 open EloTypes;
 open Js.Promise;
 
-open Svc;
 [%bs.raw {|require('./RankAndStats.scss')|}];
 
 type state =
@@ -12,14 +11,6 @@ type state =
 let component = ReasonReact.reducerComponent("RankAndStats");
 
 let initialState = () => LOADING;
-
-let onSuccess = (send, json) =>
-  json |> DecodeUsers.users |> (users => send(SetUsersToState(users)));
-
-let onError = (send: containerActions => unit, err) => {
-  send(SetFailure);
-  Js.Console.error(err);
-};
 
 module GetUsers = [%graphql
   {|
@@ -38,29 +29,23 @@ module GetUsers = [%graphql
 
 let userNameQuery = GetUsers.make();
 
-module GetUsersQuery = ReasonApolloQuery.Make(GetUsers);
+module ClientGetUsers = ClientNoComponent.Make(GetUsers);
 
-[@bs.module] external gql: ReasonApolloTypes.gql = "graphql-tag";
-let queryObj: ApolloClient.queryObj = {
-  "query": gql(. userNameQuery##query),
-  "variables": userNameQuery##variables,
-};
+let onSuccess = (send, result: ReasonApolloTypes.queryResponse(GetUsers.t)) =>
+  switch (result) {
+  | Data(response) =>
+    let users = response##users |> Array.to_list;
+    send(SetUsersToState(users));
+  | Loading => ()
+  | Error(_) => send(SetFailure)
+  };
 
 let getUsersSvc = () =>
   ReasonReact.UpdateWithSideEffects(
     LOADING,
     ({send}) =>
-      Client.instance##query(queryObj)
-      |> then_(resp =>
-           (
-             switch (resp->GetUsersQuery.convertJsInputToReason.result) {
-             | Data(da) =>
-               let users = da##users |> Array.to_list;
-               send(SetUsersToState(users));
-             }
-           )
-           |> resolve
-         )
+      ClientGetUsers.call(userNameQuery)
+      |> then_(result => result |> onSuccess(send) |> resolve)
       |> ignore,
   );
 
@@ -98,27 +83,3 @@ let make = _children => {
       }
     </div>,
 };
-
-/* {
-     switch (state) {
-     | FAILURE => <FailureMask />
-     | LOADING => renderContent(send, [], true)
-     | LOADED(users) => renderContent(send, users, false)
-     }
-   } */
-
-/* <ReasonApollo.Provider client=Client.instance>
-     <GetUsersQuery>
-       ...{
-            ({result}) =>
-              switch (result) {
-              | Loading => <div> {ReasonReact.string("Loading")} </div>
-              | Error(error) =>
-                <div> {ReasonReact.string(error##message)} </div>
-              | Data(response) =>
-                Js.log(response);
-                ReasonReact.string("resp");
-              }
-          }
-     </GetUsersQuery>
-   </ReasonApollo.Provider> */
