@@ -4,8 +4,8 @@ open BsRecharts;
 let component = ReasonReact.statelessComponent(__FILE__);
 
 let renderUserLine = user => {
-  let colorOpts = StatisticsColors.randomColorOptions(~seed=user.code, ());
-  let color = StatisticsColors.randomColor(colorOpts);
+  let color =
+    StatisticsColors.randomColor(~seed=user.code, ~luminosity=`dark, ());
 
   <Line
     key={user.userNid |> string_of_int}
