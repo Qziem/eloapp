@@ -14,7 +14,8 @@ require 'autoload.php';
 
 $app = new EloApp;
 
-$app->post('/graphql', [GraphQLCtrl::class, 'api']);
+$app->post('/graphql', [GraphQLCtrl::class, 'api'])
+    ->add(PrivilegesIsLogged::class);
 
 $app->get('/auth/isLogged', [AuthCtrl::class, 'isLogged']);
 

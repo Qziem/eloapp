@@ -28,21 +28,21 @@ class UsersType extends ObjectType {
                     },
                 ],
                 'rating' => [
-                    'type' => Type::string(),
+                    'type' => Type::int(),
                     'resolve' => function ($root) {
-                        return $root['code'];
+                        return $root['rating'];
                     },
                 ],
                 'team' => [
                     'type' => Type::string(),
                     'resolve' => function ($root) {
-                        return $root['code'];
+                        return $root['team'];
                     },
                 ],
                 'trendRatingDiff' => [
-                    'type' => Type::string(),
+                    'type' => Type::int(),
                     'resolve' => function ($root) {
-                        return $root['code'];
+                        return $root['trendRatingDiff'];
                     },
                 ],
             ],
