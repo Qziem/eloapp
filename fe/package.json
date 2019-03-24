@@ -21,6 +21,7 @@
     "bs-fetch": "^0.3.1",
     "react": "^16.8.1",
     "react-dom": "^16.8.1",
+    "reason-apollo": "^0.15.2",
     "reason-react": "^0.5.3",
     "reason-react-document-title": "^1.0.1"
   },
@@ -29,6 +30,7 @@
     "bs-platform": "^4.0.18",
     "css-loader": "^2.1.0",
     "file-loader": "^3.0.1",
+    "graphql_ppx": "^0.2.8",
     "node-sass": "^4.11.0",
     "sass-loader": "^7.1.0",
     "style-loader": "^0.23.1",

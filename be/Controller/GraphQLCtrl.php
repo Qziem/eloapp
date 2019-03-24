@@ -55,7 +55,7 @@ class GraphQLCtrl {
     private function getQueryFields() {
         return [
             'users' => [
-                'type' => Type::listOf($this->usersType),
+                'type' => Type::nonNull(Type::listOf(Type::nonNull($this->usersType))),
                 'resolve' => $this->usersResolver,
             ],
         ];

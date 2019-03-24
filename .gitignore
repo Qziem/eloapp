@@ -12,6 +12,7 @@ node_modules/
 /fe/build/
 /fe/yarn-error.log
 /fe/.vs/
+/fe/.graphql_ppx_cache/
 /be/vendor/
 /be/config.php
 /be/config_cba.php

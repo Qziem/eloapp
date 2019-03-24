@@ -21,7 +21,11 @@
     "@glennsl/bs-json",
     "@ahrefs/bs-reactstrap",
     "@ahrefs/bs-recharts",
-    "reason-react-document-title"
+    "reason-react-document-title",
+    "reason-apollo"
+  ],
+  "ppx-flags": [
+    "graphql_ppx/ppx"
   ],
   "refmt": 3
 }

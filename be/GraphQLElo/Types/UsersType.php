@@ -10,37 +10,37 @@ class UsersType extends ObjectType {
         $config = [
             'fields' => [
                 'userNid' => [
-                    'type' => Type::int(),
+                    'type' => Type::nonNull(Type::int()),
                     'resolve' => function ($root) {
                         return $root['userNid'];
                     },
                 ],
                 'code' => [
-                    'type' => Type::string(),
+                    'type' => Type::nonNull(Type::string()),
                     'resolve' => function ($root) {
                         return $root['code'];
                     },
                 ],
                 'name' => [
-                    'type' => Type::string(),
+                    'type' => Type::nonNull(Type::string()),
                     'resolve' => function ($root) {
                         return $root['name'];
                     },
                 ],
                 'rating' => [
-                    'type' => Type::int(),
+                    'type' => Type::nonNull(Type::int()),
                     'resolve' => function ($root) {
                         return $root['rating'];
                     },
                 ],
                 'team' => [
-                    'type' => Type::string(),
+                    'type' => Type::nonNull(Type::string()),
                     'resolve' => function ($root) {
                         return $root['team'];
                     },
                 ],
                 'trendRatingDiff' => [
-                    'type' => Type::int(),
+                    'type' => Type::nonNull(Type::int()),
                     'resolve' => function ($root) {
                         return $root['trendRatingDiff'];
                     },

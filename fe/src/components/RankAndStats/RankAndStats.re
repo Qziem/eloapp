@@ -21,13 +21,46 @@ let onError = (send: containerActions => unit, err) => {
   Js.Console.error(err);
 };
 
+module GetUsers = [%graphql
+  {|
+  query {
+    users @bsRecord {
+      userNid
+      code,
+      name,
+      rating,
+      team,
+      trendRatingDiff,
+    }
+  }
+|}
+];
+
+let userNameQuery = GetUsers.make();
+
+module GetUsersQuery = ReasonApolloQuery.Make(GetUsers);
+
+[@bs.module] external gql: ReasonApolloTypes.gql = "graphql-tag";
+let queryObj: ApolloClient.queryObj = {
+  "query": gql(. userNameQuery##query),
+  "variables": userNameQuery##variables,
+};
+
 let getUsersSvc = () =>
   ReasonReact.UpdateWithSideEffects(
     LOADING,
     ({send}) =>
-      svcGet("users")
-      |> then_(json => onSuccess(send, json) |> resolve)
-      |> catch(err => onError(send, err) |> resolve)
+      Client.instance##query(queryObj)
+      |> then_(resp =>
+           (
+             switch (resp->GetUsersQuery.convertJsInputToReason.result) {
+             | Data(da) =>
+               let users = da##users |> Array.to_list;
+               send(SetUsersToState(users));
+             }
+           )
+           |> resolve
+         )
       |> ignore,
   );
 
@@ -65,3 +98,27 @@ let make = _children => {
       }
     </div>,
 };
+
+/* {
+     switch (state) {
+     | FAILURE => <FailureMask />
+     | LOADING => renderContent(send, [], true)
+     | LOADED(users) => renderContent(send, users, false)
+     }
+   } */
+
+/* <ReasonApollo.Provider client=Client.instance>
+     <GetUsersQuery>
+       ...{
+            ({result}) =>
+              switch (result) {
+              | Loading => <div> {ReasonReact.string("Loading")} </div>
+              | Error(error) =>
+                <div> {ReasonReact.string(error##message)} </div>
+              | Data(response) =>
+                Js.log(response);
+                ReasonReact.string("resp");
+              }
+          }
+     </GetUsersQuery>
+   </ReasonApollo.Provider> */
