@@ -29,7 +29,7 @@ class UsersSvc
         $this->userRepository = $userRepository;
         $this->gameFactory = $gameFactory;
     }
-
+    
     public function getUsers(): array
     {
         $userEntityList = $this->userRepository->findBy(

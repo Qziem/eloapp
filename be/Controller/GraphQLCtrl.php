@@ -5,9 +5,9 @@ namespace Controller;
 use Slim\Http\Response;
 use \Psr\Http\Message\ServerRequestInterface as Request;
 use GraphQL\Type\Definition\ObjectType;
-use GraphQL\Type\Definition\Type;
 use GraphQL\GraphQL;
 use GraphQL\Type\Schema;
+use GraphQL\Type\Definition\Type;
 use GraphQLElo\Resolvers\UsersResolver;
 use GraphQLElo\Types\UsersType;
 
@@ -55,10 +55,7 @@ class GraphQLCtrl {
     private function getQueryFields() {
         return [
             'users' => [
-                'type' => $this->usersType,
-                'args' => [
-                    'message' => Type::nonNull(Type::string()),
-                ],
+                'type' => Type::listOf($this->usersType),
                 'resolve' => $this->usersResolver,
             ],
         ];
