@@ -24,11 +24,8 @@ type randomColorOptions = {
   count: option(int),
   [@bs.optional]
   alpha: option(float),
-  [@bs.optional]
   hue: option(string),
-  [@bs.optional]
   format: string,
-  [@bs.optional]
   luminosity: string,
 };
 
