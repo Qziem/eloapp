@@ -2,16 +2,11 @@ open Svc;
 open Js.Promise;
 open StatisticsChartContainerTypes;
 
-module ChartDataDecoder =
-  ResponseDecoder.MakeWithWarningsOrContent(DecodeStatistics);
-
 let onSuccess = (send, json) => {
-  let result = ChartDataDecoder.decode(json);
+  let content =
+    json |> Json.Decode.field("data", Json.Decode.array(json => json));
 
-  switch (result) {
-  | WARNING(_msg) => send(SetStatsChartFailure)
-  | SUCCESS(result) => send(SetDataToState(result))
-  };
+  send(SetDataToState(content));
 };
 
 let onError = err => {
