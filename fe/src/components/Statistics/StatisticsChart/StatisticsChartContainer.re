@@ -12,9 +12,10 @@ let toggleUser = (send, userNid) => {
 let make = _children => {
   ...component,
   initialState: () => {
-    chartDataStatus: LOADING,
     usersStatus: LOADING,
+    chartDataStatus: LOADED([||]),
     checkedUsersNids: [],
+    chartDataLoading: true,
   },
   didMount: ({send}) => send(LoadUsers),
   reducer: (action, state) =>
@@ -22,7 +23,11 @@ let make = _children => {
     | SetStatsChartFailure =>
       ReasonReact.Update({...state, usersStatus: FAILURE})
     | SetDataToState(chartData) =>
-      ReasonReact.Update({...state, chartDataStatus: LOADED(chartData)})
+      ReasonReact.Update({
+        ...state,
+        chartDataLoading: false,
+        chartDataStatus: LOADED(chartData),
+      })
     | LoadUsers => StatisticsChartUsersSvc.get(state)
     | LoadData(nids) => StatisticsChartDataSvc.get(state, nids)
     | UpdateCheckedNids(checkedUsersNids) =>
@@ -68,9 +73,13 @@ let make = _children => {
                chartData
                checkedUsersNids={state.checkedUsersNids}
              />
-           | LOADING => <LoadingMask />
            | FAILURE => <FailureMask />
            }}
+          {state.chartDataLoading ?
+             <div className="statistics_chart__loading">
+               <LoadingMask />
+             </div> :
+             ReasonReact.null}
         </div>
         <StatisticsChartUsers
           users

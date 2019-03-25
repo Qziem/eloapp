@@ -17,7 +17,7 @@ let get = (state, checkedUsersNids) => {
   let users = checkedUsersNids |> Array.of_list |> Js.Array.joinWith(",");
 
   ReasonReact.UpdateWithSideEffects(
-    {...state, chartDataStatus: LOADING},
+    {...state, chartDataLoading: true},
     ({send}) =>
       svcGet("statistics/chart_data?users=" ++ users)
       |> then_(json => onSuccess(send, json) |> resolve)

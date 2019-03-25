@@ -6,7 +6,6 @@ type usersStatus =
   | LOADED(list(user));
 
 type chartDataStatus =
-  | LOADING
   | LOADED(array(Js.Json.t))
   | FAILURE;
 
@@ -14,6 +13,7 @@ type state = {
   usersStatus,
   chartDataStatus,
   checkedUsersNids: list(int),
+  chartDataLoading: bool,
 };
 
 type actions =
