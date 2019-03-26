@@ -2,6 +2,7 @@
 session_start();
 
 use Api\EloApp;
+use Controller\StatisticsCtrl;
 use Controller\UsersCtrl;
 use Controller\AuthCtrl;
 use Controller\RatingsHistoryCtrl;
@@ -36,4 +37,8 @@ $app->delete('/remove_game/{code}', [RemoveGameCtrl::class, 'removeLastGameIfPos
     ->add(Validation\ValidationRemoveGame::class)
     ->add(PrivilegesIsLogged::class);
 
+$app->get('/statistics/chart_data', [StatisticsCtrl::class, 'getChartData'])
+    ->add(PrivilegesIsLogged::class);
+
+/** @noinspection PhpUnhandledExceptionInspection */
 $app->run();
