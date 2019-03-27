@@ -45,15 +45,17 @@ let make = _children => {
     |> ignore,
   render: ({state}) =>
     <div className="layout">
-      <DocumentTitle title={state->getSubtitle->Helpers.createTitle} />
+      <DocumentTitle title=state->getSubtitle->Helpers.createTitle />
       <Menu activePlace=state />
       <div className="eloContent">
-        {switch (state) {
-         | RANK_AND_STATS => <RankAndStats />
-         | OPERATIONS => <Operations />
-         | STATISTICS => <Statistics />
-         | NOT_FOUND => "Not found" |> ReasonReact.string
-         }}
+        {
+          switch (state) {
+          | RANK_AND_STATS => <RankAndStats />
+          | OPERATIONS => <Operations />
+          | STATISTICS => <Statistics />
+          | NOT_FOUND => "Not found" |> ReasonReact.string
+          }
+        }
       </div>
     </div>,
 };
