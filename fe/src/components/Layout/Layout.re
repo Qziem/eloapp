@@ -11,6 +11,7 @@ let getPlaceFromUrl = (url: ReasonReact.Router.url) =>
   switch (url.hash) {
   | "rank_and_stats" => RANK_AND_STATS
   | "operations" => OPERATIONS
+  | "statistics" => STATISTICS
   | _ => NOT_FOUND
   };
 
@@ -19,6 +20,7 @@ let getSubtitle = place =>
   | RANK_AND_STATS => "Ranking"
   | OPERATIONS => "Operations"
   | NOT_FOUND => "Not found"
+  | STATISTICS => "Statistics"
   };
 
 let initialState = () => {
@@ -50,6 +52,7 @@ let make = _children => {
           switch (state) {
           | RANK_AND_STATS => <RankAndStats />
           | OPERATIONS => <Operations />
+          | STATISTICS => <Statistics />
           | NOT_FOUND => "Not found" |> ReasonReact.string
           }
         }

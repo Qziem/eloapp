@@ -33,6 +33,7 @@ type winnerLooserCodes = {
 type place =
   | RANK_AND_STATS
   | OPERATIONS
+  | STATISTICS
   | NOT_FOUND;
 
 type resultWarningOrContent('a) =

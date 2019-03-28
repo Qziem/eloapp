@@ -13,12 +13,17 @@ let make = (~activePlace, _children) => {
         <NavItem>
           <NavLink
             active={activePlace == RANK_AND_STATS} href="#rank_and_stats">
-            {"Ranking & Stats" |> ReasonReact.string}
+            {"Ranking" |> ReasonReact.string}
           </NavLink>
         </NavItem>
         <NavItem>
           <NavLink active={activePlace == OPERATIONS} href="#operations">
             {"Operations" |> ReasonReact.string}
+          </NavLink>
+        </NavItem>
+        <NavItem>
+          <NavLink active={activePlace == STATISTICS} href="#statistics">
+            {"Stats" |> ReasonReact.string}
           </NavLink>
         </NavItem>
       </Nav>

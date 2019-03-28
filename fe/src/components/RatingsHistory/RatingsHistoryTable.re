@@ -63,7 +63,11 @@ let make = (~ratingsHistory, _children) => {
           {"W/L Ratio: " |> ReasonReact.string}
         </span>
         <span className="wl_rating">
-          {calcRatio(ratingsHistory) |> string_of_float |> ReasonReact.string}
+          {
+            calcRatio(ratingsHistory)
+            |> Js.Float.toString
+            |> ReasonReact.string
+          }
         </span>
       </div>
       <Table size="sm">
