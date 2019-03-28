@@ -15,7 +15,7 @@
   "license": "MIT",
   "dependencies": {
     "@ahrefs/bs-reactstrap": "^0.5.9",
-    "@ahrefs/bs-recharts": "^0.2.12",
+    "@ahrefs/bs-recharts": "^0.2.13",
     "@glennsl/bs-json": "^3.0.0",
     "bootstrap": "^4.3.1",
     "bs-fetch": "^0.3.1",
@@ -27,7 +27,7 @@
   },
   "devDependencies": {
     "@fortawesome/fontawesome-free": "^5.8.1",
-    "bs-platform": "^4.0.18",
+    "bs-platform": "^5.0.0",
     "css-loader": "^2.1.1",
     "file-loader": "^3.0.1",
     "node-sass": "^4.11.0",
