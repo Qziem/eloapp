@@ -5,7 +5,11 @@ let component = ReasonReact.statelessComponent(__FILE__);
 
 let renderUserLine = user => {
   let color =
-    StatisticsColors.randomColor(~seed=user.code, ~luminosity=`dark, ());
+    RandomColorRe.randomColor(
+      ~seed=user.code,
+      ~luminosity=RandomColorRe.LuminosityDark,
+      (),
+    );
 
   <Line
     key={user.userNid |> string_of_int}
