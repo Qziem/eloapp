@@ -19,6 +19,7 @@
     "@glennsl/bs-json": "^3.0.0",
     "bootstrap": "^4.3.1",
     "bs-fetch": "^0.3.1",
+    "bs-randomcolor": "^0.1.0",
     "randomcolor": "^0.5.4",
     "react": "^16.8.5",
     "react-dom": "^16.8.5",
