@@ -2,14 +2,7 @@ open EloTypes;
 
 [%bs.raw {|require('./RankAndStats.scss')|}];
 
-type state =
-  | LOADING
-  | LOADED(list(user))
-  | FAILURE;
-
-let component = ReasonReact.reducerComponent("RankAndStats");
-
-let initialState = () => LOADING;
+let component = ReasonReact.statelessComponent("RankAndStats");
 
 module GetUsers = [%graphql
   {|
@@ -28,13 +21,6 @@ module GetUsers = [%graphql
 
 module GetUsersQuery = ReasonApollo.CreateQuery(GetUsers);
 
-let reducer = (action: containerActions, _state) =>
-  switch (action) {
-  | GetUsersSvc => ReasonReact.NoUpdate
-  | SetUsersToState(users) => ReasonReact.Update(LOADED(users))
-  | SetFailure => ReasonReact.Update(FAILURE)
-  };
-
 let refreshUsersWithRefetch = (refetch, ()) => refetch(None)->ignore;
 
 let renderContent = (users, isUsersLoading, refreshUsers) =>
@@ -50,8 +36,6 @@ let renderContent = (users, isUsersLoading, refreshUsers) =>
 
 let make = _children => {
   ...component,
-  initialState,
-  reducer,
   render: _self => {
     let usersQuery = GetUsers.make();
 
