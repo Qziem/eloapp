@@ -678,6 +678,11 @@ bs-platform@^5.0.0:
   resolved "https://registry.yarnpkg.com/bs-platform/-/bs-platform-5.0.0.tgz#f9fded818bafc3891aeb85eb4e0d95b8d8f8b4d7"
   integrity sha512-zxLobdIaf/r7go47hOgxcd6C0ANh7MYMEtZNb9Al7JdoekzFZI50F4GpZpP8kMh9Z+M5PoPE1WuryT4S8mT8Kg==
 
+bs-randomcolor@^0.1.0:
+  version "0.1.1"
+  resolved "https://registry.yarnpkg.com/bs-randomcolor/-/bs-randomcolor-0.1.1.tgz#7501138826cadb57b21b9c91238838ce64661650"
+  integrity sha512-Vi5fjE0Q/CjP00k9+LcuC8QUTVnUKEimV44OBd+o9gcEB42y3p7O1L9hlRXHAI1aqQcLGT2jmdXcM/kOxj4H+A==
+
 buffer-from@^1.0.0:
   version "1.1.1"
   resolved "https://registry.yarnpkg.com/buffer-from/-/buffer-from-1.1.1.tgz#32713bc028f75c02fdb710d7c7bcec1f2c6070ef"

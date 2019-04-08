@@ -18,6 +18,7 @@
   "bs-dependencies": [
     "reason-react",
     "bs-fetch",
+    "bs-randomcolor",
     "@glennsl/bs-json",
     "@ahrefs/bs-reactstrap",
     "@ahrefs/bs-recharts",
