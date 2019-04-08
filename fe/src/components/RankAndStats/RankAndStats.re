@@ -1,5 +1,4 @@
 open EloTypes;
-open Js.Promise;
 
 [%bs.raw {|require('./RankAndStats.scss')|}];
 
@@ -27,40 +26,22 @@ module GetUsers = [%graphql
 |}
 ];
 
-let userNameQuery = GetUsers.make();
-
-module ClientGetUsers = ClientNoComponent.Make(GetUsers);
-
-let onSuccess = (send, result: ReasonApolloTypes.queryResponse(GetUsers.t)) =>
-  switch (result) {
-  | Data(response) =>
-    let users = response##users |> Array.to_list;
-    send(SetUsersToState(users));
-  | Loading => ()
-  | Error(_) => send(SetFailure)
-  };
-
-let getUsersSvc = () =>
-  ReasonReact.UpdateWithSideEffects(
-    LOADING,
-    ({send}) =>
-      ClientGetUsers.call(userNameQuery)
-      |> then_(result => result |> onSuccess(send) |> resolve)
-      |> ignore,
-  );
+module GetUsersQuery = ReasonApollo.CreateQuery(GetUsers);
 
 let reducer = (action: containerActions, _state) =>
   switch (action) {
-  | GetUsersSvc => getUsersSvc()
+  | GetUsersSvc => ReasonReact.NoUpdate
   | SetUsersToState(users) => ReasonReact.Update(LOADED(users))
   | SetFailure => ReasonReact.Update(FAILURE)
   };
 
-let renderContent = (send, users, isUsersLoading) =>
+let refreshUsersWithRefetch = (refetch, ()) => refetch(None)->ignore;
+
+let renderContent = (users, isUsersLoading, refreshUsers) =>
   <div>
     <div className="section">
       <Users users isUsersLoading />
-      <GameResult disable=isUsersLoading containterSend=send />
+      <GameResult disable=isUsersLoading refreshUsers />
     </div>
     <hr />
     <h4> {ReasonReact.string("Statistics for player")} </h4>
@@ -71,15 +52,31 @@ let make = _children => {
   ...component,
   initialState,
   reducer,
-  didMount: ({send}) => send(GetUsersSvc),
-  render: ({state, send}) =>
+  render: _self => {
+    let usersQuery = GetUsers.make();
+
     <div className="rankAndStats">
-      {
-        switch (state) {
-        | FAILURE => <FailureMask />
-        | LOADING => renderContent(send, [], true)
-        | LOADED(users) => renderContent(send, users, false)
-        }
-      }
-    </div>,
+      <GetUsersQuery
+        notifyOnNetworkStatusChange=true variables=usersQuery##variables>
+        ...{
+             ({result, refetch, networkStatus}) => {
+               let refreshUsers = refreshUsersWithRefetch(refetch);
+               let isRefeching = networkStatus == Some(4);
+
+               switch (result, isRefeching) {
+               | (Loading, _)
+               | (_, true) => renderContent([], true, refreshUsers)
+               | (Error(_error), _) => <FailureMask />
+               | (Data(response), _) =>
+                 renderContent(
+                   response##users->Array.to_list,
+                   false,
+                   refreshUsers,
+                 )
+               };
+             }
+           }
+      </GetUsersQuery>
+    </div>;
+  },
 };
