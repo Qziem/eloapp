@@ -2,20 +2,27 @@
 
 namespace GraphQLElo\Resolvers;
 
-use Service\UsersSvc;
+use Model\Entity\User;
+use Model\Repository\UserRepository;
 
 class UsersResolver {
-    /** @var UsersSvc */
-    private $usersSvc;
+    /** @var UserRepository */
+    private $userRepository;
 
-    public function __construct(UsersSvc $usersSvc)
+    public function __construct(UserRepository $userRepository)
     {
-        $this->usersSvc = $usersSvc;
+        $this->userRepository = $userRepository;
     }
 
+    /**
+     * @return User[];
+     */
     public function __invoke(): array
     {
-        return $this->usersSvc->getUsers();
+        return $this->userRepository->findBy(
+            ['deleted' => 0],
+            ['rating' => 'DESC', 'code' => 'ASC']
+        );
     }
 }
         

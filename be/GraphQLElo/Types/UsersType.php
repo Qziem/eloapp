@@ -2,47 +2,49 @@
 
 namespace GraphQLElo\Types;
 
+use Model\Entity\User;
+use Service\UsersSvc;
 use GraphQL\Type\Definition\ObjectType;
 use GraphQL\Type\Definition\Type;
 
 class UsersType extends ObjectType {
-    public function __construct() {
+    public function __construct(UsersSvc $usersSvc) {
         $config = [
             'fields' => [
                 'userNid' => [
                     'type' => Type::nonNull(Type::int()),
-                    'resolve' => function ($root) {
-                        return $root['userNid'];
+                    'resolve' => function (User $user) {
+                        return $user->getUserNid();
                     },
                 ],
                 'code' => [
                     'type' => Type::nonNull(Type::string()),
-                    'resolve' => function ($root) {
-                        return $root['code'];
+                    'resolve' => function (User $user) {
+                        return $user->getCode();
                     },
                 ],
                 'name' => [
                     'type' => Type::nonNull(Type::string()),
-                    'resolve' => function ($root) {
-                        return $root['name'];
+                    'resolve' => function (User $user) {
+                        return $user->getName();
                     },
                 ],
                 'rating' => [
                     'type' => Type::nonNull(Type::int()),
-                    'resolve' => function ($root) {
-                        return $root['rating'];
+                    'resolve' => function (User $user) {
+                        return $user->getRating();
                     },
                 ],
                 'team' => [
                     'type' => Type::nonNull(Type::string()),
-                    'resolve' => function ($root) {
-                        return $root['team'];
+                    'resolve' => function (User $user) {
+                        return $user->getTeam();
                     },
                 ],
                 'trendRatingDiff' => [
                     'type' => Type::nonNull(Type::int()),
-                    'resolve' => function ($root) {
-                        return $root['trendRatingDiff'];
+                    'resolve' => function (User $user) use ($usersSvc) {
+                        return $usersSvc->calculateTrendRatingDiffForGql($user);
                     },
                 ],
             ],

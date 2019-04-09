@@ -68,6 +68,13 @@ class UsersSvc
         return $userArray;
     }
 
+    public function calculateTrendRatingDiffForGql(User $user): int {
+        $winGamesSumRating = $this->sumRatingDiffs($user->getLastWonGameList());
+        $looseGamesSumRating = $this->sumRatingDiffs($user->getLastLostGameList());
+
+        return $winGamesSumRating - $looseGamesSumRating;
+    }
+
     private function sumRatingDiffs(Collection $gameList): int
     {
         return array_reduce($gameList->toArray(), function (int $acc, Game $game) {
