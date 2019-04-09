@@ -7,7 +7,7 @@ use Service\UsersSvc;
 use GraphQL\Type\Definition\ObjectType;
 use GraphQL\Type\Definition\Type;
 
-class UsersType extends ObjectType {
+class UserType extends ObjectType {
     public function __construct(UsersSvc $usersSvc) {
         $config = [
             'fields' => [

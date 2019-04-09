@@ -9,18 +9,18 @@ use GraphQL\GraphQL;
 use GraphQL\Type\Schema;
 use GraphQL\Type\Definition\Type;
 use GraphQLElo\Resolvers\UsersResolver;
-use GraphQLElo\Types\UsersType;
+use GraphQLElo\Types\UserType;
 
 class GraphQLCtrl {
     /** @var UsersResolver */
     private $usersResolver;
     
-    /** @var UsersType */
-    private $usersType;
+    /** @var UserType */
+    private $userType;
 
-    public function __construct(UsersResolver $usersResolver, UsersType $usersType) {
+    public function __construct(UsersResolver $usersResolver, UserType $userType) {
         $this->usersResolver = $usersResolver;
-        $this->usersType = $usersType;
+        $this->userType = $userType;
     }
 
     public function api(Request $request, Response $response): Response {
@@ -55,7 +55,7 @@ class GraphQLCtrl {
     private function getQueryFields() {
         return [
             'users' => [
-                'type' => Type::nonNull(Type::listOf(Type::nonNull($this->usersType))),
+                'type' => Type::nonNull(Type::listOf(Type::nonNull($this->userType))),
                 'resolve' => $this->usersResolver,
             ],
         ];
