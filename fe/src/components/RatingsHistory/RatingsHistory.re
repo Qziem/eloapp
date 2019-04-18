@@ -3,6 +3,8 @@ open EloTypes;
 open Js.Promise;
 open BsReactstrap;
 
+[@bs.val] external encodeURI: string => string = "encodeURI";
+
 [%bs.raw {|require('./RatingsHistory.scss')|}];
 
 type dataStateType =
@@ -48,23 +50,26 @@ let onError = (send, err) => {
   Js.Console.error(err);
 };
 
-let getHistorySvc = (state, code) =>
+let getHistorySvc = (state, code) => {
+  let securedCode = code |> Js.String.replace("/", "") |> encodeURI;
+
   ReasonReact.UpdateWithSideEffects(
     {...state, dataState: LOADING},
     ({send}) => {
-      let url = "ratings_history/" ++ code;
+      let url = "ratings_history/" ++ securedCode;
       svcGet(url)
       |> then_(json => onSuccess(send, json) |> resolve)
       |> catch(err => onError(send, err) |> resolve)
       |> ignore;
     },
   );
+};
 
 let getHistoryReducer = state =>
   switch (String.trim(state.inputCode)) {
   | "" =>
     ReasonReact.SideEffects(
-      (({send}) => send(SetWarning("Code can not be empty"))),
+      ({send}) => send(SetWarning("Code can not be empty")),
     )
   | code => getHistorySvc(state, code)
   };
@@ -90,21 +95,18 @@ let make = (~disable, _children) => {
   render: ({state, send}) =>
     <div className="ratingsHistory">
       <Form
-        onSubmit={
-          event => {
-            event |> ReactEvent.Form.preventDefault;
-            send(GetHistory);
-          }
-        }>
+        onSubmit={event => {
+          event |> ReactEvent.Form.preventDefault;
+          send(GetHistory);
+        }}>
         <Container>
           <Row>
             <Col xs=4>
               <FormGroup>
                 <Input
                   placeholder="code"
-                  onChange={
-                    event =>
-                      send(ChangeCode(GameResult.valueFromEvent(event)))
+                  onChange={event =>
+                    send(ChangeCode(GameResult.valueFromEvent(event)))
                   }
                 />
               </FormGroup>
@@ -125,17 +127,15 @@ let make = (~disable, _children) => {
           </Row>
         </Container>
       </Form>
-      {
-        switch (state.dataState) {
-        | INITIAL => ReasonReact.null
-        | LOADING => <LoadingMask />
-        | WARNING(msg) =>
-          <Alert color="warning" toggle={hanldeDismissAlert(send)}>
-            {msg |> ReasonReact.string}
-          </Alert>
-        | LOADED(ratingsHistory) => <RatingsHistoryTable ratingsHistory />
-        | FAILURE => <FailureMask />
-        }
-      }
+      {switch (state.dataState) {
+       | INITIAL => ReasonReact.null
+       | LOADING => <LoadingMask />
+       | WARNING(msg) =>
+         <Alert color="warning" toggle={hanldeDismissAlert(send)}>
+           {msg |> ReasonReact.string}
+         </Alert>
+       | LOADED(ratingsHistory) => <RatingsHistoryTable ratingsHistory />
+       | FAILURE => <FailureMask />
+       }}
     </div>,
 };
