@@ -1,0 +1,28 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`FailureMask should render properly 1`] = `
+<FailureMask
+  reasonProps={
+    Array [
+      Array [
+        "FailureMask",
+        [Function],
+        Array [
+          undefined,
+        ],
+        [Function],
+        [Function],
+        [Function],
+        [Function],
+        [Function],
+        [Function],
+        [Function],
+        [Function],
+        0,
+        [Function],
+        undefined,
+      ],
+    ]
+  }
+/>
+`;

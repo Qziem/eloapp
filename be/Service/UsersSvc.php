@@ -2,8 +2,8 @@
 
 namespace Service;
 
-use Doctrine\ORM\EntityManager;
 use Doctrine\Common\Collections\Collection;
+use Doctrine\ORM\EntityManagerInterface;
 use Model\Entity\Game;
 use Model\Entity\User;
 use Model\Repository\UserRepository;
@@ -11,7 +11,7 @@ use Model\Factory\GameFactory;
 
 class UsersSvc
 {
-    /** @var EntityManager */
+    /** @var EntityManagerInterface */
     private $em;
 
     /** @var UserRepository */
@@ -21,7 +21,7 @@ class UsersSvc
     private $gameFactory;
 
     public function __construct(
-        EntityManager $em,
+        EntityManagerInterface $em,
         UserRepository $userRepository,
         GameFactory $gameFactory
     ) {
@@ -70,7 +70,7 @@ class UsersSvc
 
     private function sumRatingDiffs(Collection $gameList): int
     {
-        return array_reduce($gameList->toArray(), function (int $acc, Game $game) {
+        return array_reduce($gameList->toArray(), static function (int $acc, Game $game) {
             return $acc + $game->getRatingDiff();
         }, 0);
     }
@@ -88,7 +88,7 @@ class UsersSvc
         $user = new User();
         $user->setCode($userArray['code']);
         $user->setName($userArray['name']);
-        $user->setTeam("");
+        $user->setTeam('');
         $user->setRating($initRating);
         $user->setDeleted(false);
 
