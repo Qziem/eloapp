@@ -49,13 +49,11 @@ let make = _children => {
   didMount: ({send}) => send(IsLogged),
   render: ({state, send}) =>
     <div className="appContainer">
-      {
-        switch (state) {
-        | LOADING => <LoadingMask />
-        | NOT_LOGGED => <LoginPage parentSend=send />
-        | FAILURE => <FailureMask />
-        | LOGGED => <Layout />
-        }
-      }
+      {switch (state) {
+       | LOADING => <LoadingMask />
+       | NOT_LOGGED => <LoginPage parentSend=send />
+       | FAILURE => <FailureMask />
+       | LOGGED => <Layout appSend=send />
+       }}
     </div>,
 };

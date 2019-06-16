@@ -17,6 +17,7 @@ $app = new EloApp;
 $app->get('/auth/isLogged', [AuthCtrl::class, 'isLogged']);
 
 $app->post('/auth/login', [AuthCtrl::class, 'login']);
+$app->get('/auth/logout', [AuthCtrl::class, 'logout']);
 
 $app->get('/users', [UsersCtrl::class, 'getUsers'])
     ->add(PrivilegesIsLogged::class);

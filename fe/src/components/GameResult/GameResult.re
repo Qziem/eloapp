@@ -109,7 +109,7 @@ let reducer = (containterSend, action, state) =>
 
 let valueFromEvent = event => ReactEvent.Form.target(event)##value;
 
-let hanldeDismissAlert = (send, ()) => send(ClearSaveState);
+let handleDismissAlert = (send, ()) => send(ClearSaveState);
 
 let make = (~containterSend, ~disable, _children) => {
   ...component,
@@ -118,34 +118,30 @@ let make = (~containterSend, ~disable, _children) => {
   render: ({state, send}) =>
     <div className="gameResult">
       <div className="messageContainer">
-        {
-          switch (state.saveState) {
-          | SUCCESS(ratingDiff) =>
-            <Alert color="success" toggle={hanldeDismissAlert(send)}>
-              <span className="success-label">
-                {"Updated, rating diff: " |> ReasonReact.string}
-              </span>
-              <span className="success-rating-diff">
-                {string_of_int(ratingDiff) |> ReasonReact.string}
-              </span>
-            </Alert>
-          | WARNING(msg) =>
-            <Alert color="warning" toggle={hanldeDismissAlert(send)}>
-              {msg |> ReasonReact.string}
-            </Alert>
-          | SAVING => <LoadingMask />
-          | FAILURE => <FailureMask />
-          | NOTHING => ReasonReact.null
-          }
-        }
+        {switch (state.saveState) {
+         | SUCCESS(ratingDiff) =>
+           <Alert color="success" toggle={handleDismissAlert(send)}>
+             <span className="success-label">
+               {"Updated, rating diff: " |> ReasonReact.string}
+             </span>
+             <span className="success-rating-diff">
+               {string_of_int(ratingDiff) |> ReasonReact.string}
+             </span>
+           </Alert>
+         | WARNING(msg) =>
+           <Alert color="warning" toggle={handleDismissAlert(send)}>
+             {msg |> ReasonReact.string}
+           </Alert>
+         | SAVING => <LoadingMask />
+         | FAILURE => <FailureMask />
+         | NOTHING => ReasonReact.null
+         }}
       </div>
       <Form
-        onSubmit={
-          event => {
-            event |> ReactEvent.Form.preventDefault;
-            send(UpdateClick);
-          }
-        }>
+        onSubmit={event => {
+          event |> ReactEvent.Form.preventDefault;
+          send(UpdateClick);
+        }}>
         <Container>
           <Row>
             <Col>
@@ -158,8 +154,8 @@ let make = (~containterSend, ~disable, _children) => {
                   id="winnerCode"
                   placeholder="code"
                   value={state.userWinnerCode}
-                  onChange={
-                    event => send(ChangeWinUser(valueFromEvent(event)))
+                  onChange={event =>
+                    send(ChangeWinUser(valueFromEvent(event)))
                   }
                 />
               </FormGroup>
@@ -174,8 +170,8 @@ let make = (~containterSend, ~disable, _children) => {
                   id="looserCode"
                   placeholder="code"
                   value={state.userLooserCode}
-                  onChange={
-                    event => send(ChangeLooseUser(valueFromEvent(event)))
+                  onChange={event =>
+                    send(ChangeLooseUser(valueFromEvent(event)))
                   }
                 />
               </FormGroup>
