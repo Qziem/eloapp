@@ -29,4 +29,11 @@ class AuthCtrl
         $logged = $this->authSvc->doLogin($payload['password']);
         return $response->withJson(['logged' => $logged]);
     }
+
+    public function logout(Response $response): Response
+    {
+        $this->authSvc->doLogout();
+
+        return $response->withJson(['logout' => true]);
+    }
 }

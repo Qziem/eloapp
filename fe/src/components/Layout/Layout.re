@@ -33,7 +33,7 @@ let reducer = (action, _state) =>
   | SetPlace(place) => ReasonReact.Update(place)
   };
 
-let make = _children => {
+let make = (~appSend, _children) => {
   ...component,
   initialState,
   reducer,
@@ -45,17 +45,15 @@ let make = _children => {
     |> ignore,
   render: ({state}) =>
     <div className="layout">
-      <DocumentTitle title=state->getSubtitle->Helpers.createTitle />
-      <Menu activePlace=state />
+      <DocumentTitle title={state->getSubtitle->Helpers.createTitle} />
+      <Menu activePlace=state appSend />
       <div className="eloContent">
-        {
-          switch (state) {
-          | RANK_AND_STATS => <RankAndStats />
-          | OPERATIONS => <Operations />
-          | STATISTICS => <Statistics />
-          | NOT_FOUND => "Not found" |> ReasonReact.string
-          }
-        }
+        {switch (state) {
+         | RANK_AND_STATS => <RankAndStats />
+         | OPERATIONS => <Operations />
+         | STATISTICS => <Statistics />
+         | NOT_FOUND => "Not found" |> ReasonReact.string
+         }}
       </div>
     </div>,
 };

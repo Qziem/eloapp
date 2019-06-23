@@ -30,4 +30,9 @@ class AuthSvc
 
         return $isSuccess;
     }
+
+    public function doLogout(): void
+    {
+        unset($_SESSION['isLogged']);
+    }
 }
