@@ -38,11 +38,10 @@ let make = _children => {
         |> Array.map(user => user.userNid)
         |> Array.to_list;
 
-      ReasonReact.Update({
-        ...state,
-        usersStatus: LOADED(users),
-        checkedUsersNids,
-      });
+      ReasonReact.UpdateWithSideEffects(
+        {...state, usersStatus: LOADED(users), checkedUsersNids},
+        ({send}) => send(LoadData(checkedUsersNids)),
+      );
     | ToggleCheckbox(userNid) =>
       let isChecked =
         List.exists(nid => nid === userNid, state.checkedUsersNids);
@@ -75,11 +74,11 @@ let make = _children => {
              />
            | FAILURE => <FailureMask />
            }}
-          {state.chartDataLoading ?
-             <div className="statistics_chart__loading">
-               <LoadingMask />
-             </div> :
-             ReasonReact.null}
+          {state.chartDataLoading
+             ? <div className="statistics_chart__loading">
+                 <LoadingMask />
+               </div>
+             : ReasonReact.null}
         </div>
         <StatisticsChartUsers
           users
