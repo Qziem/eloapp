@@ -3158,10 +3158,10 @@ readdirp@^2.2.1:
     micromatch "^3.1.10"
     readable-stream "^2.0.2"
 
-reason-react-document-title@^1.0.1:
-  version "1.0.1"
-  resolved "https://registry.yarnpkg.com/reason-react-document-title/-/reason-react-document-title-1.0.1.tgz#f7ee622a9da3fb36b9a209a8b31d1d3a9de7e78b"
-  integrity sha512-JFowp42PNTUlXT4u3eshVss8LWczZqSZjJtV147pnWmZP+7woP4dMSqyWegqOV9QlYWQw2yAs3AybBewXiVRLw==
+reason-react-document-title@^2.0.0:
+  version "2.0.0"
+  resolved "https://registry.yarnpkg.com/reason-react-document-title/-/reason-react-document-title-2.0.0.tgz#ac3ca13eabc8c1c40261672d0e7a8d89288e4168"
+  integrity sha512-t2n5exPRf8zwqRvJz3fqhPJ9VgLdpmLzKzWBZYQkGXJA4v0OhfPy/eTlKhbd/ae2oiVpmxW+E3kRFFASShZmrQ==
 
 reason-react@^0.7.0:
   version "0.7.0"

@@ -45,7 +45,7 @@ let make = _children => {
     |> ignore,
   render: ({state}) =>
     <div className="layout">
-      <DocumentTitle title=state->getSubtitle->Helpers.createTitle />
+      <DocumentTitleJsx2 title=state->getSubtitle->Helpers.createTitle />
       <Menu activePlace=state />
       <div className="eloContent">
         {
