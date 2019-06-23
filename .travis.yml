@@ -1,0 +1,26 @@
+language: php
+sudo: false
+
+matrix:
+  fast_finish: true
+  include:
+    - php: '7.2'
+      env: COMPOSER_FLAGS="--prefer-stable --prefer-lowest"
+      install:
+        - cd be
+        - composer update ${COMPOSER_FLAGS} --prefer-dist --no-interaction
+      script:
+        - composer validate --strict --no-check-lock
+        - ./vendor/bin/phpunit -c ./phpunit.xml.dist
+      cache:
+        directories:
+          - $HOME/.composer/cache
+    - language: node.js
+      node_js: "10"
+      install:
+        - cd fe
+        - yarn install
+      script:
+        - yarn test-travis
+
+

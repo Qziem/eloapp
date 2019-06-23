@@ -4,6 +4,7 @@
 *.bs.js
 node_modules/
 /db_data
+
 /fe/.DS_Store
 /fe/.merlin
 /fe/.bsb.lock
@@ -12,6 +13,9 @@ node_modules/
 /fe/build/
 /fe/yarn-error.log
 /fe/.vs/
+/fe/.graphql_ppx_cache
+
+/be/.phpunit.result.cache
 /be/vendor/
 /be/config.php
 /be/config_cba.php

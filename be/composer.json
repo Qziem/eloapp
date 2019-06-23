@@ -1,4 +1,6 @@
 {
+  "name": "kamilkuz/eloapp",
+  "description": "Application implementing ELO ranking.",
   "license": "proprietary",
   "config": {
     "platform": {
@@ -8,11 +10,17 @@
   "require": {
     "php": "7.2.*",
     "ext-json": "*",
-    "doctrine/orm": "2.6.3",
+    "doctrine/orm": "2.6.*",
     "php-di/slim-bridge": "^2.0"
+  },
+  "autoload-dev": {
+    "psr-4": {
+      "Tests\\": "tests/"
+    }
   },
   "require-dev": {
     "roave/security-advisories": "dev-master",
-    "symfony/var-dumper": "^4.2"
+    "symfony/var-dumper": "^4.2",
+    "phpunit/phpunit": "^8"
   }
 }
