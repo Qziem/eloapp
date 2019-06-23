@@ -24,7 +24,7 @@
     "react": "^16.8.6",
     "react-dom": "^16.8.6",
     "reason-react": "^0.7.0",
-    "reason-react-document-title": "^2.0.0"
+    "reason-react-document-title": "^2.0.1"
   },
   "devDependencies": {
     "@fortawesome/fontawesome-free": "^5.9.0",
