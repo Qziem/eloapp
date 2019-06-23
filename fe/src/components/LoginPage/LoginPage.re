@@ -98,7 +98,7 @@ let make = (~parentSend, _children) => {
   reducer,
   render: self =>
     <div className="loginPage">
-      <DocumentTitle title={Helpers.createTitle("Login")} />
+      <DocumentTitleJsx2 title={Helpers.createTitle("Login")} />
       <Navbar className="menu" color="light" light=true>
         <NavbarBrand href="/"> {"Eloapp" |> ReasonReact.string} </NavbarBrand>
       </Navbar>
