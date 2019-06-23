@@ -9,8 +9,6 @@ use Model\Repository\UserRepository;
 
 class StatisticsChartDataSvc
 {
-    private const DEFAULT_USER_AMOUNT = 5;
-
     /** @var UserRepository */
     private $userRepository;
 
@@ -43,14 +41,8 @@ class StatisticsChartDataSvc
      */
     private function loadUsers(array $userNidList): array
     {
-        $userParams = ['deleted' => 0];
-        $usersAmount = \count($userNidList);
-        $limit = self::DEFAULT_USER_AMOUNT;
-
-        if ($usersAmount > 0) {
-            $userParams['userNid'] = $userNidList;
-            $limit = $usersAmount;
-        }
+        $userParams = ['deleted' => 0, 'userNid' => $userNidList];
+        $limit = \count($userNidList);
 
         /** @var User[] $userEntityList */
         $userEntityList = $this->userRepository->findBy(

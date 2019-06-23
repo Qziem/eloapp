@@ -7,7 +7,7 @@ use Controller\UsersCtrl;
 use Controller\AuthCtrl;
 use Controller\RatingsHistoryCtrl;
 use Controller\RemoveGameCtrl;
-use Controller\GraphQLCtrl;
+use Controller\GraphqlCtrl;
 use Middleware\Privileges\PrivilegesIsLogged;
 use Middleware\Validation;
 
@@ -15,7 +15,7 @@ require 'autoload.php';
 
 $app = new EloApp;
 
-$app->post('/graphql', [GraphQLCtrl::class, 'api'])
+$app->post('/graphql', [GraphqlCtrl::class, 'api'])
     ->add(PrivilegesIsLogged::class);
 
 $app->get('/auth/isLogged', [AuthCtrl::class, 'isLogged']);

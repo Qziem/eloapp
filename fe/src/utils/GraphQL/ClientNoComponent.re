@@ -10,7 +10,7 @@ module Make = (Config: ReasonApolloTypes.Config) => {
       "variables": queryMade##variables,
     };
 
-    Client.instance##query(queryObj)
+    ApiClient.instance##query(queryObj)
     |> then_(resp => {
          let converted = resp->Query.convertJsInputToReason;
          resolve(converted.result);

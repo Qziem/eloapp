@@ -27,14 +27,15 @@ let renderChart = (users, checkedUsersNids, data) => {
   };
 
   let usersToshow =
-    if (List.length(checkedUsersNids) === 0) {
-      Array.sub(users |> Array.of_list, 0, 5);
-    } else {
-      List.filter(filterOutcheckedUsersNids(checkedUsersNids), users)
-      |> Array.of_list;
-    };
+    List.length(checkedUsersNids) === 0
+      ? []
+      : (checkedUsersNids |> filterOutcheckedUsersNids)->List.filter(users);
 
-  let lines = usersToshow |> Array.map(renderUserLine) |> ReasonReact.array;
+  let lines =
+    usersToshow
+    |> Array.of_list
+    |> Array.map(renderUserLine)
+    |> ReasonReact.array;
 
   <ResponsiveContainer height={Px(300.0)} width={Prc(100.0)}>
     <LineChart margin={"top": 0, "right": 0, "bottom": 0, "left": 0} data>

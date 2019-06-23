@@ -13,37 +13,37 @@ class UserType extends ObjectType {
             'fields' => [
                 'userNid' => [
                     'type' => Type::nonNull(Type::int()),
-                    'resolve' => function (User $user) {
+                    'resolve' => static function (User $user) {
                         return $user->getUserNid();
                     },
                 ],
                 'code' => [
                     'type' => Type::nonNull(Type::string()),
-                    'resolve' => function (User $user) {
+                    'resolve' => static function (User $user) {
                         return $user->getCode();
                     },
                 ],
                 'name' => [
                     'type' => Type::nonNull(Type::string()),
-                    'resolve' => function (User $user) {
+                    'resolve' => static function (User $user) {
                         return $user->getName();
                     },
                 ],
                 'rating' => [
                     'type' => Type::nonNull(Type::int()),
-                    'resolve' => function (User $user) {
+                    'resolve' => static function (User $user) {
                         return $user->getRating();
                     },
                 ],
                 'team' => [
                     'type' => Type::nonNull(Type::string()),
-                    'resolve' => function (User $user) {
+                    'resolve' => static function (User $user) {
                         return $user->getTeam();
                     },
                 ],
                 'trendRatingDiff' => [
                     'type' => Type::nonNull(Type::int()),
-                    'resolve' => function (User $user) use ($usersSvc) {
+                    'resolve' => static function (User $user) use ($usersSvc) {
                         return $usersSvc->calculateTrendRatingDiffForGql($user);
                     },
                 ],

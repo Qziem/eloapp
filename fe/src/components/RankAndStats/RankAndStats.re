@@ -2,6 +2,7 @@ open EloTypes;
 
 [%bs.raw {|require('./RankAndStats.scss')|}];
 
+let refetchingStatus = Some(4);
 let component = ReasonReact.statelessComponent("RankAndStats");
 
 module GetUsers = [%graphql
@@ -21,13 +22,13 @@ module GetUsers = [%graphql
 
 module GetUsersQuery = ReasonApollo.CreateQuery(GetUsers);
 
-let refreshUsersWithRefetch = (refetch, ()) => refetch(None)->ignore;
+let reloadUsersListWithRefetch = (refetch, ()) => refetch(None)->ignore;
 
-let renderContent = (users, isUsersLoading, refreshUsers) =>
+let renderContent = (users, isUsersLoading, reloadUsersList) =>
   <div>
     <div className="section">
       <Users users isUsersLoading />
-      <GameResult disable=isUsersLoading refreshUsers />
+      <GameResult disable=isUsersLoading reloadUsersList />
     </div>
     <hr />
     <h4> {ReasonReact.string("Statistics for player")} </h4>
@@ -44,18 +45,18 @@ let make = _children => {
         notifyOnNetworkStatusChange=true variables=usersQuery##variables>
         ...{
              ({result, refetch, networkStatus}) => {
-               let refreshUsers = refreshUsersWithRefetch(refetch);
-               let isRefeching = networkStatus == Some(4);
+               let reloadUsersList = reloadUsersListWithRefetch(refetch);
+               let isRefeching = networkStatus == refetchingStatus;
 
                switch (result, isRefeching) {
                | (Loading, _)
-               | (_, true) => renderContent([], true, refreshUsers)
+               | (_, true) => renderContent([], true, reloadUsersList)
                | (Error(_error), _) => <FailureMask />
                | (Data(response), _) =>
                  renderContent(
                    response##users->Array.to_list,
                    false,
-                   refreshUsers,
+                   reloadUsersList,
                  )
                };
              }

@@ -11,7 +11,7 @@ use GraphQL\Type\Definition\Type;
 use GraphQLElo\Resolvers\UsersResolver;
 use GraphQLElo\Types\UserType;
 
-class GraphQLCtrl {
+class GraphqlCtrl {
     /** @var UsersResolver */
     private $usersResolver;
     
@@ -34,7 +34,7 @@ class GraphQLCtrl {
         $rawInput = $request->getBody();
         $input = json_decode($rawInput, true);
         $query = $input['query'];
-        $variableValues = isset($input['variables']) ? $input['variables'] : null;
+        $variableValues = $input['variables'] ?? null;
         
         try {
             $result = GraphQL::executeQuery($schema, $query, null, null, $variableValues);
@@ -52,7 +52,7 @@ class GraphQLCtrl {
         return $response->withJson($output);
     }
     
-    private function getQueryFields() {
+    private function getQueryFields(): array {
         return [
             'users' => [
                 'type' => Type::nonNull(Type::listOf(Type::nonNull($this->userType))),
