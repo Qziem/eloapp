@@ -19,10 +19,10 @@ Aplikacja jest dostosowana aby działać na dockerze. Docker jest dostosowany do
 
 ### KONFIGURACJA FE:
 1. W konsoli wchodzimy do katalogu fe i tam: `bin/yarn.sh install`
-2. Następnie odpalamy: `bin/yarn.sh start` - to odpali kompilację reasona do javascript
+2. Następnie odpalamy: `bin/yarn.sh start` - to odpali kompilację reasona do javascript.
 3. Otwieramy drugie okno konsoli i tam: `bin/yarn.sh webpack` - to odpali właściwe budowanie wynikowego pliku do katalogu build.
 
-Zarówno yarn start jak i yarn webpack działają w trybie watch, więc modyfikując coś w kodzie wszystko odrazu samo będzie się przebudowywać (niestety nie ma hmr więc w przeglądarce trzeba odświeżać ręcznie)
+Zarówno yarn start jak i yarn webpack działają w trybie watch, więc modyfikując coś w kodzie wszystko odrazu samo będzie się przebudowywać (niestety nie ma hmr więc w przeglądarce trzeba odświeżać ręcznie).
 
 Odpalamy przeglądarkę i w adres wpisujemy: http://localhost:8000 
 Jeśli wszystko jest poprawnie skonfigurowane to powinna pojawić się aplikacja. Jako hasło wpisujemy: `elo`.
