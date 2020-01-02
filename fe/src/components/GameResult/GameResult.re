@@ -51,13 +51,13 @@ module GameResponseContentDecoder = {
 module GameResponseDecoder =
   ResponseDecoder.MakeWithWarningsOrContent(GameResponseContentDecoder);
 
-let onSuccess = (containterSend, send, json) => {
+let onSuccess = (reloadUsersList, send, json) => {
   let updateRatingsResult = GameResponseDecoder.decode(json);
 
   switch (updateRatingsResult) {
   | SUCCESS(ratingDiff) =>
     send(SetSaveSuccess(ratingDiff));
-    containterSend(GetUsersSvc);
+    reloadUsersList();
   | WARNING(msg) => send(SetWarning(msg))
   };
 };
@@ -67,7 +67,7 @@ let onError = (send, err) => {
   Js.Console.error(err);
 };
 
-let updateRatingsSvc = (state, containterSend) => {
+let updateRatingsSvc = (state, reloadUsersList) => {
   let winnerLooserCodes = {
     winnerUserCode: String.trim(state.userWinnerCode),
     looserUserCode: String.trim(state.userLooserCode),
@@ -78,7 +78,7 @@ let updateRatingsSvc = (state, containterSend) => {
     ({send}) => {
       let payload = EncodeUpdateRatings.encode(winnerLooserCodes);
       svcPut("users/update_ratings", payload)
-      |> then_(json => onSuccess(containterSend, send, json) |> resolve)
+      |> then_(json => onSuccess(reloadUsersList, send, json) |> resolve)
       |> catch(err => onError(send, err) |> resolve)
       |> ignore;
     },
@@ -88,13 +88,13 @@ let updateRatingsSvc = (state, containterSend) => {
 let sendWarning = (msg: string) =>
   ReasonReact.SideEffects(({send}) => send(SetWarning(msg)));
 
-let reducer = (containterSend, action, state) =>
+let reducer = (reloadUsersList, action, state) =>
   switch (action) {
   | ChangeWinUser(value) =>
     ReasonReact.Update({...state, userWinnerCode: value})
   | ChangeLooseUser(value) =>
     ReasonReact.Update({...state, userLooserCode: value})
-  | UpdateClick => updateRatingsSvc(state, containterSend)
+  | UpdateClick => updateRatingsSvc(state, reloadUsersList)
   | SetSaveSuccess(ratingDiff) =>
     ReasonReact.Update({
       userWinnerCode: "",
@@ -111,10 +111,10 @@ let valueFromEvent = event => ReactEvent.Form.target(event)##value;
 
 let hanldeDismissAlert = (send, ()) => send(ClearSaveState);
 
-let make = (~containterSend, ~disable, _children) => {
+let make = (~reloadUsersList, ~disable, _children) => {
   ...component,
   initialState,
-  reducer: reducer(containterSend),
+  reducer: reducer(reloadUsersList),
   render: ({state, send}) =>
     <div className="gameResult">
       <div className="messageContainer">

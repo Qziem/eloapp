@@ -1,48 +1,34 @@
 open EloTypes;
-open Js.Promise;
 
-open Svc;
 [%bs.raw {|require('./RankAndStats.scss')|}];
 
-type state =
-  | LOADING
-  | LOADED(list(user))
-  | FAILURE;
+let refetchingStatus = Some(4);
+let component = ReasonReact.statelessComponent("RankAndStats");
 
-let component = ReasonReact.reducerComponent("RankAndStats");
+module GetUsers = [%graphql
+  {|
+  query {
+    users @bsRecord {
+      userNid
+      code,
+      name,
+      rating,
+      team,
+      trendRatingDiff,
+    }
+  }
+|}
+];
 
-let initialState = () => LOADING;
+module GetUsersQuery = ReasonApollo.CreateQuery(GetUsers);
 
-let onSuccess = (send, json) =>
-  json |> DecodeUsers.users |> (users => send(SetUsersToState(users)));
+let reloadUsersListWithRefetch = (refetch, ()) => refetch(None)->ignore;
 
-let onError = (send: containerActions => unit, err) => {
-  send(SetFailure);
-  Js.Console.error(err);
-};
-
-let getUsersSvc = () =>
-  ReasonReact.UpdateWithSideEffects(
-    LOADING,
-    ({send}) =>
-      svcGet("users")
-      |> then_(json => onSuccess(send, json) |> resolve)
-      |> catch(err => onError(send, err) |> resolve)
-      |> ignore,
-  );
-
-let reducer = (action: containerActions, _state) =>
-  switch (action) {
-  | GetUsersSvc => getUsersSvc()
-  | SetUsersToState(users) => ReasonReact.Update(LOADED(users))
-  | SetFailure => ReasonReact.Update(FAILURE)
-  };
-
-let renderContent = (send, users, isUsersLoading) =>
+let renderContent = (users, isUsersLoading, reloadUsersList) =>
   <div>
     <div className="section">
       <Users users isUsersLoading />
-      <GameResult disable=isUsersLoading containterSend=send />
+      <GameResult disable=isUsersLoading reloadUsersList />
     </div>
     <hr />
     <h4> {ReasonReact.string("Statistics for player")} </h4>
@@ -51,17 +37,31 @@ let renderContent = (send, users, isUsersLoading) =>
 
 let make = _children => {
   ...component,
-  initialState,
-  reducer,
-  didMount: ({send}) => send(GetUsersSvc),
-  render: ({state, send}) =>
+  render: _self => {
+    let usersQuery = GetUsers.make();
+
     <div className="rankAndStats">
-      {
-        switch (state) {
-        | FAILURE => <FailureMask />
-        | LOADING => renderContent(send, [], true)
-        | LOADED(users) => renderContent(send, users, false)
-        }
-      }
-    </div>,
+      <GetUsersQuery
+        notifyOnNetworkStatusChange=true variables=usersQuery##variables>
+        ...{
+             ({result, refetch, networkStatus}) => {
+               let reloadUsersList = reloadUsersListWithRefetch(refetch);
+               let isRefeching = networkStatus == refetchingStatus;
+
+               switch (result, isRefeching) {
+               | (Loading, _)
+               | (_, true) => renderContent([], true, reloadUsersList)
+               | (Error(_error), _) => <FailureMask />
+               | (Data(response), _) =>
+                 renderContent(
+                   response##users->Array.to_list,
+                   false,
+                   reloadUsersList,
+                 )
+               };
+             }
+           }
+      </GetUsersQuery>
+    </div>;
+  },
 };

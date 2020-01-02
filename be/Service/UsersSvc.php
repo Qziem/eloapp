@@ -29,7 +29,7 @@ class UsersSvc
         $this->userRepository = $userRepository;
         $this->gameFactory = $gameFactory;
     }
-
+    
     public function getUsers(): array
     {
         $userEntityList = $this->userRepository->findBy(
@@ -66,6 +66,13 @@ class UsersSvc
         $userArray['trendRatingDiff'] = $trendRatingDiff;
 
         return $userArray;
+    }
+
+    public function calculateTrendRatingDiffForGql(User $user): int {
+        $winGamesSumRating = $this->sumRatingDiffs($user->getLastWonGameList());
+        $looseGamesSumRating = $this->sumRatingDiffs($user->getLastLostGameList());
+
+        return $winGamesSumRating - $looseGamesSumRating;
     }
 
     private function sumRatingDiffs(Collection $gameList): int
