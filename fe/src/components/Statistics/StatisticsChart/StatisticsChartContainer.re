@@ -33,8 +33,13 @@ let make = _children => {
     | UpdateCheckedNids(checkedUsersNids) =>
       ReasonReact.Update({...state, checkedUsersNids})
     | SetUsersInState(users) =>
+      let usersArray = Array.of_list(users);
+      let checkedUsers = Array.length(usersArray) > 5
+        ? Array.sub(usersArray, 0, 5)
+        : usersArray;
+
       let checkedUsersNids =
-        Array.sub(Array.of_list(users), 0, 5)
+        checkedUsers
         |> Array.map(user => user.userNid)
         |> Array.to_list;
 

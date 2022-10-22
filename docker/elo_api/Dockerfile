@@ -1,5 +1,5 @@
 FROM php:7.2-fpm
-RUN apt-get update && apt-get install -y mysql-client git zip \
+RUN apt-get update && apt-get install -y mariadb-client git zip \
     && apt-get clean \
     && rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*
 RUN docker-php-ext-install pdo pdo_mysql
